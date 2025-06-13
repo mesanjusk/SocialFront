@@ -12,6 +12,7 @@ import Brand from './pages/Brand';
 import Student from './pages/Student';
 import Reseller from './pages/Reseller';
 import Faculty from './pages/Faculty';
+import AddEnquiry from './pages/addEnquiry';
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
       {/* Other public routes */}
       <Route path="/register" element={<Register />} />
       <Route path="/upload" element={<ImageUploader />} />
+      <Route path="/addEnquiry" element={<AddEnquiry />} />
 
       {/* Protected or dashboard routes go here */}
       <Route path="/dashboard" element={<DashboardLayout />}>
