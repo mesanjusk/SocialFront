@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 
-const AddEnquiry = () => {
+const AddEnquiry = ({ themeColor = 'bg-blue-600' }) => {
   const [form, setForm] = useState({
     branchCode: '44210066',
     enquiryDate: '',
@@ -44,7 +44,9 @@ const AddEnquiry = () => {
   return (
     <div className="p-4">
       <Toaster />
-      <h2 className="text-2xl font-bold mb-4">Add New Enquiry</h2>
+      <h2 className={`text-2xl font-bold mb-4 ${themeColor.replace('bg-', 'text-')}`}>
+        Add New Enquiry
+      </h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
         <input value={form.enquiryDate} type="date" onChange={handleChange('enquiryDate')} className="border p-2" required />
         <input value={form.firstName} placeholder="First Name" onChange={handleChange('firstName')} className="border p-2" required />
@@ -72,14 +74,19 @@ const AddEnquiry = () => {
         <input value={form.schoolName} placeholder="School Name" onChange={handleChange('schoolName')} className="border p-2" />
         <input value={form.referredBy} placeholder="Referred By" onChange={handleChange('referredBy')} className="border p-2" />
         <input value={form.followUpDate} type="date" onChange={handleChange('followUpDate')} className="border p-2" />
-        <textarea value={form.remarks} placeholder="Remarks" onChange={handleChange('remarks')} className="border p-2" />
+        <textarea value={form.remarks} placeholder="Remarks" onChange={handleChange('remarks')} className="border p-2 col-span-2" />
         <select value={form.course} onChange={handleChange('course')} className="border p-2">
           <option value="">Select Course</option>
           <option value="MS-CIT">MS-CIT</option>
           <option value="Tally">KLiC Certificate in Tally Prime</option>
         </select>
 
-        <button type="submit" className="col-span-2 bg-blue-600 text-white py-2 rounded">Add Enquiry</button>
+        <button
+          type="submit"
+          className={`col-span-2 ${themeColor} text-white py-2 rounded hover:opacity-90 transition`}
+        >
+          Add Enquiry
+        </button>
       </form>
     </div>
   );
