@@ -11,6 +11,9 @@ export default function Sidebar() {
     { path: '/dashboard/student', label: 'Student' },
     { path: '/dashboard/reseller', label: 'Reseller' },
     { path: '/dashboard/faculty', label: 'Faculty' },
+    { path: '/dashboard/Enquiry', label: 'Enquiry' },
+    { path: '/dashboard/Courses', label: 'Courses' },
+    { path: '/dashboard/Admission', label: 'Addmission' },
   ];
 
   return (

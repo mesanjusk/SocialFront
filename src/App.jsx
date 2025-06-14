@@ -13,6 +13,8 @@ import Student from './pages/Student';
 import Reseller from './pages/Reseller';
 import Faculty from './pages/Faculty';
 import Enquiry from './pages/Enquiry';
+import Courses from './pages/Courses';
+import Admission from './pages/Admission';
 
 export default function App() {
   return (
@@ -23,12 +25,15 @@ export default function App() {
       {/* Other public routes */}
       <Route path="/register" element={<Register />} />
       <Route path="/upload" element={<ImageUploader />} />
-      <Route path="/Enquiry" element={<Enquiry />} />
+      
 
       {/* Protected or dashboard routes go here */}
-      <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="/dashboard" element={<DashboardLayout />}>
         <Route index element={<Owner />} />
         <Route path="user" element={<User />} />
+        <Route path="Enquiry" element={<Enquiry />} />
+        <Route path="Admission" element={<Admission />} />
+        <Route path="Courses" element={<Courses />} />
         <Route path="admin" element={<Admin />} />
         <Route path="superadmin" element={<Superadmin />} />
         <Route path="brand" element={<Brand />} />
