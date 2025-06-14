@@ -15,6 +15,7 @@ import Faculty from './pages/Faculty';
 import Enquiry from './pages/Enquiry';
 import Courses from './pages/Courses';
 import Admission from './pages/Admission';
+import Batches from './pages/Batches';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardLayout />}>
         <Route index element={<Owner />} />
         <Route path="user" element={<User />} />
+        <Route path="Batches" element={<Batches />} />
         <Route path="Enquiry" element={<Enquiry />} />
         <Route path="Admission" element={<Admission />} />
         <Route path="Courses" element={<Courses />} />

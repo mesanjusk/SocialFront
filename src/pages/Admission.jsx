@@ -1,4 +1,4 @@
-// frontend/src/pages/Admission.jsx
+// Admission.jsx - Fully working copy-paste with Enquiry conversion logic
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
@@ -23,6 +23,7 @@ const Admission = () => {
   const [endDate, setEndDate] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [courses, setCourses] = useState([]);
+  const [enquiries, setEnquiries] = useState([]);
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -38,6 +39,9 @@ const Admission = () => {
         toast.success('Admission updated');
       } else {
         await axios.post('https://socialbackend-iucy.onrender.com/api/admission', form);
+        if (form._enquiryId) {
+          await axios.delete(`https://socialbackend-iucy.onrender.com/api/enquiry/${form._enquiryId}`);
+        }
         toast.success('Admission added');
       }
       setForm(initialForm);
@@ -66,6 +70,22 @@ const Admission = () => {
     } catch (err) {
       toast.error('Failed to fetch admissions');
     }
+  };
+
+  const fetchEnquiries = async () => {
+    try {
+      const res = await axios.get('https://socialbackend-iucy.onrender.com/api/enquiry');
+      setEnquiries(res.data || []);
+    } catch (err) {
+      console.error('Error fetching enquiries');
+    }
+  };
+
+  const convertToAdmission = (enq) => {
+    const fill = { ...initialForm, ...enq, admissionDate: new Date().toISOString().split('T')[0], _enquiryId: enq._id };
+    setForm(fill);
+    setEditingId(null);
+    setShowModal(true);
   };
 
   const handleEdit = (data) => {
@@ -108,6 +128,7 @@ const Admission = () => {
   useEffect(() => {
     fetchCourses();
     fetchAdmissions();
+    fetchEnquiries();
   }, []);
 
   const filteredAdmissions = admissions.filter(e => {
@@ -132,6 +153,8 @@ const Admission = () => {
           <button onClick={() => { setForm(initialForm); setEditingId(null); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">+ Admission</button>
         </div>
       </div>
+
+      
 
       <table className="w-full border">
         <thead className="bg-gray-100">
@@ -158,54 +181,57 @@ const Admission = () => {
       </table>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4 text-blue-700">{editingId ? 'Edit Admission' : 'Add New Admission'}</h2>
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-              <input type="text" value={form.branchCode} disabled className="border p-2 bg-gray-100" />
-              <input type="date" value={form.admissionDate} onChange={handleChange('admissionDate')} className="border p-2" required />
-              <input placeholder="First Name" value={form.firstName} onChange={handleChange('firstName')} className="border p-2" required />
-              <input placeholder="Middle Name" value={form.middleName} onChange={handleChange('middleName')} className="border p-2" />
-              <input placeholder="Last Name" value={form.lastName} onChange={handleChange('lastName')} className="border p-2" />
-              <input type="date" value={form.dob} onChange={handleChange('dob')} className="border p-2" required />
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
+      <h2 className="text-2xl font-bold mb-4 text-blue-700">{editingId ? 'Edit Admission' : 'Add New Admission'}</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <input type="text" value={form.branchCode} disabled className="border p-2 bg-gray-100" />
+        <input type="date" value={form.admissionDate} onChange={handleChange('admissionDate')} className="border p-2" required />
+        <input placeholder="First Name" value={form.firstName} onChange={handleChange('firstName')} className="border p-2" required />
+        <input placeholder="Middle Name" value={form.middleName} onChange={handleChange('middleName')} className="border p-2" />
+        <input placeholder="Last Name" value={form.lastName} onChange={handleChange('lastName')} className="border p-2" />
+        <input type="date" value={form.dob} onChange={handleChange('dob')} className="border p-2" required />
 
-              <div className="flex items-center gap-4">
-                <label><input type="radio" name="gender" value="Male" checked={form.gender === 'Male'} onChange={handleChange('gender')} /> Male</label>
-                <label><input type="radio" name="gender" value="Female" checked={form.gender === 'Female'} onChange={handleChange('gender')} /> Female</label>
-              </div>
-
-              <div>
-                <input placeholder="Mobile No. (Self)" value={form.mobileSelf} onChange={handleChange('mobileSelf')} className="border p-2 w-full" />
-                <label className="block"><input type="checkbox" checked={form.mobileSelfWhatsapp} onChange={handleChange('mobileSelfWhatsapp')} /> WhatsApp</label>
-              </div>
-              <div>
-                <input placeholder="Mobile No. (Parent)" value={form.mobileParent} onChange={handleChange('mobileParent')} className="border p-2 w-full" />
-                <label className="block"><input type="checkbox" checked={form.mobileParentWhatsapp} onChange={handleChange('mobileParentWhatsapp')} /> WhatsApp</label>
-              </div>
-
-              <input placeholder="Address" value={form.address} onChange={handleChange('address')} className="border p-2 col-span-2" />
-              <input placeholder="Education" value={form.education} onChange={handleChange('education')} className="border p-2" />
-              <input placeholder="Batch Time" value={form.batchTime} onChange={handleChange('batchTime')} className="border p-2" />
-              <input placeholder="Exam Event" value={form.examEvent} onChange={handleChange('examEvent')} className="border p-2" />
-              <select value={form.course} onChange={handleChange('course')} className="border p-2">
-                <option value="">Select Course</option>
-                {courses.map(course => <option key={course._id} value={course.name}>{course.name}</option>)}
-              </select>
-              <input placeholder="Select Installment" value={form.installment} onChange={handleChange('installment')} className="border p-2" />
-              <input placeholder="Fees" type="number" value={form.fees} onChange={handleChange('fees')} className="border p-2" />
-              <input placeholder="Discount" type="number" value={form.discount} onChange={handleChange('discount')} className="border p-2" />
-              <input placeholder="Total" type="number" value={form.total} onChange={handleChange('total')} className="border p-2" />
-              <input placeholder="Fee Paid" type="number" value={form.feePaid} onChange={handleChange('feePaid')} className="border p-2" />
-              <input placeholder="By" value={form.paidBy} onChange={handleChange('paidBy')} className="border p-2" />
-              <input placeholder="Total Balance" type="number" value={form.balance} onChange={handleChange('balance')} className="border p-2" />
-              <div className="col-span-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Submit'}</button>
-              </div>
-            </form>
-          </div>
+        <div className="flex gap-4">
+          <label><input type="radio" name="gender" value="Male" checked={form.gender === 'Male'} onChange={handleChange('gender')} /> Male</label>
+          <label><input type="radio" name="gender" value="Female" checked={form.gender === 'Female'} onChange={handleChange('gender')} /> Female</label>
         </div>
-      )}
+
+        <div>
+          <input placeholder="Mobile No. (Self)" value={form.mobileSelf} onChange={handleChange('mobileSelf')} className="border p-2 w-full" />
+          <label className="block mt-1"><input type="checkbox" checked={form.mobileSelfWhatsapp} onChange={handleChange('mobileSelfWhatsapp')} /> WhatsApp</label>
+        </div>
+
+        <div>
+          <input placeholder="Mobile No. (Parent)" value={form.mobileParent} onChange={handleChange('mobileParent')} className="border p-2 w-full" />
+          <label className="block mt-1"><input type="checkbox" checked={form.mobileParentWhatsapp} onChange={handleChange('mobileParentWhatsapp')} /> WhatsApp</label>
+        </div>
+
+        <input placeholder="Address" value={form.address} onChange={handleChange('address')} className="border p-2" />
+        <input placeholder="Education" value={form.education} onChange={handleChange('education')} className="border p-2" />
+        <input placeholder="Batch Time" value={form.batchTime} onChange={handleChange('batchTime')} className="border p-2" />
+        <input placeholder="Exam Event" value={form.examEvent} onChange={handleChange('examEvent')} className="border p-2" />
+        <select value={form.course} onChange={handleChange('course')} className="border p-2">
+          <option value="">Select Course</option>
+          {courses.map(course => <option key={course._id} value={course.name}>{course.name}</option>)}
+        </select>
+        <input placeholder="Select Installment" value={form.installment} onChange={handleChange('installment')} className="border p-2" />
+        <input placeholder="Fees" type="number" value={form.fees} onChange={handleChange('fees')} className="border p-2" />
+        <input placeholder="Discount" type="number" value={form.discount} onChange={handleChange('discount')} className="border p-2" />
+        <input placeholder="Total" type="number" value={form.total} onChange={handleChange('total')} className="border p-2" />
+        <input placeholder="Fee Paid" type="number" value={form.feePaid} onChange={handleChange('feePaid')} className="border p-2" />
+        <input placeholder="Paid By" value={form.paidBy} onChange={handleChange('paidBy')} className="border p-2" />
+        <input placeholder="Total Balance" type="number" value={form.balance} onChange={handleChange('balance')} className="border p-2" />
+
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={() => { setShowModal(false); if (onCloseModal) onCloseModal(); }} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Submit'}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
