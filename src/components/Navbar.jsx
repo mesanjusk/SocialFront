@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ThemeSwitcher from './ThemeSwitcher';
 
 export default function Navbar() {
   const [username, setUsername] = useState('');
@@ -26,12 +27,15 @@ export default function Navbar() {
           <p className="text-sm text-gray-500">Role: {role}</p>
         )}
       </div>
-      <button
-        onClick={handleLogout}
-        className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
-      >
-        Logout
-      </button>
+      <div className="flex items-center gap-4">
+        <ThemeSwitcher />
+        <button
+          onClick={handleLogout}
+          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+        >
+          Logout
+        </button>
+      </div>
     </header>
   );
 }
