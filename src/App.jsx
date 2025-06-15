@@ -16,6 +16,8 @@ import Enquiry from './pages/Enquiry';
 import Courses from './pages/Courses';
 import Admission from './pages/Admission';
 import Batches from './pages/Batches';
+import Signup from './components/Signup';
+
 
 export default function App() {
   return (
@@ -25,6 +27,7 @@ export default function App() {
 
       {/* Other public routes */}
       <Route path="/register" element={<Register />} />
+      <Route path="/Signup" element={<Signup />} />
       <Route path="/upload" element={<ImageUploader />} />
       
 
