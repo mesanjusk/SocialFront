@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --theme-bg: #f3f4f6;
+}
+
 body {
-  @apply bg-gray-100 text-gray-900;
+  background-color: var(--theme-bg);
+  @apply text-gray-900;
 }

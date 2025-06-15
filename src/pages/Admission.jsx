@@ -157,7 +157,7 @@ const Admission = () => {
       
 
       <table className="w-full border">
-        <thead className="bg-gray-100">
+        <thead className="bg-theme">
           <tr>
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Mobile</th>
@@ -185,7 +185,7 @@ const Admission = () => {
     <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
       <h2 className="text-2xl font-bold mb-4 text-blue-700">{editingId ? 'Edit Admission' : 'Add New Admission'}</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input type="text" value={form.branchCode} disabled className="border p-2 bg-gray-100" />
+        <input type="text" value={form.branchCode} disabled className="border p-2 bg-theme" />
         <input type="date" value={form.admissionDate} onChange={handleChange('admissionDate')} className="border p-2" required />
         <input placeholder="First Name" value={form.firstName} onChange={handleChange('firstName')} className="border p-2" required />
         <input placeholder="Middle Name" value={form.middleName} onChange={handleChange('middleName')} className="border p-2" />

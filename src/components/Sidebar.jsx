@@ -53,7 +53,7 @@ export default function Sidebar() {
           <div key={idx}>
             <button
               onClick={() => toggleMenu(menu.label)}
-              className="w-full flex justify-between items-center font-semibold px-2 py-2 bg-gray-100 rounded hover:bg-gray-200"
+              className="w-full flex justify-between items-center font-semibold px-2 py-2 bg-theme rounded hover:bg-gray-200"
             >
               {menu.label}
               <span>{openMenus[menu.label] ? '−' : '+'}</span>
@@ -63,7 +63,7 @@ export default function Sidebar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-100 ${
+                  className={`flex items-center gap-2 p-2 rounded hover:bg-theme ${
                     pathname === item.path ? 'bg-gray-200 font-semibold' : ''
                   }`}
                 >

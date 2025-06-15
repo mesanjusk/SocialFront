@@ -181,7 +181,7 @@ const AddEnquiry = () => {
       </div>
 
       <table className="w-full border">
-        <thead className="bg-gray-100">
+        <thead className="bg-theme">
           <tr>
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Mobile</th>
