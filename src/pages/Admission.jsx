@@ -4,6 +4,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const Admission = () => {
   const initialForm = {
@@ -32,7 +34,7 @@ const Admission = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('https://socialbackend-iucy.onrender.com/api/courses');
+      const res = await axios.get('${BASE_URL}/api/courses');
       setCourses(res.data || []);
     } catch (err) {
       console.error('Failed to fetch courses');
@@ -42,7 +44,7 @@ const Admission = () => {
   const fetchAdmissions = async () => {
     try {
       if (!organization_id) return;
-      const res = await axios.get(`https://socialbackend-iucy.onrender.com/api/record/org/${organization_id}`);
+      const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}`);
       setAdmissions(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch admissions');
@@ -56,10 +58,10 @@ const Admission = () => {
     try {
       const payload = { ...form, organization_id, type: 'admission' };
       if (editingId) {
-        await axios.put(`https://socialbackend-iucy.onrender.com/api/record/${editingId}`, payload);
+        await axios.put(`${BASE_URL}/api/record/${editingId}`, payload);
         toast.success('Updated successfully');
       } else {
-        await axios.post('https://socialbackend-iucy.onrender.com/api/record', payload);
+        await axios.post('${BASE_URL}/api/record', payload);
         toast.success('Admission added');
       }
       setForm(initialForm);
@@ -81,7 +83,7 @@ const Admission = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this admission?')) return;
     try {
-      await axios.delete(`https://socialbackend-iucy.onrender.com/api/record/${id}`);
+      await axios.delete(`${BASE_URL}/api/record/${id}`);
       toast.success('Deleted');
       fetchAdmissions();
     } catch (err) {

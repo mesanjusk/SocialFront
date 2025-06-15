@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const Owner = () => {
   const [organizations, setOrganizations] = useState([]);
@@ -30,7 +32,7 @@ const Owner = () => {
 
   const fetchOrganizations = async () => {
     try {
-      const res = await axios.get('https://socialbackend-iucy.onrender.com/api/organize/GetOrganizList');
+      const res = await axios.get('${BASE_URL}/api/organize/GetOrganizList');
       if (res.data?.success) {
         setOrganizations(res.data.result);
       } else {
@@ -65,7 +67,7 @@ const Owner = () => {
       if (editingId) {
         // Update
         const res = await axios.put(
-          `https://socialbackend-iucy.onrender.com/api/organize/${editingId}`,
+          `${BASE_URL}/api/organize/${editingId}`,
           formData,
           {
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -75,7 +77,7 @@ const Owner = () => {
       } else {
         // Create
         const res = await axios.post(
-          'https://socialbackend-iucy.onrender.com/api/organize/add',
+          '${BASE_URL}/api/organize/add',
           formData,
           {
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -102,7 +104,7 @@ const Owner = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this organize?')) return;
-    await axios.delete(`https://socialbackend-iucy.onrender.com/api/organize/${id}`);
+    await axios.delete(`${BASE_URL}/api/organize/${id}`);
     setOrganizations(organizations.filter((org) => org._id !== id));
     toast.success('Organization deleted');
   };

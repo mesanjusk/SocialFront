@@ -1,6 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 export default function DashboardLayout() {
   return (

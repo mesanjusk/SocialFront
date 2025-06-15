@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 // MUI Icons
 import HomeIcon from '@mui/icons-material/Home';

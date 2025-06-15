@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const User = () => {
   const [users, setUsers] = useState([]);
@@ -36,7 +38,7 @@ const User = () => {
     }
 
     try {
-      const res = await axios.get(`https://socialbackend-iucy.onrender.com/api/auth/GetUserList/${orgId}`);
+      const res = await axios.get(`${BASE_URL}/api/auth/GetUserList/${orgId}`);
       if (res.data?.success) {
         setUsers(res.data.result);
       } else {
@@ -59,10 +61,10 @@ const User = () => {
 
     try {
       if (editingId) {
-        await axios.put(`https://socialbackend-iucy.onrender.com/api/auth/${editingId}`, dataToSend);
+        await axios.put(`${BASE_URL}/api/auth/${editingId}`, dataToSend);
         toast.success('User updated');
       } else {
-        const res = await axios.post('https://socialbackend-iucy.onrender.com/api/auth/register', dataToSend);
+        const res = await axios.post('${BASE_URL}/api/auth/register', dataToSend);
         if (res.data === 'exist') toast.error('User already exists');
         else if (res.data === 'notexist') toast.success('User added');
         else toast.error('Unexpected error');
@@ -81,7 +83,7 @@ const User = () => {
     if (!window.confirm('Are you sure you want to delete this User?')) return;
 
     try {
-      await axios.delete(`https://socialbackend-iucy.onrender.com/api/auth/${id}`);
+      await axios.delete(`${BASE_URL}/api/auth/${id}`);
       toast.success('User deleted');
       fetchUsers();
     } catch (error) {

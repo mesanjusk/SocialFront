@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 export default function Navbar() {
   const [username, setUsername] = useState('');

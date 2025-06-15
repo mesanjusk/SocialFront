@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ const Login = () => {
   const submit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('https://socialbackend-iucy.onrender.com/api/organization/login', {
+      const res = await axios.post('${BASE_URL}/api/organization/login', {
         username: name,
         password,
       });

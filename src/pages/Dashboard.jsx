@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `https://socialbackend-iucy.onrender.com/api/auth/GetUserList/${organizationId}`
+          `${BASE_URL}/api/auth/GetUserList/${organizationId}`
         );
         if (res.data.success) {
           setTotalUsers(res.data.result.length);

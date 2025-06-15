@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const Batches = () => {
   const [batches, setBatches] = useState([]);
@@ -11,7 +13,7 @@ const Batches = () => {
 
   const fetchBatches = async () => {
     try {
-      const res = await axios.get('https://socialbackend-iucy.onrender.com/api/batches');
+      const res = await axios.get('${BASE_URL}/api/batches');
       setBatches(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch batches');
@@ -27,10 +29,10 @@ const Batches = () => {
     try {
       if (editingId) {
         if (!window.confirm('Update this batch?')) return;
-        await axios.put(`https://socialbackend-iucy.onrender.com/api/batches/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/batches/${editingId}`, form);
         toast.success('Batch updated');
       } else {
-        await axios.post('https://socialbackend-iucy.onrender.com/api/batches', form);
+        await axios.post('${BASE_URL}/api/batches', form);
         toast.success('Batch added');
       }
       setForm({ name: '', timing: '' });
@@ -51,7 +53,7 @@ const Batches = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this batch?')) return;
     try {
-      await axios.delete(`https://socialbackend-iucy.onrender.com/api/batches/${id}`);
+      await axios.delete(`${BASE_URL}/api/batches/${id}`);
       toast.success('Deleted');
       fetchBatches();
     } catch {

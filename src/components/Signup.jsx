@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -44,7 +46,7 @@ const Signup = () => {
     if (logo) formData.append('image', logo);
 
     try {
-      const res = await axios.post('https://socialbackend-iucy.onrender.com/api/organize/add', formData, {
+      const res = await axios.post('${BASE_URL}/api/organize/add', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

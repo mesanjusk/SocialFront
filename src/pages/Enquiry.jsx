@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const AddEnquiry = () => {
   const initialForm = {
@@ -41,7 +43,7 @@ const AddEnquiry = () => {
 
   const fetchEnquiries = async () => {
   try {
-    const res = await axios.get(`https://socialbackend-iucy.onrender.com/api/record/org/${organization_id}?type=enquiry`);
+    const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}?type=enquiry`);
     setEnquiries(res.data || []);
   } catch (err) {
     console.error(err);
@@ -52,7 +54,7 @@ const AddEnquiry = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('https://socialbackend-iucy.onrender.com/api/courses');
+      const res = await axios.get('${BASE_URL}/api/courses');
       setCourses(res.data || []);
     } catch {}
   };
@@ -64,10 +66,10 @@ const AddEnquiry = () => {
 
     try {
       if (editingId) {
-        await axios.put(`https://socialbackend-iucy.onrender.com/api/enquiry/${editingId}`, payload);
+        await axios.put(`${BASE_URL}/api/enquiry/${editingId}`, payload);
         toast.success('Enquiry updated');
       } else {
-        await axios.post('https://socialbackend-iucy.onrender.com/api/enquiry', payload);
+        await axios.post('${BASE_URL}/api/enquiry', payload);
         toast.success('Enquiry added');
       }
       setForm(initialForm);
@@ -82,7 +84,7 @@ const AddEnquiry = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this enquiry?')) return;
     try {
-      await axios.delete(`https://socialbackend-iucy.onrender.com/api/enquiry/${id}`);
+      await axios.delete(`${BASE_URL}/api/enquiry/${id}`);
       toast.success('Deleted');
       fetchEnquiries();
     } catch {
@@ -129,8 +131,8 @@ const AddEnquiry = () => {
   };
 
   try {
-    await axios.post('https://socialbackend-iucy.onrender.com/api/record', payload);
-    await axios.delete(`https://socialbackend-iucy.onrender.com/api/enquiry/${enquiryToDeleteId}`);
+    await axios.post('${BASE_URL}/api/record', payload);
+    await axios.delete(`${BASE_URL}/api/enquiry/${enquiryToDeleteId}`);
     toast.success('Admission saved and enquiry removed');
     setShowAdmission(false);
     fetchEnquiries();

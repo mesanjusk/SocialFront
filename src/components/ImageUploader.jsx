@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
 import axios from 'axios';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const ImageUploader = () => {
   const fileRef = useRef();
@@ -29,7 +31,7 @@ const ImageUploader = () => {
     formData.append('image', file);
 
     try {
-      const res = await axios.post('https://socialbackend-iucy.onrender.com/api/upload', formData, {
+      const res = await axios.post('${BASE_URL}/api/upload', formData, {
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token'),
           'Content-Type': 'multipart/form-data'

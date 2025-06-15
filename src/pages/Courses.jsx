@@ -5,6 +5,8 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { Edit, Delete, Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
@@ -15,7 +17,7 @@ const Courses = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('https://socialbackend-iucy.onrender.com/api/courses');
+      const res = await axios.get('${BASE_URL}/api/courses');
       setCourses(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch courses');
@@ -31,10 +33,10 @@ const Courses = () => {
     try {
       if (editingId) {
         if (!window.confirm('Update this course?')) return;
-        await axios.put(`https://socialbackend-iucy.onrender.com/api/courses/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/courses/${editingId}`, form);
         toast.success('Course updated');
       } else {
-        await axios.post('https://socialbackend-iucy.onrender.com/api/courses', form);
+        await axios.post('${BASE_URL}/api/courses', form);
         toast.success('Course added');
       }
       setForm({ name: '', description: '' });
@@ -55,7 +57,7 @@ const Courses = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this course?')) return;
     try {
-      await axios.delete(`https://socialbackend-iucy.onrender.com/api/courses/${id}`);
+      await axios.delete(`${BASE_URL}/api/courses/${id}`);
       toast.success('Deleted');
       fetchCourses();
     } catch {

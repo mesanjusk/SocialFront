@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
 
 const Register = () => {
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ const Register = () => {
     const organization_id = localStorage.getItem("organization_id");
 
     try {
-      const res = await axios.post("https://socialbackend-iucy.onrender.com/api/auth/register", {
+      const res = await axios.post("${BASE_URL}/api/auth/register", {
         name: name.trim(),
         password: password.trim(),
         mobile: mobile.trim(),
