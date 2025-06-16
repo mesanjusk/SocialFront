@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
 
 const Batches = () => {
   const [batches, setBatches] = useState([]);
@@ -11,9 +10,11 @@ const Batches = () => {
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
 
+  const organization_id = localStorage.getItem('organization_id');
+
   const fetchBatches = async () => {
     try {
-      const res = await axios.get('${BASE_URL}/api/batches');
+      const res = await axios.get(`${BASE_URL}/api/batches`);
       setBatches(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch batches');
@@ -26,13 +27,17 @@ const Batches = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!organization_id) return toast.error('Missing organization ID');
+
+    const payload = { ...form, organization_id };
+
     try {
       if (editingId) {
         if (!window.confirm('Update this batch?')) return;
-        await axios.put(`${BASE_URL}/api/batches/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/batches/${editingId}`, payload);
         toast.success('Batch updated');
       } else {
-        await axios.post('${BASE_URL}/api/batches', form);
+        await axios.post(`${BASE_URL}/api/batches`, payload);
         toast.success('Batch added');
       }
       setForm({ name: '', timing: '' });
@@ -77,7 +82,7 @@ const Batches = () => {
           onChange={e => setSearch(e.target.value)}
           className="border p-2 rounded"
         />
-        <button onClick={() => { setForm({ name: '', timing: '' }); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">
+        <button onClick={() => { setForm({ name: '', timing: '' }); setEditingId(null); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">
           + Batch
         </button>
       </div>

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
 
 const AddEnquiry = () => {
   const initialForm = {
@@ -28,7 +27,6 @@ const AddEnquiry = () => {
   const [enquiryToDeleteId, setEnquiryToDeleteId] = useState(null);
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState('');
-
   const organization_id = localStorage.getItem('organization_id');
 
   const handleChange = (field) => (e) => {
@@ -42,21 +40,23 @@ const AddEnquiry = () => {
   };
 
   const fetchEnquiries = async () => {
-  try {
-    const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}?type=enquiry`);
-    setEnquiries(res.data || []);
-  } catch (err) {
-    console.error(err);
-    toast.error('Failed to fetch enquiries');
-  }
-};
-
+    try {
+      const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}?type=enquiry`);
+      setEnquiries(res.data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to fetch enquiries');
+    }
+  };
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('${BASE_URL}/api/courses');
-      setCourses(res.data || []);
-    } catch {}
+      const res = await axios.get(`${BASE_URL}/api/courses`);
+      if (Array.isArray(res.data)) setCourses(res.data);
+    } catch {
+      toast.error('Failed to load courses');
+      setCourses([]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -69,7 +69,7 @@ const AddEnquiry = () => {
         await axios.put(`${BASE_URL}/api/enquiry/${editingId}`, payload);
         toast.success('Enquiry updated');
       } else {
-        await axios.post('${BASE_URL}/api/enquiry', payload);
+        await axios.post(`${BASE_URL}/api/enquiry`, payload);
         toast.success('Enquiry added');
       }
       setForm(initialForm);
@@ -110,38 +110,34 @@ const AddEnquiry = () => {
   };
 
   const submitAdmission = async (e) => {
-  e.preventDefault();
-  if (!organization_id) return toast.error("Missing organization ID");
+    e.preventDefault();
+    if (!organization_id) return toast.error("Missing organization ID");
 
-  const {
-    _id, // 🔥 Remove _id to prevent MongoDB duplicate error
-    ...rest
-  } = admissionForm;
+    const { _id, ...rest } = admissionForm;
 
-  const payload = {
-    ...rest,
-    organization_id,
-    type: 'admission',
-    _enquiryId: enquiryToDeleteId,
-    fees: Number(admissionForm.fees || 0),
-    discount: Number(admissionForm.discount || 0),
-    total: Number(admissionForm.total || 0),
-    feePaid: Number(admissionForm.feePaid || 0),
-    balance: Number(admissionForm.balance || 0)
+    const payload = {
+      ...rest,
+      organization_id,
+      type: 'admission',
+      _enquiryId: enquiryToDeleteId,
+      fees: Number(admissionForm.fees || 0),
+      discount: Number(admissionForm.discount || 0),
+      total: Number(admissionForm.total || 0),
+      feePaid: Number(admissionForm.feePaid || 0),
+      balance: Number(admissionForm.balance || 0)
+    };
+
+    try {
+      await axios.post(`${BASE_URL}/api/record`, payload);
+      await axios.delete(`${BASE_URL}/api/enquiry/${enquiryToDeleteId}`);
+      toast.success('Admission saved and enquiry removed');
+      setShowAdmission(false);
+      fetchEnquiries();
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      toast.error('Failed to convert to admission');
+    }
   };
-
-  try {
-    await axios.post('${BASE_URL}/api/record', payload);
-    await axios.delete(`${BASE_URL}/api/enquiry/${enquiryToDeleteId}`);
-    toast.success('Admission saved and enquiry removed');
-    setShowAdmission(false);
-    fetchEnquiries();
-  } catch (err) {
-    console.error(err.response?.data || err.message);
-    toast.error('Failed to convert to admission');
-  }
-};
-
 
   useEffect(() => {
     fetchEnquiries();
@@ -156,7 +152,6 @@ const AddEnquiry = () => {
   return (
     <div className="p-4">
       <Toaster />
-      {/* Search + Add */}
       <div className="flex gap-2 mb-4">
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />
         <button onClick={() => { setForm(initialForm); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">+ Enquiry</button>
@@ -187,7 +182,7 @@ const AddEnquiry = () => {
         </tbody>
       </table>
 
-      {/* Modals */}
+      {/* Enquiry Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded max-w-lg w-full overflow-y-auto max-h-[90vh]">
@@ -199,7 +194,9 @@ const AddEnquiry = () => {
               <input value={form.mobileSelf} onChange={handleChange('mobileSelf')} placeholder="Mobile" className="border p-2" />
               <select value={form.course} onChange={handleChange('course')} className="border p-2">
                 <option value="">Select Course</option>
-                {courses.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+                {Array.isArray(courses) && courses.map(c => (
+                  <option key={c._id} value={c.name}>{c.name}</option>
+                ))}
               </select>
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
@@ -210,6 +207,7 @@ const AddEnquiry = () => {
         </div>
       )}
 
+      {/* Admission Convert Modal */}
       {showAdmission && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded max-w-lg w-full overflow-y-auto max-h-[90vh]">

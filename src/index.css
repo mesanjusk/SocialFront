@@ -1,0 +1,8 @@
+/* src/index.css */
+:root {
+  --theme-color: #10B981; /* default Tailwind green-500 */
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}

@@ -5,8 +5,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { Edit, Delete, Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
@@ -15,9 +14,11 @@ const Courses = () => {
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
 
+  const organization_id = localStorage.getItem('organization_id');
+
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('${BASE_URL}/api/courses');
+      const res = await axios.get(`${BASE_URL}/api/courses`);
       setCourses(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch courses');
@@ -30,13 +31,17 @@ const Courses = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!organization_id) return toast.error('Missing organization ID');
+
+    const payload = { ...form, organization_id };
+
     try {
       if (editingId) {
         if (!window.confirm('Update this course?')) return;
-        await axios.put(`${BASE_URL}/api/courses/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/courses/${editingId}`, payload);
         toast.success('Course updated');
       } else {
-        await axios.post('${BASE_URL}/api/courses', form);
+        await axios.post(`${BASE_URL}/api/courses`, payload);
         toast.success('Course added');
       }
       setForm({ name: '', description: '' });
@@ -93,7 +98,7 @@ const Courses = () => {
   );
 
   return (
-    <div className="p-4">
+    <div className="p-4 relative">
       <Toaster />
       <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
         <input
@@ -103,17 +108,14 @@ const Courses = () => {
           className="border p-2 rounded w-full max-w-sm"
         />
         <div className="flex gap-2">
-          <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded flex items-center gap-1">
-            <PictureAsPdf fontSize="small" /> 
+          <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded" title="Export PDF">
+            <PictureAsPdf fontSize="small" />
           </button>
-          <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded flex items-center gap-1">
-            <FileDownload fontSize="small" /> 
+          <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded" title="Export Excel">
+            <FileDownload fontSize="small" />
           </button>
-          <button
-            onClick={() => { setForm({ name: '', description: '' }); setShowModal(true); }}
-            className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-1"
-          >
-            <Add fontSize="small" /> 
+          <button onClick={() => { setForm({ name: '', description: '' }); setEditingId(null); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded" title="Add Course">
+            <Add fontSize="small" />
           </button>
         </div>
       </div>
@@ -132,18 +134,10 @@ const Courses = () => {
               <td className="border p-2">{c.name}</td>
               <td className="border p-2">{c.description}</td>
               <td className="border p-2 space-x-2">
-                <button
-                  onClick={() => handleEdit(c)}
-                  className="bg-yellow-500 text-white px-2 py-1 rounded"
-                  title="Edit"
-                >
+                <button onClick={() => handleEdit(c)} className="bg-yellow-500 text-white px-2 py-1 rounded" title="Edit">
                   <Edit fontSize="small" />
                 </button>
-                <button
-                  onClick={() => handleDelete(c._id)}
-                  className="bg-red-600 text-white px-2 py-1 rounded"
-                  title="Delete"
-                >
+                <button onClick={() => handleDelete(c._id)} className="bg-red-600 text-white px-2 py-1 rounded" title="Delete">
                   <Delete fontSize="small" />
                 </button>
               </td>
@@ -152,6 +146,7 @@ const Courses = () => {
         </tbody>
       </table>
 
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded w-full max-w-md max-h-[90vh] overflow-y-auto shadow">
@@ -169,15 +164,6 @@ const Courses = () => {
       )}
     </div>
   );
-
-   {/* Floating Add Button */}
-      <button
-        onClick={() => { setForm({ name: '', description: '' }); setShowModal(true); }}
-        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg z-50"
-        title="Add Course"
-      >
-        <Add />
-      </button>
 };
 
 export default Courses;

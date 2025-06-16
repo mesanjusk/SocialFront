@@ -4,8 +4,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
 
 const Admission = () => {
   const initialForm = {
@@ -34,17 +33,23 @@ const Admission = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('${BASE_URL}/api/courses');
-      setCourses(res.data || []);
+      const res = await axios.get(`${BASE_URL}/api/courses`);
+      if (Array.isArray(res.data)) {
+        setCourses(res.data);
+      } else {
+        setCourses([]);
+      }
     } catch (err) {
       console.error('Failed to fetch courses');
+      setCourses([]);
+      toast.error('Failed to load courses');
     }
   };
 
   const fetchAdmissions = async () => {
     try {
       if (!organization_id) return;
-      const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}`);
+      const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}?type=admission`);
       setAdmissions(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch admissions');
@@ -55,13 +60,23 @@ const Admission = () => {
     e.preventDefault();
     if (!organization_id) return toast.error("Missing organization ID");
 
+    const payload = {
+      ...form,
+      organization_id,
+      type: 'admission',
+      fees: Number(form.fees || 0),
+      discount: Number(form.discount || 0),
+      total: Number(form.total || 0),
+      feePaid: Number(form.feePaid || 0),
+      balance: Number(form.balance || 0)
+    };
+
     try {
-      const payload = { ...form, organization_id, type: 'admission' };
       if (editingId) {
         await axios.put(`${BASE_URL}/api/record/${editingId}`, payload);
         toast.success('Updated successfully');
       } else {
-        await axios.post('${BASE_URL}/api/record', payload);
+        await axios.post(`${BASE_URL}/api/record`, payload);
         toast.success('Admission added');
       }
       setForm(initialForm);
@@ -92,6 +107,7 @@ const Admission = () => {
   };
 
   const exportPDF = () => {
+    if (filteredAdmissions.length === 0) return toast.error("No data to export");
     const doc = new jsPDF();
     autoTable(doc, {
       head: [['Name', 'Mobile', 'Course']],
@@ -101,6 +117,7 @@ const Admission = () => {
   };
 
   const exportExcel = () => {
+    if (filteredAdmissions.length === 0) return toast.error("No data to export");
     const worksheet = XLSX.utils.json_to_sheet(filteredAdmissions.map(e => ({
       Name: `${e.firstName} ${e.lastName}`,
       Mobile: e.mobileSelf,
@@ -190,7 +207,9 @@ const Admission = () => {
 
               <select value={form.course} onChange={handleChange('course')} className="border p-2">
                 <option value="">Select Course</option>
-                {courses.map(course => <option key={course._id} value={course.name}>{course.name}</option>)}
+                {Array.isArray(courses) && courses.map(course => (
+                  <option key={course._id} value={course.name}>{course.name}</option>
+                ))}
               </select>
 
               <input placeholder="Installment" value={form.installment} onChange={handleChange('installment')} className="border p-2" />

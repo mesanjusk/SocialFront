@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import User from './pages/User';
@@ -18,27 +20,30 @@ import Admission from './pages/Admission';
 import Batches from './pages/Batches';
 import Signup from './components/Signup';
 
-
 export default function App() {
+  useEffect(() => {
+    const themeColor = localStorage.getItem('theme_color') || '#10B981'; // Default: green-500
+    document.documentElement.style.setProperty('--theme-color', themeColor);
+  }, []);
+
   return (
     <Routes>
       {/* Show Login page as default */}
       <Route path="/" element={<Login />} />
 
-      {/* Other public routes */}
+      {/* Public routes */}
       <Route path="/register" element={<Register />} />
-      <Route path="/Signup" element={<Signup />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/upload" element={<ImageUploader />} />
-      
 
-      {/* Protected or dashboard routes go here */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
+      {/* Dashboard routes */}
+      <Route path="/dashboard" element={<DashboardLayout />}>
         <Route index element={<Owner />} />
         <Route path="user" element={<User />} />
-        <Route path="Batches" element={<Batches />} />
-        <Route path="Enquiry" element={<Enquiry />} />
-        <Route path="Admission" element={<Admission />} />
-        <Route path="Courses" element={<Courses />} />
+        <Route path="batches" element={<Batches />} />
+        <Route path="enquiry" element={<Enquiry />} />
+        <Route path="admission" element={<Admission />} />
+        <Route path="courses" element={<Courses />} />
         <Route path="admin" element={<Admin />} />
         <Route path="superadmin" element={<Superadmin />} />
         <Route path="brand" element={<Brand />} />
