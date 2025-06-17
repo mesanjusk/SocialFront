@@ -6,7 +6,7 @@ import BASE_URL from '../config';
 const PaymentMode = () => {
   const [list, setList] = useState([]);
   const [form, setForm] = useState({ mode: '', description: '' });
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState(null); // will store uuid now
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -14,7 +14,7 @@ const PaymentMode = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/payment-modes`);
+      const res = await axios.get(`${BASE_URL}/api/paymentmode`);
       setList(res.data || []);
     } catch {
       toast.error('Failed to fetch payment modes');
@@ -33,10 +33,10 @@ const PaymentMode = () => {
     try {
       if (editingId) {
         if (!window.confirm('Update this payment mode?')) return;
-        await axios.put(`${BASE_URL}/api/payment-modes/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/paymentmode/uuid/${editingId}`, form);
         toast.success('Updated');
       } else {
-        await axios.post(`${BASE_URL}/api/payment-modes`, form);
+        await axios.post(`${BASE_URL}/api/paymentmode`, form);
         toast.success('Added');
       }
       setForm({ mode: '', description: '' });
@@ -52,14 +52,14 @@ const PaymentMode = () => {
 
   const handleEdit = (item) => {
     setForm({ mode: item.mode, description: item.description });
-    setEditingId(item._id);
+    setEditingId(item.uuid); // store uuid instead of _id
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (uuid) => {
     if (!window.confirm('Delete this entry?')) return;
     try {
-      await axios.delete(`${BASE_URL}/api/payment-modes/${id}`);
+      await axios.delete(`${BASE_URL}/api/paymentmode/uuid/${uuid}`);
       toast.success('Deleted');
       fetchData();
     } catch {
@@ -75,9 +75,9 @@ const PaymentMode = () => {
     if (showModal && inputRef.current) inputRef.current.focus();
   }, [showModal]);
 
-  const filtered = list.filter(item =>
-    item.mode.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = [...list]
+    .sort((a, b) => a.mode.localeCompare(b.mode))
+    .filter(item => item.mode.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="p-4">
@@ -104,6 +104,7 @@ const PaymentMode = () => {
       <table className="w-full border">
         <thead className="bg-gray-100">
           <tr>
+            
             <th className="p-2 border">Mode</th>
             <th className="p-2 border">Description</th>
             <th className="p-2 border">Action</th>
@@ -112,11 +113,12 @@ const PaymentMode = () => {
         <tbody>
           {filtered.length === 0 ? (
             <tr>
-              <td colSpan="3" className="text-center py-4 text-gray-500">No modes found</td>
+              <td colSpan="4" className="text-center py-4 text-gray-500">No modes found</td>
             </tr>
           ) : (
             filtered.map((item) => (
-              <tr key={item._id} className="text-center hover:bg-gray-100 transition">
+              <tr key={item.uuid} className="text-center hover:bg-gray-100 transition">
+                
                 <td className="border p-2">{item.mode}</td>
                 <td className="border p-2">{item.description}</td>
                 <td className="border p-2">
@@ -127,7 +129,7 @@ const PaymentMode = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(item._id)}
+                    onClick={() => handleDelete(item.uuid)}
                     className="bg-red-600 text-white px-2 py-1 rounded"
                   >
                     Delete

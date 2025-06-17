@@ -9,7 +9,13 @@ import BASE_URL from '../config';
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
-  const [form, setForm] = useState({ name: '', description: '' });
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    courseFees: '',
+    examFees: '',
+    duration: ''
+  });
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
@@ -44,7 +50,7 @@ const Courses = () => {
         await axios.post(`${BASE_URL}/api/courses`, payload);
         toast.success('Course added');
       }
-      setForm({ name: '', description: '' });
+      setForm({ name: '', description: '', courseFees: '', examFees: '', duration: '' });
       setEditingId(null);
       setShowModal(false);
       fetchCourses();
@@ -54,7 +60,13 @@ const Courses = () => {
   };
 
   const handleEdit = (course) => {
-    setForm({ name: course.name, description: course.description });
+    setForm({
+      name: course.name,
+      description: course.description,
+      courseFees: course.courseFees || '',
+      examFees: course.examFees || '',
+      duration: course.duration || ''
+    });
     setEditingId(course._id);
     setShowModal(true);
   };
@@ -73,8 +85,14 @@ const Courses = () => {
   const exportPDF = () => {
     const doc = new jsPDF();
     autoTable(doc, {
-      head: [['Course Name', 'Description']],
-      body: filteredCourses.map(c => [c.name, c.description || '-'])
+      head: [['Course Name', 'Description', 'Course Fees', 'Exam Fees', 'Duration']],
+      body: filteredCourses.map(c => [
+        c.name,
+        c.description || '-',
+        c.courseFees || '-',
+        c.examFees || '-',
+        c.duration || '-'
+      ])
     });
     doc.save('courses.pdf');
   };
@@ -82,7 +100,10 @@ const Courses = () => {
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filteredCourses.map(c => ({
       'Course Name': c.name,
-      Description: c.description
+      Description: c.description,
+      'Course Fees': c.courseFees,
+      'Exam Fees': c.examFees,
+      Duration: c.duration
     })));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Courses');
@@ -114,7 +135,7 @@ const Courses = () => {
           <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded" title="Export Excel">
             <FileDownload fontSize="small" />
           </button>
-          <button onClick={() => { setForm({ name: '', description: '' }); setEditingId(null); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded" title="Add Course">
+          <button onClick={() => { setForm({ name: '', description: '', courseFees: '', examFees: '', duration: '' }); setEditingId(null); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded" title="Add Course">
             <Add fontSize="small" />
           </button>
         </div>
@@ -125,6 +146,9 @@ const Courses = () => {
           <tr>
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Description</th>
+            <th className="p-2 border">Course Fees</th>
+            <th className="p-2 border">Exam Fees</th>
+            <th className="p-2 border">Duration</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
@@ -133,6 +157,9 @@ const Courses = () => {
             <tr key={i} className="text-center">
               <td className="border p-2">{c.name}</td>
               <td className="border p-2">{c.description}</td>
+              <td className="border p-2">{c.courseFees}</td>
+              <td className="border p-2">{c.examFees}</td>
+              <td className="border p-2">{c.duration}</td>
               <td className="border p-2 space-x-2">
                 <button onClick={() => handleEdit(c)} className="bg-yellow-500 text-white px-2 py-1 rounded" title="Edit">
                   <Edit fontSize="small" />
@@ -154,6 +181,9 @@ const Courses = () => {
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
               <input type="text" value={form.name} onChange={handleChange('name')} className="border p-2 w-full" placeholder="Course Name" required />
               <textarea value={form.description} onChange={handleChange('description')} className="border p-2 w-full" placeholder="Description" rows={3} />
+              <input type="number" value={form.courseFees} onChange={handleChange('courseFees')} className="border p-2 w-full" placeholder="Course Fees" />
+              <input type="number" value={form.examFees} onChange={handleChange('examFees')} className="border p-2 w-full" placeholder="Exam Fees" />
+              <input type="text" value={form.duration} onChange={handleChange('duration')} className="border p-2 w-full" placeholder="Duration (e.g., 6 months)" />
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Save'}</button>

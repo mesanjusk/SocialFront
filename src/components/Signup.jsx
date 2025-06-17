@@ -1,25 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
 const Signup = () => {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     organization_title: '',
     organization_type: '',
     center_code: '',
-    organization_call_number: ''
+    organization_call_number: '',
+    theme_color: '#10B981' // ✅ default saved silently
   });
 
-  const [logo, setLogo] = useState(null);
   const [orgTypes, setOrgTypes] = useState([]);
   const [loadingTypes, setLoadingTypes] = useState(true);
-  const fileInputRef = useRef(null);
-  const navigate = useNavigate();
+
+  const themeColor = form.theme_color;
 
   useEffect(() => {
-    // Fetch organization types from backend
     axios.get(`${BASE_URL}/api/org-categories`)
       .then(res => {
         setOrgTypes(res.data);
@@ -36,14 +37,8 @@ const Signup = () => {
     setForm({ ...form, [field]: e.target.value });
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) setLogo(file);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { organization_title, organization_type, center_code, organization_call_number } = form;
 
     if (!organization_title || !organization_type || !center_code || !organization_call_number) {
@@ -55,8 +50,6 @@ const Signup = () => {
     Object.entries(form).forEach(([key, value]) => {
       if (value?.trim()) formData.append(key, value);
     });
-
-    if (logo) formData.append('image', logo);
 
     try {
       const res = await axios.post(`${BASE_URL}/api/organize/add`, formData, {
@@ -76,6 +69,7 @@ const Signup = () => {
         localStorage.setItem('center_code', data.center_code);
         localStorage.setItem('type', 'organization');
         localStorage.setItem('theme_color', data.theme_color || '#10B981');
+
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
         setTimeout(() => navigate('/dashboard', { state: { id: data.organization_id } }), 1000);
@@ -100,7 +94,7 @@ const Signup = () => {
           <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
         </div>
 
-        <h2 className="text-2xl font-bold text-center text-blue-600 mb-6">Register Organization</h2>
+        <h2 className="text-2xl font-bold text-center text-theme mb-6">Register Organization</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -108,14 +102,16 @@ const Signup = () => {
             value={form.organization_title}
             onChange={handleChange('organization_title')}
             placeholder="Organization Title"
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           />
 
           <select
             value={form.organization_type}
             onChange={handleChange('organization_type')}
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           >
             <option value="">Select Organization Type</option>
@@ -133,38 +129,38 @@ const Signup = () => {
             value={form.center_code}
             onChange={handleChange('center_code')}
             placeholder="Center Code (Login ID & Password)"
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           />
+
           <input
             type="number"
             value={form.organization_call_number}
             onChange={handleChange('organization_call_number')}
             placeholder="Mobile Number"
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           />
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/*"
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          {logo && (
-            <img
-              src={URL.createObjectURL(logo)}
-              alt="Preview"
-              className="w-20 h-20 mt-2 object-cover rounded mx-auto"
-            />
-          )}
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-theme text-white py-2 rounded-md transition hover:opacity-90"
           >
             Register & Login
           </button>
         </form>
+
+        <div className="text-center mt-4 text-sm text-gray-600">
+          Already have an account?
+          <button
+            onClick={() => navigate('/')}
+            className="ml-1 text-blue-600 hover:underline font-medium"
+          >
+            Login
+          </button>
+        </div>
       </div>
     </div>
   );

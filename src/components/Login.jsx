@@ -25,7 +25,7 @@ const Login = () => {
   const submit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${BASE_URL}/api/organization/login`, {
+      const res = await axios.post(`${BASE_URL}/api/organize/login`, {
         center_code: centerCode,
         login_password: password,
       });
