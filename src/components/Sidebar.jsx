@@ -35,16 +35,24 @@ export default function Sidebar() {
         { path: '/dashboard/student', label: 'Student', icon: <SchoolIcon fontSize="small" /> },
         { path: '/dashboard/reseller', label: 'Reseller', icon: <GroupIcon fontSize="small" /> },
         { path: '/dashboard/faculty', label: 'Faculty', icon: <GroupIcon fontSize="small" /> },
+        { path: '/dashboard/paymentmode', label: 'Payment Mode', icon: <EventNoteIcon fontSize="small" /> },
+        { path: '/dashboard/education', label: 'Education', icon: <SchoolIcon fontSize="small" /> }
+        
+
       ]
     },
     {
-      label: 'Admissions', items: [
-        { path: '/dashboard/Enquiry', label: 'Enquiry', icon: <ContactMailIcon fontSize="small" /> },
-        { path: '/dashboard/Admission', label: 'Admission', icon: <MenuBookIcon fontSize="small" /> },
-        { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },
-        { path: '/dashboard/Batches', label: 'Batches', icon: <EventNoteIcon fontSize="small" /> },
-      ]
-    }
+  label: 'Admissions', items: [
+    { path: '/dashboard/Enquiry', label: 'Enquiry', icon: <ContactMailIcon fontSize="small" /> },
+    { path: '/dashboard/Admission', label: 'Admission', icon: <MenuBookIcon fontSize="small" /> },
+    { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },
+    { path: '/dashboard/Batches', label: 'Batches', icon: <EventNoteIcon fontSize="small" /> },
+    { path: '/dashboard/OrgCategories', label: 'Org Categories', icon: <EventNoteIcon fontSize="small" /> },
+    { path: '/dashboard/exam', label: 'Exam', icon: <EventNoteIcon fontSize="small" /> }
+
+  ]
+}
+
   ];
 
   return (

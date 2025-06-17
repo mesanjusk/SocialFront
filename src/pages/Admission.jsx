@@ -9,10 +9,11 @@ import BASE_URL from '../config';
 const Admission = () => {
   const initialForm = {
     branchCode: '44210066',
-    admissionDate: '', firstName: '', middleName: '', lastName: '',
+    admissionDate: '',
+    firstName: '', middleName: '', lastName: '',
     dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
-    mobileParent: '', mobileParentWhatsapp: false, address: '', education: '',
-    batchTime: '', examEvent: '', course: '', installment: '',
+    mobileParent: '', mobileParentWhatsapp: false, address: '',
+    education: '', examEvent: '', course: '', batchTime: '', installment: '',
     fees: '', discount: '', total: '', feePaid: '', paidBy: '', balance: ''
   };
 
@@ -24,36 +25,63 @@ const Admission = () => {
   const [endDate, setEndDate] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [courses, setCourses] = useState([]);
-  const organization_id = localStorage.getItem("organization_id");
+  const [educations, setEducations] = useState([]);
+  const [exams, setExams] = useState([]);
 
-  const handleChange = (field) => (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setForm({ ...form, [field]: value });
-  };
+  const organization_id = localStorage.getItem("organization_id");
 
   const fetchCourses = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/courses`);
-      if (Array.isArray(res.data)) {
-        setCourses(res.data);
-      } else {
-        setCourses([]);
-      }
-    } catch (err) {
-      console.error('Failed to fetch courses');
-      setCourses([]);
+      setCourses(Array.isArray(res.data) ? res.data : []);
+    } catch {
       toast.error('Failed to load courses');
     }
   };
 
-  const fetchAdmissions = async () => {
+  const fetchEducations = async () => {
     try {
-      if (!organization_id) return;
+      const res = await axios.get(`${BASE_URL}/api/education`);
+      setEducations(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      toast.error('Failed to load education options');
+    }
+  };
+
+  const fetchExams = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/exams`);
+      setExams(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      toast.error('Failed to load exam events');
+    }
+  };
+
+  const fetchAdmissions = async () => {
+    if (!organization_id) return;
+    try {
       const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}?type=admission`);
       setAdmissions(res.data || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch admissions');
     }
+  };
+
+  const handleChange = (field) => (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    let updatedForm = { ...form, [field]: value };
+
+    if (['fees', 'discount', 'feePaid'].includes(field)) {
+      const fees = Number(field === 'fees' ? value : form.fees || 0);
+      const discount = Number(field === 'discount' ? value : form.discount || 0);
+      const feePaid = Number(field === 'feePaid' ? value : form.feePaid || 0);
+      const total = fees - discount;
+      const balance = total - feePaid;
+      updatedForm.total = total;
+      updatedForm.balance = balance;
+    }
+
+    setForm(updatedForm);
   };
 
   const handleSubmit = async (e) => {
@@ -83,8 +111,7 @@ const Admission = () => {
       setEditingId(null);
       setShowModal(false);
       fetchAdmissions();
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error('Error saving admission');
     }
   };
@@ -101,7 +128,7 @@ const Admission = () => {
       await axios.delete(`${BASE_URL}/api/record/${id}`);
       toast.success('Deleted');
       fetchAdmissions();
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete');
     }
   };
@@ -130,6 +157,8 @@ const Admission = () => {
 
   useEffect(() => {
     fetchCourses();
+    fetchEducations();
+    fetchExams();
     fetchAdmissions();
   }, []);
 
@@ -180,18 +209,18 @@ const Admission = () => {
         </tbody>
       </table>
 
-      {/* Admission Modal */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4 text-blue-700">{editingId ? 'Edit Admission' : 'Add New Admission'}</h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input type="text" value={form.branchCode} disabled className="border p-2 bg-gray-100" />
-              <input type="date" value={form.admissionDate} onChange={handleChange('admissionDate')} className="border p-2" required />
+              <input type="date" value={form.admissionDate?.substring(0, 10)} onChange={handleChange('admissionDate')} className="border p-2" required />
               <input placeholder="First Name" value={form.firstName} onChange={handleChange('firstName')} className="border p-2" required />
               <input placeholder="Middle Name" value={form.middleName} onChange={handleChange('middleName')} className="border p-2" />
               <input placeholder="Last Name" value={form.lastName} onChange={handleChange('lastName')} className="border p-2" />
-              <input type="date" value={form.dob} onChange={handleChange('dob')} className="border p-2" required />
+              <input type="date" value={form.dob?.substring(0, 10)} onChange={handleChange('dob')} className="border p-2" required />
 
               <div className="flex gap-4">
                 <label><input type="radio" name="gender" value="Male" checked={form.gender === 'Male'} onChange={handleChange('gender')} /> Male</label>
@@ -201,24 +230,31 @@ const Admission = () => {
               <input placeholder="Mobile (Self)" value={form.mobileSelf} onChange={handleChange('mobileSelf')} className="border p-2" />
               <input placeholder="Mobile (Parent)" value={form.mobileParent} onChange={handleChange('mobileParent')} className="border p-2" />
               <input placeholder="Address" value={form.address} onChange={handleChange('address')} className="border p-2" />
-              <input placeholder="Education" value={form.education} onChange={handleChange('education')} className="border p-2" />
+
+              <select value={form.education} onChange={handleChange('education')} className="border p-2">
+                <option value="">-- Select Education --</option>
+                {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
+              </select>
+
               <input placeholder="Batch Time" value={form.batchTime} onChange={handleChange('batchTime')} className="border p-2" />
-              <input placeholder="Exam Event" value={form.examEvent} onChange={handleChange('examEvent')} className="border p-2" />
+
+              <select value={form.examEvent} onChange={handleChange('examEvent')} className="border p-2">
+                <option value="">-- Select Exam --</option>
+                {exams.map(e => <option key={e._id} value={e.exam}>{e.exam}</option>)}
+              </select>
 
               <select value={form.course} onChange={handleChange('course')} className="border p-2">
-                <option value="">Select Course</option>
-                {Array.isArray(courses) && courses.map(course => (
-                  <option key={course._id} value={course.name}>{course.name}</option>
-                ))}
+                <option value="">-- Select Course --</option>
+                {courses.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
               </select>
 
               <input placeholder="Installment" value={form.installment} onChange={handleChange('installment')} className="border p-2" />
               <input placeholder="Fees" value={form.fees} type="number" onChange={handleChange('fees')} className="border p-2" />
               <input placeholder="Discount" value={form.discount} type="number" onChange={handleChange('discount')} className="border p-2" />
-              <input placeholder="Total" value={form.total} type="number" onChange={handleChange('total')} className="border p-2" />
+              <input placeholder="Total" value={form.total} type="number" onChange={handleChange('total')} className="border p-2" readOnly />
               <input placeholder="Fee Paid" value={form.feePaid} type="number" onChange={handleChange('feePaid')} className="border p-2" />
               <input placeholder="Paid By" value={form.paidBy} onChange={handleChange('paidBy')} className="border p-2" />
-              <input placeholder="Balance" value={form.balance} type="number" onChange={handleChange('balance')} className="border p-2" />
+              <input placeholder="Balance" value={form.balance} type="number" onChange={handleChange('balance')} className="border p-2" readOnly />
 
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
@@ -230,6 +266,7 @@ const Admission = () => {
       )}
     </div>
   );
-};
-
+}
 export default Admission;
+
+

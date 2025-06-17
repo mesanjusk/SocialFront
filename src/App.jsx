@@ -19,6 +19,14 @@ import Courses from './pages/Courses';
 import Admission from './pages/Admission';
 import Batches from './pages/Batches';
 import Signup from './components/Signup';
+import OrgCategories from './pages/OrgCategories';
+import Education from './pages/Education';
+import Exam from './pages/Exam';
+import PaymentMode from './pages/PaymentMode';
+
+
+
+
 
 export default function App() {
   useEffect(() => {
@@ -50,6 +58,14 @@ export default function App() {
         <Route path="student" element={<Student />} />
         <Route path="reseller" element={<Reseller />} />
         <Route path="faculty" element={<Faculty />} />
+        <Route path="orgcategories" element={<OrgCategories />} />
+        <Route path="education" element={<Education />} />
+        <Route path="exam" element={<Exam />} />
+        <Route path="paymentmode" element={<PaymentMode />} />
+
+
+
+
       </Route>
     </Routes>
   );
