@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
@@ -13,8 +13,24 @@ const Signup = () => {
   });
 
   const [logo, setLogo] = useState(null);
+  const [orgTypes, setOrgTypes] = useState([]);
+  const [loadingTypes, setLoadingTypes] = useState(true);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch organization types from backend
+    axios.get(`${BASE_URL}/api/org-categories`)
+      .then(res => {
+        setOrgTypes(res.data);
+        setLoadingTypes(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch organization types:', err);
+        toast.error('Failed to load organization types');
+        setLoadingTypes(false);
+      });
+  }, []);
 
   const handleChange = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
@@ -52,7 +68,6 @@ const Signup = () => {
       if (data.message === 'exist') {
         toast.error('Center code already registered');
       } else if (data.message === 'success') {
-        // Login successful after signup
         toast.success('Signup successful. Logging you in...');
 
         localStorage.setItem('name', data.center_code);
@@ -61,8 +76,6 @@ const Signup = () => {
         localStorage.setItem('center_code', data.center_code);
         localStorage.setItem('type', 'organization');
         localStorage.setItem('theme_color', data.theme_color || '#10B981');
-
-        // Set theme color immediately
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
         setTimeout(() => navigate('/dashboard', { state: { id: data.organization_id } }), 1000);
@@ -98,14 +111,23 @@ const Signup = () => {
             className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
-          <input
-            type="text"
+
+          <select
             value={form.organization_type}
             onChange={handleChange('organization_type')}
-            placeholder="Organization Type (e.g., School, Coaching)"
             className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
-          />
+          >
+            <option value="">Select Organization Type</option>
+            {loadingTypes ? (
+              <option disabled>Loading...</option>
+            ) : (
+              orgTypes.map((type) => (
+                <option key={type._id} value={type.category}>{type.category}</option>
+              ))
+            )}
+          </select>
+
           <input
             type="text"
             value={form.center_code}
