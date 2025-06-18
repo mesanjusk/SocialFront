@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,15 +34,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(
-          `${BASE_URL}/api/auth/GetUserList/${organizationId}`
-        );
+        const res = await axios.get(`${BASE_URL}/api/auth/GetUserList/${organizationId}`);
         if (res.data.success) {
           setTotalUsers(res.data.result.length);
         }
 
-        // Replace below with real endpoints if available
-        setStats({ enquiries: 42, admissions: 19, leads: 33 });
+        setStats({ enquiries: 42, admissions: 19, leads: 33 }); // Replace with live data if available
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         toast.error('Failed to load dashboard stats');
@@ -50,6 +47,33 @@ const Dashboard = () => {
     };
 
     fetchData();
+  }, []);
+
+  // 🔐 Auto logout if password was changed
+  useEffect(() => {
+    const checkPasswordChange = async () => {
+      const userId = localStorage.getItem('user_id');
+      const stored = localStorage.getItem('last_password_change');
+
+      if (!userId || !stored) return;
+
+      try {
+        const res = await axios.get(`${BASE_URL}/api/organization/${userId}`);
+        const latest = res.data?.result?.last_password_change;
+
+        if (latest && new Date(latest).toISOString() !== new Date(stored).toISOString()) {
+          toast.error("Password changed. Please login again.");
+          localStorage.clear();
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1200);
+        }
+      } catch (err) {
+        console.error("Password change check failed:", err);
+      }
+    };
+
+    checkPasswordChange();
   }, []);
 
   const handleLogout = () => {

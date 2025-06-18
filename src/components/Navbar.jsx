@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
 
 export default function Navbar() {
   const [username, setUsername] = useState('');
@@ -11,6 +10,35 @@ export default function Navbar() {
     const userType = localStorage.getItem('type') || '';
     setUsername(name);
     setRole(userType);
+
+    const user_id = localStorage.getItem('user_id');
+    const lastStored = localStorage.getItem('last_password_change');
+
+    if (user_id && lastStored) {
+      fetch(`${BASE_URL}/api/auth/${user_id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.result?.last_password_change) {
+            const dbDate = new Date(data.result.last_password_change);
+            const localDate = new Date(lastStored);
+
+            if (!isNaN(dbDate) && !isNaN(localDate)) {
+              const dbTime = dbDate.toISOString();
+              const localTime = localDate.toISOString();
+
+              if (dbTime !== localTime) {
+                alert('Your password was changed. Please login again.');
+                handleLogout();
+              }
+            } else {
+              console.warn('Invalid date format for password change check');
+            }
+          }
+        })
+        .catch(err => {
+          console.error('Auto logout check failed:', err);
+        });
+    }
   }, []);
 
   const handleLogout = () => {

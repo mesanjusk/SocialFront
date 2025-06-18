@@ -23,7 +23,7 @@ export default function Sidebar() {
   const navItems = [
     {
       label: 'Main', items: [
-        { path: '/dashboard', label: 'Owner', icon: <HomeIcon fontSize="small" /> },
+        
         { path: '/dashboard/user', label: 'User', icon: <GroupIcon fontSize="small" /> },
         { path: '/dashboard/admin', label: 'Admin', icon: <AdminPanelSettingsIcon fontSize="small" /> },
         { path: '/dashboard/superadmin', label: 'Superadmin', icon: <AdminPanelSettingsIcon fontSize="small" /> },
@@ -47,8 +47,9 @@ export default function Sidebar() {
     { path: '/dashboard/Admission', label: 'Admission', icon: <MenuBookIcon fontSize="small" /> },
     { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },
     { path: '/dashboard/Batches', label: 'Batches', icon: <EventNoteIcon fontSize="small" /> },
-    { path: '/dashboard/OrgCategories', label: 'Org Categories', icon: <EventNoteIcon fontSize="small" /> },
-    { path: '/dashboard/exam', label: 'Exam', icon: <EventNoteIcon fontSize="small" /> }
+    
+    { path: '/dashboard/exam', label: 'Exam', icon: <EventNoteIcon fontSize="small" /> },
+    { path: '/dashboard/OrganizationProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }
 
   ]
 }

@@ -25,9 +25,9 @@ const Login = () => {
   const submit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${BASE_URL}/api/organize/login`, {
+      const res = await axios.post(`${BASE_URL}/api/auth/organization/login`, {
         center_code: centerCode,
-        login_password: password,
+        password: password,
       });
 
       const data = res.data;
@@ -37,14 +37,18 @@ const Login = () => {
         return;
       }
 
-      // Save to localStorage
+      // Save session to localStorage
       localStorage.setItem('organization_id', data.organization_id);
       localStorage.setItem('organization_title', data.organization_title);
       localStorage.setItem('center_code', centerCode);
-      localStorage.setItem('type', 'organization');
       localStorage.setItem('theme_color', data.theme_color || '#10B981');
+      localStorage.setItem('type', 'organization');
+      localStorage.setItem('user_id', data.user_id);
+      localStorage.setItem('user_name', data.user_name);
+      localStorage.setItem('user_type', data.user_type);
+      localStorage.setItem('last_password_change', data.last_password_change);
 
-      // Set global CSS variable
+      // Set global theme color
       document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
       toast.success('Login successful');
@@ -65,9 +69,7 @@ const Login = () => {
           <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
         </div>
 
-        <h2 className="text-2xl font-bold text-center text-theme mb-6">
-          Organization Login
-        </h2>
+        <h2 className="text-2xl font-bold text-center text-theme mb-6">Organization Login</h2>
 
         <form onSubmit={submit} className="space-y-4">
           <div>
@@ -95,6 +97,17 @@ const Login = () => {
               style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             />
           </div>
+
+          <div className="text-right text-sm">
+            <button
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+              className="text-blue-600 hover:underline"
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           <button
             type="submit"
             className="w-full bg-theme text-white py-2 rounded-md transition hover:opacity-90"

@@ -11,14 +11,12 @@ const Signup = () => {
     organization_title: '',
     organization_type: '',
     center_code: '',
-    organization_call_number: '',
-    theme_color: '#10B981' // ✅ default saved silently
+    mobile_number: '',
+    theme_color: '#10B981'
   });
 
   const [orgTypes, setOrgTypes] = useState([]);
   const [loadingTypes, setLoadingTypes] = useState(true);
-
-  const themeColor = form.theme_color;
 
   useEffect(() => {
     axios.get(`${BASE_URL}/api/org-categories`)
@@ -39,29 +37,34 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { organization_title, organization_type, center_code, organization_call_number } = form;
 
-    if (!organization_title || !organization_type || !center_code || !organization_call_number) {
+    const {
+      organization_title,
+      organization_type,
+      center_code,
+      mobile_number
+    } = form;
+
+    if (!organization_title || !organization_type || !center_code || !mobile_number) {
       toast.error('All fields are required');
       return;
     }
 
-    const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => {
-      if (value?.trim()) formData.append(key, value);
-    });
+    const payload = {
+      ...form,
+      organization_call_number: mobile_number // ✅ auto-set
+    };
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/organize/add`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
+      const res = await axios.post(`${BASE_URL}/api/organize/add`, payload);
       const data = res.data;
 
       if (data.message === 'exist') {
         toast.error('Center code already registered');
+      } else if (data.message === 'duplicate_call_number') {
+        toast.error('Mobile number already registered');
       } else if (data.message === 'success') {
-        toast.success('Signup successful. Logging you in...');
+        toast.success('Signup successful. Logging in...');
 
         localStorage.setItem('name', data.center_code);
         localStorage.setItem('organization_title', data.organization_title);
@@ -77,14 +80,12 @@ const Signup = () => {
         toast.error('Unexpected server response');
       }
     } catch (err) {
-      if (err.response?.data?.message === 'duplicate_call_number') {
-        toast.error('Call number already exists');
-      } else {
-        console.error('Signup Error:', err);
-        toast.error('Server error during signup');
-      }
+      console.error('Signup Error:', err);
+      toast.error(err.response?.data?.message || 'Server error during signup');
     }
   };
+
+  const themeColor = form.theme_color;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
@@ -102,7 +103,7 @@ const Signup = () => {
             value={form.organization_title}
             onChange={handleChange('organization_title')}
             placeholder="Organization Title"
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           />
@@ -110,7 +111,7 @@ const Signup = () => {
           <select
             value={form.organization_type}
             onChange={handleChange('organization_type')}
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           >
@@ -129,17 +130,17 @@ const Signup = () => {
             value={form.center_code}
             onChange={handleChange('center_code')}
             placeholder="Center Code (Login ID & Password)"
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           />
 
           <input
             type="number"
-            value={form.organization_call_number}
-            onChange={handleChange('organization_call_number')}
-            placeholder="Mobile Number"
-            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            value={form.mobile_number}
+            onChange={handleChange('mobile_number')}
+            placeholder="Mobile Number (Login & Contact)"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           />
