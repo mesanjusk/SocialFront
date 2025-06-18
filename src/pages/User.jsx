@@ -64,7 +64,7 @@ const User = () => {
         await axios.put(`${BASE_URL}/api/auth/${editingId}`, dataToSend);
         toast.success('User updated');
       } else {
-        const res = await axios.post('${BASE_URL}/api/auth/register', dataToSend);
+        const res = await axios.post(`${BASE_URL}/api/auth/register`, dataToSend);
         if (res.data === 'exist') toast.error('User already exists');
         else if (res.data === 'notexist') toast.success('User added');
         else toast.error('Unexpected error');

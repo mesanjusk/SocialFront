@@ -32,7 +32,7 @@ const Register = () => {
     const organization_id = localStorage.getItem("organization_id");
 
     try {
-      const res = await axios.post("${BASE_URL}/api/auth/register", {
+      const res = await axios.post(`${BASE_URL}/api/auth/register`, {
         name: name.trim(),
         password: password.trim(),
         mobile: mobile.trim(),

@@ -32,7 +32,7 @@ const Owner = () => {
 
   const fetchOrganizations = async () => {
     try {
-      const res = await axios.get('${BASE_URL}/api/organize/GetOrganizList');
+      const res = await axios.get(`${BASE_URL}/api/organize/GetOrganizList`);
       if (res.data?.success) {
         setOrganizations(res.data.result);
       } else {
@@ -77,7 +77,7 @@ const Owner = () => {
       } else {
         // Create
         const res = await axios.post(
-          '${BASE_URL}/api/organize/add',
+          `${BASE_URL}/api/organize/add`,
           formData,
           {
             headers: { 'Content-Type': 'multipart/form-data' }
