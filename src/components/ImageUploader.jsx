@@ -31,7 +31,7 @@ const ImageUploader = () => {
     formData.append('image', file);
 
     try {
-      const res = await axios.post('${BASE_URL}/api/upload', formData, {
+      const res = await axios.post(`${BASE_URL}/api/upload`, formData, {
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token'),
           'Content-Type': 'multipart/form-data'
