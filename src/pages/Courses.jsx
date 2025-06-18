@@ -21,6 +21,7 @@ const Courses = () => {
   const [search, setSearch] = useState('');
 
   const organization_id = localStorage.getItem('organization_id');
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const fetchCourses = async () => {
     try {
@@ -119,7 +120,7 @@ const Courses = () => {
   );
 
   return (
-    <div className="p-4 relative">
+    <div className="min-h-screen p-4 relative" style={{ backgroundColor: themeColor }}>
       <Toaster />
       <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
         <input

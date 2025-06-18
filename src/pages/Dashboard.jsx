@@ -18,6 +18,7 @@ const Dashboard = () => {
     { date: '2025-06-18', label: 'Admission Orientation' },
     { date: '2025-06-20', label: 'Parent-Teacher Meeting' },
   ]);
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const organizationId = localStorage.getItem('organization_id');
   const organizationTitle = localStorage.getItem('organization_title') || 'Organization';
@@ -88,7 +89,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
       <Toaster position="top-right" />
 
       <div className="flex justify-between items-center mb-6">

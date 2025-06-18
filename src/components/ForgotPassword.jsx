@@ -32,7 +32,10 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-4"
+      style={{ backgroundColor: themeColor }}
+    >
       <Toaster position="top-center" />
       <div className="bg-white w-full max-w-md rounded-lg shadow p-6">
         <h2 className="text-2xl font-bold text-center text-theme mb-6">Forgot Password</h2>
@@ -47,7 +50,10 @@ const ForgotPassword = () => {
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
           />
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="\\d{10}"
+            maxLength={10}
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
             placeholder="Registered Mobile Number"

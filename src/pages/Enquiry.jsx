@@ -32,6 +32,7 @@ const AddEnquiry = () => {
   const [paymentModes, setPaymentModes] = useState([]);
   const [search, setSearch] = useState('');
   const organization_id = localStorage.getItem('organization_id');
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -199,7 +200,7 @@ const AddEnquiry = () => {
   );
 
   return (
-    <div className="p-4">
+    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
       <div className="flex gap-2 mb-4">
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />
@@ -240,7 +241,15 @@ const AddEnquiry = () => {
               {/* Removed enquiryDate input */}
               <input value={form.firstName} onChange={handleChange('firstName')} placeholder="First Name" className="border p-2" />
               <input value={form.lastName} onChange={handleChange('lastName')} placeholder="Last Name" className="border p-2" />
-              <input value={form.mobileSelf} onChange={handleChange('mobileSelf')} placeholder="Mobile" className="border p-2" />
+              <input
+                value={form.mobileSelf}
+                onChange={handleChange('mobileSelf')}
+                placeholder="Mobile"
+                inputMode="numeric"
+                pattern="\\d{10}"
+                maxLength={10}
+                className="border p-2"
+              />
               <select value={form.course} onChange={handleChange('course')} className="border p-2">
                 <option value="">Select Course</option>
                 {Array.isArray(courses) && courses.map(c => (
@@ -277,8 +286,24 @@ const AddEnquiry = () => {
           <label><input type="radio" name="gender" value="Female" checked={admissionForm.gender === 'Female'} onChange={handleAdmissionChange('gender')} /> Female</label>
         </div>
 
-        <input placeholder="Mobile (Self)" value={admissionForm.mobileSelf} onChange={handleAdmissionChange('mobileSelf')} className="border p-2" />
-        <input placeholder="Mobile (Parent)" value={admissionForm.mobileParent} onChange={handleAdmissionChange('mobileParent')} className="border p-2" />
+        <input
+          placeholder="Mobile (Self)"
+          value={admissionForm.mobileSelf}
+          onChange={handleAdmissionChange('mobileSelf')}
+          inputMode="numeric"
+          pattern="\\d{10}"
+          maxLength={10}
+          className="border p-2"
+        />
+        <input
+          placeholder="Mobile (Parent)"
+          value={admissionForm.mobileParent}
+          onChange={handleAdmissionChange('mobileParent')}
+          inputMode="numeric"
+          pattern="\\d{10}"
+          maxLength={10}
+          className="border p-2"
+        />
         <input placeholder="Address" value={admissionForm.address} onChange={handleAdmissionChange('address')} className="border p-2" />
 
         <select value={admissionForm.education} onChange={handleAdmissionChange('education')} className="border p-2">

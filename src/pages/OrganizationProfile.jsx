@@ -98,7 +98,8 @@ const OrganizationProfile = () => {
   if (!data) return <div className="p-4">Loading...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow rounded-lg mt-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
+      <div className="max-w-2xl mx-auto p-6 bg-white shadow rounded-lg mt-6">
       <Toaster position="top-center" />
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Organization Profile</h2>
@@ -147,6 +148,9 @@ const OrganizationProfile = () => {
             value={data.organization_call_number}
             onChange={handleChange('organization_call_number')}
             className="border p-2 rounded"
+            inputMode="numeric"
+            pattern="\d{10}"
+            maxLength={10}
           />
         </div>
 

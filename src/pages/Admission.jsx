@@ -28,6 +28,7 @@ const Admission = () => {
   const [educations, setEducations] = useState([]);
   const [exams, setExams] = useState([]);
   const [batches, setBatches] = useState([]);
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const [paymentModes, setPaymentModes] = useState([]);
 
   const organization_id = localStorage.getItem("organization_id");
@@ -197,7 +198,7 @@ const Admission = () => {
   });
 
   return (
-    <div className="p-4">
+    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
       {/* Search & Export */}
       <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
@@ -260,8 +261,24 @@ const Admission = () => {
                 <label><input type="radio" name="gender" value="Male" checked={form.gender === 'Male'} onChange={handleChange('gender')} /> Male</label>
                 <label><input type="radio" name="gender" value="Female" checked={form.gender === 'Female'} onChange={handleChange('gender')} /> Female</label>
               </div>
-              <input placeholder="Mobile (Self)" value={form.mobileSelf} onChange={handleChange('mobileSelf')} className="border p-2" />
-              <input placeholder="Mobile (Parent)" value={form.mobileParent} onChange={handleChange('mobileParent')} className="border p-2" />
+              <input
+                placeholder="Mobile (Self)"
+                value={form.mobileSelf}
+                onChange={handleChange('mobileSelf')}
+                inputMode="numeric"
+                pattern="\\d{10}"
+                maxLength={10}
+                className="border p-2"
+              />
+              <input
+                placeholder="Mobile (Parent)"
+                value={form.mobileParent}
+                onChange={handleChange('mobileParent')}
+                inputMode="numeric"
+                pattern="\\d{10}"
+                maxLength={10}
+                className="border p-2"
+              />
               <input placeholder="Address" value={form.address} onChange={handleChange('address')} className="border p-2" />
 
               <select value={form.education} onChange={handleChange('education')} className="border p-2">
