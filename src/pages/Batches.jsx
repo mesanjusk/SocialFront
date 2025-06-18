@@ -13,6 +13,7 @@ const Batches = () => {
   const nameInputRef = useRef();
 
   const organization_id = localStorage.getItem('organization_id');
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const fetchBatches = async () => {
     try {
@@ -83,7 +84,7 @@ const Batches = () => {
   const filtered = batches.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="p-4">
+    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
       <div className="flex justify-between items-center mb-4">
         <input

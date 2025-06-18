@@ -88,7 +88,10 @@ const Signup = () => {
   const themeColor = form.theme_color;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-4"
+      style={{ backgroundColor: themeColor }}
+    >
       <Toaster position="top-center" />
       <div className="bg-white w-full max-w-md rounded-lg shadow p-6">
         <div className="flex justify-center mb-6">

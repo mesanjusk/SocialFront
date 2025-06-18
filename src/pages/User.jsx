@@ -17,6 +17,8 @@ const User = () => {
   const [editingId, setEditingId] = useState(null);
   const navigate = useNavigate();
 
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
+
   // 🔓 Removed role protection
   useEffect(() => {
     const orgId = localStorage.getItem("organization_id");
@@ -108,7 +110,7 @@ const User = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
       <Toaster position="top-right" />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Users</h1>

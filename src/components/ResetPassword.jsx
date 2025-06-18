@@ -31,7 +31,10 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-4"
+      style={{ backgroundColor: themeColor }}
+    >
       <Toaster position="top-center" />
       <div className="bg-white w-full max-w-md rounded-lg shadow p-6">
         <h2 className="text-2xl font-bold text-center text-theme mb-6">Reset Password</h2>

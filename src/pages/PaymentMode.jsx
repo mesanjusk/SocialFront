@@ -11,6 +11,7 @@ const PaymentMode = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const inputRef = useRef();
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const fetchData = async () => {
     try {
@@ -80,7 +81,7 @@ const PaymentMode = () => {
     .filter(item => item.mode.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="p-4">
+    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
       <div className="flex justify-between items-center mb-4">
         <input

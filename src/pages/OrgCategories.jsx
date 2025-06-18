@@ -11,6 +11,7 @@ const OrgCategories = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const categoryInputRef = useRef();
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const fetchCategories = async () => {
     try {
@@ -82,7 +83,7 @@ const OrgCategories = () => {
   );
 
   return (
-    <div className="p-4">
+    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
       <div className="flex justify-between items-center mb-4">
         <input

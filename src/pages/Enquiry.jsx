@@ -32,6 +32,7 @@ const AddEnquiry = () => {
   const [paymentModes, setPaymentModes] = useState([]);
   const [search, setSearch] = useState('');
   const organization_id = localStorage.getItem('organization_id');
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -199,7 +200,7 @@ const AddEnquiry = () => {
   );
 
   return (
-    <div className="p-4">
+    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
       <div className="flex gap-2 mb-4">
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />

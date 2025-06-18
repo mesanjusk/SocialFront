@@ -28,6 +28,7 @@ const Admission = () => {
   const [educations, setEducations] = useState([]);
   const [exams, setExams] = useState([]);
   const [batches, setBatches] = useState([]);
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const [paymentModes, setPaymentModes] = useState([]);
 
   const organization_id = localStorage.getItem("organization_id");
@@ -197,7 +198,7 @@ const Admission = () => {
   });
 
   return (
-    <div className="p-4">
+    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
       {/* Search & Export */}
       <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
