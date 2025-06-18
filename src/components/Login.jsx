@@ -10,16 +10,18 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const nameInputRef = useRef(null);
 
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
-
   useEffect(() => {
     nameInputRef.current?.focus();
 
+    // Prevent login skip if not an actual session
     const storedId = localStorage.getItem('organization_id');
     const storedType = localStorage.getItem('type');
     if (storedId && storedType === 'organization') {
       navigate('/dashboard', { state: { id: storedId } });
     }
+
+    // Reset theme color to neutral before login
+    document.documentElement.style.setProperty('--theme-color', '#10B981');
   }, [navigate]);
 
   const submit = async (e) => {
@@ -37,19 +39,20 @@ const Login = () => {
         return;
       }
 
-      // Save session to localStorage
+      // Save session details
       localStorage.setItem('organization_id', data.organization_id);
       localStorage.setItem('organization_title', data.organization_title);
       localStorage.setItem('center_code', centerCode);
-      localStorage.setItem('theme_color', data.theme_color || '#10B981');
-      localStorage.setItem('type', 'organization');
+      localStorage.setItem('type', 'admin');
       localStorage.setItem('user_id', data.user_id);
       localStorage.setItem('user_name', data.user_name);
       localStorage.setItem('user_type', data.user_type);
       localStorage.setItem('last_password_change', data.last_password_change);
 
-      // Set global theme color
-      document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
+      // ✅ Apply and store theme color only after login
+      const themeColor = data.theme_color || '#10B981';
+      localStorage.setItem('theme_color', themeColor);
+      document.documentElement.style.setProperty('--theme-color', themeColor);
 
       toast.success('Login successful');
       setTimeout(() => {
@@ -62,10 +65,7 @@ const Login = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4"
-      style={{ backgroundColor: themeColor }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
       <Toaster position="top-center" />
       <div className="bg-white w-full max-w-md rounded-lg shadow p-6">
         <div className="flex justify-center mb-6">
@@ -85,7 +85,6 @@ const Login = () => {
               required
               className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
               placeholder="Enter center code"
-              style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             />
           </div>
           <div>
@@ -97,7 +96,6 @@ const Login = () => {
               required
               className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
               placeholder="Enter password"
-              style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             />
           </div>
 

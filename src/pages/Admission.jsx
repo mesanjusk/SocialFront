@@ -266,7 +266,7 @@ const Admission = () => {
                 value={form.mobileSelf}
                 onChange={handleChange('mobileSelf')}
                 inputMode="numeric"
-                pattern="\\d{10}"
+                pattern="[0-9]{10}"
                 maxLength={10}
                 className="border p-2"
               />
@@ -275,7 +275,7 @@ const Admission = () => {
                 value={form.mobileParent}
                 onChange={handleChange('mobileParent')}
                 inputMode="numeric"
-                pattern="\\d{10}"
+                pattern="[0-9]{10}"
                 maxLength={10}
                 className="border p-2"
               />

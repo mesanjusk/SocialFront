@@ -52,7 +52,7 @@ const ForgotPassword = () => {
           <input
             type="text"
             inputMode="numeric"
-            pattern="\\d{10}"
+            pattern="[0-9]{10}"
             maxLength={10}
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}

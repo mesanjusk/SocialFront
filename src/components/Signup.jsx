@@ -70,7 +70,7 @@ const Signup = () => {
         localStorage.setItem('organization_title', data.organization_title);
         localStorage.setItem('organization_id', data.organization_id);
         localStorage.setItem('center_code', data.center_code);
-        localStorage.setItem('type', 'organization');
+        localStorage.setItem('type', 'admin');
         localStorage.setItem('theme_color', data.theme_color || '#10B981');
 
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
@@ -139,9 +139,9 @@ const Signup = () => {
           />
 
           <input
-            type="text"
+            type="tel"
             inputMode="numeric"
-            pattern="\\d{10}"
+            pattern="[0-9]{10}"
             maxLength={10}
             value={form.mobile_number}
             onChange={handleChange('mobile_number')}
@@ -150,6 +150,7 @@ const Signup = () => {
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           />
+
 
           <button
             type="submit"

@@ -246,7 +246,7 @@ const AddEnquiry = () => {
                 onChange={handleChange('mobileSelf')}
                 placeholder="Mobile"
                 inputMode="numeric"
-                pattern="\\d{10}"
+                pattern="[0-9]{10}"
                 maxLength={10}
                 className="border p-2"
               />
@@ -291,7 +291,7 @@ const AddEnquiry = () => {
           value={admissionForm.mobileSelf}
           onChange={handleAdmissionChange('mobileSelf')}
           inputMode="numeric"
-          pattern="\\d{10}"
+          pattern="[0-9]{10}"
           maxLength={10}
           className="border p-2"
         />
@@ -300,7 +300,7 @@ const AddEnquiry = () => {
           value={admissionForm.mobileParent}
           onChange={handleAdmissionChange('mobileParent')}
           inputMode="numeric"
-          pattern="\\d{10}"
+          pattern="[0-9]{10}"
           maxLength={10}
           className="border p-2"
         />
