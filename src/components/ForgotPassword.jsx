@@ -47,7 +47,10 @@ const ForgotPassword = () => {
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
           />
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="\\d{10}"
+            maxLength={10}
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
             placeholder="Registered Mobile Number"

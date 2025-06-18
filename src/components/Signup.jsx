@@ -136,7 +136,10 @@ const Signup = () => {
           />
 
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="\\d{10}"
+            maxLength={10}
             value={form.mobile_number}
             onChange={handleChange('mobile_number')}
             placeholder="Mobile Number (Login & Contact)"

@@ -90,6 +90,9 @@ const Register = () => {
             <label className="block mb-1 text-sm font-medium text-gray-700">Mobile</label>
             <input
               type="text"
+              inputMode="numeric"
+              pattern="\\d{10}"
+              maxLength={10}
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
               required

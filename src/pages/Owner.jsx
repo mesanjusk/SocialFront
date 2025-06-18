@@ -218,15 +218,51 @@ const Owner = () => {
             </h2>
             <form onSubmit={handleSubmit} className="space-y-3">
               <input type="text" value={form.organization_title} onChange={handleInputChange('organization_title')} className="w-full p-2 border rounded" placeholder="Title" />
-              <input type="text" value={form.organization_whatsapp_number} onChange={handleInputChange('organization_whatsapp_number')} className="w-full p-2 border rounded" placeholder="WhatsApp Number" />
-              <input type="text" value={form.organization_call_number} onChange={handleInputChange('organization_call_number')} className="w-full p-2 border rounded" placeholder="Call Number"  />
+              <input
+                type="text"
+                value={form.organization_whatsapp_number}
+                onChange={handleInputChange('organization_whatsapp_number')}
+                className="w-full p-2 border rounded"
+                placeholder="WhatsApp Number"
+                inputMode="numeric"
+                pattern="\d{10}"
+                maxLength={10}
+              />
+              <input
+                type="text"
+                value={form.organization_call_number}
+                onChange={handleInputChange('organization_call_number')}
+                className="w-full p-2 border rounded"
+                placeholder="Call Number"
+                inputMode="numeric"
+                pattern="\d{10}"
+                maxLength={10}
+              />
               <input type="text" value={form.organization_whatsapp_message} onChange={handleInputChange('organization_whatsapp_message')} className="w-full p-2 border rounded" placeholder="WhatsApp Message" />
               <input type="text" value={form.login_username} onChange={handleInputChange('login_username')} className="w-full p-2 border rounded" placeholder="Login Username" />
               <input type="password" value={form.login_password} onChange={handleInputChange('login_password')} className="w-full p-2 border rounded" placeholder="Login Password"  />
               <input type="text" value={form.theme_color} onChange={handleInputChange('theme_color')} className="w-full p-2 border rounded" placeholder="Theme Color" />
               <input type="text" value={form.domains} onChange={handleInputChange('domains')} className="w-full p-2 border rounded" placeholder="Domains" />
-              <input type="text" value={form.org_whatsapp_number} onChange={handleInputChange('org_whatsapp_number')} className="w-full p-2 border rounded" placeholder="Org WhatsApp Number" />
-              <input type="text" value={form.org_call_number} onChange={handleInputChange('org_call_number')} className="w-full p-2 border rounded" placeholder="Org Call Number" />
+              <input
+                type="text"
+                value={form.org_whatsapp_number}
+                onChange={handleInputChange('org_whatsapp_number')}
+                className="w-full p-2 border rounded"
+                placeholder="Org WhatsApp Number"
+                inputMode="numeric"
+                pattern="\d{10}"
+                maxLength={10}
+              />
+              <input
+                type="text"
+                value={form.org_call_number}
+                onChange={handleInputChange('org_call_number')}
+                className="w-full p-2 border rounded"
+                placeholder="Org Call Number"
+                inputMode="numeric"
+                pattern="\d{10}"
+                maxLength={10}
+              />
 
               <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="w-full p-2 border rounded" />
               {previewLogo && <img src={previewLogo} alt="Preview" className="w-24 h-24 object-cover rounded mt-2" />}
