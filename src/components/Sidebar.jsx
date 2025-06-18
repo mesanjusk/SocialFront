@@ -22,37 +22,32 @@ export default function Sidebar() {
 
   const navItems = [
     {
-      label: 'Main', items: [
-        
-        { path: '/dashboard/user', label: 'User', icon: <GroupIcon fontSize="small" /> },
-        { path: '/dashboard/admin', label: 'Admin', icon: <AdminPanelSettingsIcon fontSize="small" /> },
-        { path: '/dashboard/superadmin', label: 'Superadmin', icon: <AdminPanelSettingsIcon fontSize="small" /> },
+      label: 'Admissions', items: [
+        { path: '/dashboard/Enquiry', label: 'Enquiry', icon: <ContactMailIcon fontSize="small" /> },
+        { path: '/dashboard/Admission', label: 'Admission', icon: <MenuBookIcon fontSize="small" /> },
+
+
       ]
     },
     {
       label: 'Academic', items: [
-        { path: '/dashboard/brand', label: 'Brand', icon: <SchoolIcon fontSize="small" /> },
-        { path: '/dashboard/student', label: 'Student', icon: <SchoolIcon fontSize="small" /> },
-        { path: '/dashboard/reseller', label: 'Reseller', icon: <GroupIcon fontSize="small" /> },
-        { path: '/dashboard/faculty', label: 'Faculty', icon: <GroupIcon fontSize="small" /> },
+        { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },
+        { path: '/dashboard/Batches', label: 'Batches', icon: <EventNoteIcon fontSize="small" /> },
         { path: '/dashboard/paymentmode', label: 'Payment Mode', icon: <EventNoteIcon fontSize="small" /> },
-        { path: '/dashboard/education', label: 'Education', icon: <SchoolIcon fontSize="small" /> }
-        
+        { path: '/dashboard/education', label: 'Education', icon: <SchoolIcon fontSize="small" /> },
+        { path: '/dashboard/exam', label: 'Exam', icon: <EventNoteIcon fontSize="small" /> },
+
 
       ]
     },
-    {
-  label: 'Admissions', items: [
-    { path: '/dashboard/Enquiry', label: 'Enquiry', icon: <ContactMailIcon fontSize="small" /> },
-    { path: '/dashboard/Admission', label: 'Admission', icon: <MenuBookIcon fontSize="small" /> },
-    { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },
-    { path: '/dashboard/Batches', label: 'Batches', icon: <EventNoteIcon fontSize="small" /> },
-    
-    { path: '/dashboard/exam', label: 'Exam', icon: <EventNoteIcon fontSize="small" /> },
-    { path: '/dashboard/OrganizationProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }
 
-  ]
-}
+    {
+      label: 'Settings', items: [
+
+        { path: '/dashboard/user', label: 'User', icon: <GroupIcon fontSize="small" /> },
+        { path: '/dashboard/OrganizationProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }
+      ]
+    },
 
   ];
 
@@ -74,9 +69,8 @@ export default function Sidebar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-100 ${
-                    pathname === item.path ? 'bg-gray-200 font-semibold' : ''
-                  }`}
+                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-100 ${pathname === item.path ? 'bg-gray-200 font-semibold' : ''
+                    }`}
                 >
                   {item.icon}
                   {item.label}
