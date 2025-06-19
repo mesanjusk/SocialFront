@@ -130,7 +130,7 @@ const User = () => {
             <th className="p-2 border">Type</th>
             <th className="p-2 border">Action</th>
           </tr>
-        </thead>
+        </thead>  
         <tbody>
           {users.map((item, idx) => (
             <tr key={idx} className="text-center">

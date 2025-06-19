@@ -12,6 +12,7 @@ const Signup = () => {
     organization_type: '',
     center_code: '',
     mobile_number: '',
+    center_head_name: '',
     theme_color: '#10B981'
   });
 
@@ -42,17 +43,19 @@ const Signup = () => {
       organization_title,
       organization_type,
       center_code,
-      mobile_number
+      mobile_number,
+      center_head_name
     } = form;
 
-    if (!organization_title || !organization_type || !center_code || !mobile_number) {
+    if (!organization_title || !organization_type || !center_code || !mobile_number || !center_head_name) {
       toast.error('All fields are required');
       return;
     }
 
     const payload = {
       ...form,
-      organization_call_number: mobile_number // ✅ auto-set
+      organization_call_number: mobile_number,
+      plan_type: 'trial' // ✅ Explicit plan_type (optional, but safe)
     };
 
     try {
@@ -64,7 +67,7 @@ const Signup = () => {
       } else if (data.message === 'duplicate_call_number') {
         toast.error('Mobile number already registered');
       } else if (data.message === 'success') {
-        toast.success('Signup successful. Logging in...');
+        toast.success('Signup successful. You are now on a 14-day trial.');
 
         localStorage.setItem('name', data.center_code);
         localStorage.setItem('organization_title', data.organization_title);
@@ -151,6 +154,15 @@ const Signup = () => {
             required
           />
 
+          <input
+            type="text"
+            value={form.center_head_name}
+            onChange={handleChange('center_head_name')}
+            placeholder="Center Head Name"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+            required
+          />
 
           <button
             type="submit"

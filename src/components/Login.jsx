@@ -13,14 +13,12 @@ const Login = () => {
   useEffect(() => {
     nameInputRef.current?.focus();
 
-    // Prevent login skip if not an actual session
     const storedId = localStorage.getItem('organization_id');
     const storedType = localStorage.getItem('type');
     if (storedId && storedType === 'organization') {
       navigate('/dashboard', { state: { id: storedId } });
     }
 
-    // Reset theme color to neutral before login
     document.documentElement.style.setProperty('--theme-color', '#10B981');
   }, [navigate]);
 
@@ -39,7 +37,17 @@ const Login = () => {
         return;
       }
 
-      // Save session details
+      // ✅ Trial expiry check
+      if (data.expiry_date) {
+        const expiry = new Date(data.expiry_date);
+        const now = new Date();
+        if (expiry < now) {
+          toast.error('Trial expired. Please contact support to upgrade.');
+          return;
+        }
+      }
+
+      // Save session
       localStorage.setItem('organization_id', data.organization_id);
       localStorage.setItem('organization_title', data.organization_title);
       localStorage.setItem('center_code', centerCode);
@@ -49,7 +57,6 @@ const Login = () => {
       localStorage.setItem('user_type', data.user_type);
       localStorage.setItem('last_password_change', data.last_password_change);
 
-      // ✅ Apply and store theme color only after login
       const themeColor = data.theme_color || '#10B981';
       localStorage.setItem('theme_color', themeColor);
       document.documentElement.style.setProperty('--theme-color', themeColor);

@@ -41,7 +41,7 @@ export default function App() {
       <Route path="/reset-password/:id" element={<ResetPassword />} />
 
       <Route path="/dashboard" element={<DashboardLayout />}>
-
+ <Route index element={<Dashboard />} /> 
         <Route path="user" element={<User />} />
         <Route path="batches" element={<Batches />} />
         <Route path="enquiry" element={<Enquiry />} />

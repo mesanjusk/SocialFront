@@ -53,7 +53,10 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-white shadow-md p-4">
-      <h1 className="text-xl font-bold mb-6">My Dashboard</h1>
+      <h1 className="text-xl font-bold mb-6">
+  {localStorage.getItem('organization_title') || 'Dashboard'}
+</h1>
+
       <nav className="space-y-4">
         {navItems.map((menu, idx) => (
           <div key={idx}>
