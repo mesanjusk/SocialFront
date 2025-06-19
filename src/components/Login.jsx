@@ -6,28 +6,21 @@ import BASE_URL from '../config';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [centerCode, setCenterCode] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const nameInputRef = useRef(null);
 
   useEffect(() => {
     nameInputRef.current?.focus();
-
-    const storedId = localStorage.getItem('organization_id');
-    const storedType = localStorage.getItem('type');
-    if (storedId && storedType === 'organization') {
-      navigate('/dashboard', { state: { id: storedId } });
-    }
-
     document.documentElement.style.setProperty('--theme-color', '#10B981');
-  }, [navigate]);
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/organization/login`, {
-        center_code: centerCode,
-        password: password,
+      const res = await axios.post(`${BASE_URL}/api/auth/user/login`, {
+        username,
+        password,
       });
 
       const data = res.data;
@@ -37,37 +30,25 @@ const Login = () => {
         return;
       }
 
-      // ✅ Trial expiry check
-      if (data.expiry_date) {
-        const expiry = new Date(data.expiry_date);
-        const now = new Date();
-        if (expiry < now) {
-          toast.error('Trial expired. Please contact support to upgrade.');
-          return;
-        }
-      }
-
       // Save session
       localStorage.setItem('organization_id', data.organization_id);
       localStorage.setItem('organization_title', data.organization_title);
-      localStorage.setItem('center_code', centerCode);
-      localStorage.setItem('type', 'admin');
+      localStorage.setItem('type', data.user_type || 'admin');
       localStorage.setItem('user_id', data.user_id);
-      localStorage.setItem('user_name', data.user_name);
-      localStorage.setItem('user_type', data.user_type);
-      localStorage.setItem('last_password_change', data.last_password_change);
+      localStorage.setItem('name', data.user_name);
+      localStorage.setItem('last_password_change', data.last_password_change || '');
 
       const themeColor = data.theme_color || '#10B981';
       localStorage.setItem('theme_color', themeColor);
       document.documentElement.style.setProperty('--theme-color', themeColor);
 
-      toast.success('Login successful');
+      toast.success(`Welcome, ${data.user_name}`);
       setTimeout(() => {
         navigate('/dashboard', { state: { id: data.organization_id } });
       }, 800);
     } catch (err) {
-      toast.error('Login failed. Try again.');
       console.error(err);
+      toast.error('Login failed. Try again.');
     }
   };
 
@@ -79,21 +60,22 @@ const Login = () => {
           <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
         </div>
 
-        <h2 className="text-2xl font-bold text-center text-theme mb-6">Organization Login</h2>
+        <h2 className="text-2xl font-bold text-center text-theme mb-6">User Login</h2>
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Center Code</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Username</label>
             <input
               ref={nameInputRef}
               type="text"
-              value={centerCode}
-              onChange={(e) => setCenterCode(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
-              placeholder="Enter center code"
+              placeholder="Enter username"
             />
           </div>
+
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">Password</label>
             <input

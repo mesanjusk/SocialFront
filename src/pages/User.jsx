@@ -58,20 +58,29 @@ const User = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔒 Get organization ID from session
     const orgId = localStorage.getItem("organization_id");
+
+    // 📦 Prepare payload for POST or PUT
     const dataToSend = { ...form, organization_id: orgId };
 
     try {
       if (editingId) {
+        // 🛠 Update user (PUT)
         await axios.put(`${BASE_URL}/api/auth/${editingId}`, dataToSend);
         toast.success('User updated');
       } else {
-        const res = await axios.post('${BASE_URL}/api/auth/register', dataToSend);
+        // 🆕 Register new user (POST) - ✅ Template string fixed!
+        const res = await axios.post(`${BASE_URL}/api/auth/register`, dataToSend);
+
+        // 🧠 Backend returns: 'exist', 'notexist'
         if (res.data === 'exist') toast.error('User already exists');
         else if (res.data === 'notexist') toast.success('User added');
         else toast.error('Unexpected error');
       }
 
+      // 🔄 Cleanup and refresh
       setShowModal(false);
       resetForm();
       fetchUsers();
@@ -130,7 +139,7 @@ const User = () => {
             <th className="p-2 border">Type</th>
             <th className="p-2 border">Action</th>
           </tr>
-        </thead>  
+        </thead>
         <tbody>
           {users.map((item, idx) => (
             <tr key={idx} className="text-center">
@@ -174,7 +183,13 @@ const User = () => {
                 placeholder="Mobile No."
                 required
               />
-              <input type="text" value={form.type} onChange={handleInputChange('type')} className="w-full p-2 border rounded" placeholder="Type" required />
+              <select value={form.type} onChange={handleInputChange('type')} className="w-full p-2 border rounded" required>
+                <option value="">-- Select Role --</option>
+                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
+                
+              </select>
+
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
                 <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Save'}</button>

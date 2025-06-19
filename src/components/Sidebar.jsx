@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
 
 // MUI Icons
 import HomeIcon from '@mui/icons-material/Home';
@@ -15,6 +14,7 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 export default function Sidebar() {
   const { pathname } = useLocation();
   const [openMenus, setOpenMenus] = useState({});
+  const userType = localStorage.getItem('type');
 
   const toggleMenu = (menu) => {
     setOpenMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
@@ -22,40 +22,38 @@ export default function Sidebar() {
 
   const navItems = [
     {
-      label: 'Admissions', items: [
+      label: 'Admissions',
+      items: [
         { path: '/dashboard/Enquiry', label: 'Enquiry', icon: <ContactMailIcon fontSize="small" /> },
         { path: '/dashboard/Admission', label: 'Admission', icon: <MenuBookIcon fontSize="small" /> },
-
-
       ]
     },
     {
-      label: 'Academic', items: [
+      label: 'Academic',
+      items: [
         { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },
         { path: '/dashboard/Batches', label: 'Batches', icon: <EventNoteIcon fontSize="small" /> },
         { path: '/dashboard/paymentmode', label: 'Payment Mode', icon: <EventNoteIcon fontSize="small" /> },
         { path: '/dashboard/education', label: 'Education', icon: <SchoolIcon fontSize="small" /> },
         { path: '/dashboard/exam', label: 'Exam', icon: <EventNoteIcon fontSize="small" /> },
-
-
       ]
     },
-
     {
-      label: 'Settings', items: [
-
+      label: 'Settings',
+      items: [
         { path: '/dashboard/user', label: 'User', icon: <GroupIcon fontSize="small" /> },
-        { path: '/dashboard/OrganizationProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }
+        ...(userType === 'admin'
+          ? [{ path: '/dashboard/OrganizationProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }]
+          : [])
       ]
     },
-
   ];
 
   return (
     <aside className="w-64 bg-white shadow-md p-4">
       <h1 className="text-xl font-bold mb-6">
-  {localStorage.getItem('organization_title') || 'Dashboard'}
-</h1>
+        {localStorage.getItem('organization_title') || 'Dashboard'}
+      </h1>
 
       <nav className="space-y-4">
         {navItems.map((menu, idx) => (
@@ -72,8 +70,9 @@ export default function Sidebar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-100 ${pathname === item.path ? 'bg-gray-200 font-semibold' : ''
-                    }`}
+                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-100 ${
+                    pathname === item.path ? 'bg-gray-200 font-semibold' : ''
+                  }`}
                 >
                   {item.icon}
                   {item.label}
