@@ -1,0 +1,42 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import BASE_URL from '../config';
+
+function getSubdomain() {
+  const parts = window.location.hostname.split('.');
+  return parts.length > 2 ? parts[0] : null;
+}
+
+const AppLoader = ({ children }) => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const subdomain = getSubdomain();
+
+    if (!subdomain) {
+      setLoading(false);
+      return;
+    }
+
+    axios.get(`${BASE_URL}/api/resolve-org?subdomain=${subdomain}`)
+      .then((res) => {
+        const org = res.data.organization;
+        localStorage.setItem('organization_id', org._id);
+        localStorage.setItem('organization_title', org.organization_title);
+        localStorage.setItem('theme_color', org.theme_color || '#10B981');
+        document.documentElement.style.setProperty('--theme-color', org.theme_color || '#10B981');
+        setLoading(false);
+      })
+      .catch(() => {
+        toast.error('Invalid subdomain.');
+        window.location.href = 'https://landing.mysaas.com';
+      });
+  }, []);
+
+  if (loading) return <div className="text-center p-10">🌐 Loading...</div>;
+
+  return <>{children}</>;
+};
+
+export default AppLoader;
