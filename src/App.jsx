@@ -18,6 +18,7 @@ import PaymentMode from './pages/PaymentMode';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import OrganizationProfile from './pages/OrganizationProfile';
+import Owner from './pages/Owner';
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="exam" element={<Exam />} />
         <Route path="paymentmode" element={<PaymentMode />} />
         <Route path="OrganizationProfile" element={<OrganizationProfile />} />
+        <Route path="Owner" element={<Owner />} />
       </Route>
     </Routes>
   );

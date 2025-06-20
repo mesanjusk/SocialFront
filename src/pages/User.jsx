@@ -187,7 +187,7 @@ const User = () => {
                 <option value="">-- Select Role --</option>
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
-                
+                <option value="owner">Owner</option>
               </select>
 
               <div className="flex justify-end gap-2">

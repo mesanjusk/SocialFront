@@ -1,0 +1,210 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import BASE_URL from '../config'; // Adjust the path based on your folder structure
+
+
+const Owner = () => {
+  const [orgs, setOrgs] = useState([]);
+  const [orgTypes, setOrgTypes] = useState([]);
+  const [form, setForm] = useState({
+    organization_title: '',  
+organization_call_number: '', 
+center_head_name: '',
+ organization_type: '',
+    center_code: '',
+     theme_color: '#10B981'
+  });
+  const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const navigate = useNavigate();
+
+  const themeColor = localStorage.getItem('theme_color') || '#10B981';
+
+  useEffect(() => {
+    axios.get(`${BASE_URL}/api/org-categories`)
+      .then(res => {
+        setOrgTypes(res.data);
+      })
+      .catch(err => {
+        console.error('Failed to fetch organization types:', err);
+        toast.error('Failed to load organization types');
+      });
+  }, []);
+
+  useEffect(() => {
+    fetchOrgs();
+  }, []);
+
+  const fetchOrgs = async () => {
+
+    try {
+      const res = await axios.get(`${BASE_URL}/api/organization/GetOrganizList`);
+      if (res.data?.success) {
+        setOrgs(res.data.result);
+      } else {
+        toast.error('No orgs found');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Error fetching orgs');
+    }
+  };
+
+  const handleInputChange = (field) => (e) => {
+    setForm({ ...form, [field]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+
+    try {
+      if (editingId) {
+  await axios.put(`${BASE_URL}/api/organize/update/${editingId}`, form);
+  toast.success('Organization updated');
+} else {
+  const res = await axios.post(`${BASE_URL}/api/organize/add`, form);
+  if (res.data === 'exist') toast.error('Organization already exists');
+  else if (res.data === 'notexist') toast.success('Organization added');
+  else toast.error('Unexpected error');
+}
+
+
+      // 🔄 Cleanup and refresh
+      setShowModal(false);
+      resetForm();
+      fetchOrgs();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to submit');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this organize?')) return;
+
+    try {
+      await axios.delete(`${BASE_URL}/api/organize/${id}`);
+      toast.success('Organize deleted');
+      fetchOrgs();
+    } catch (error) {
+      toast.error('Error deleting organize');
+    }
+  };
+
+  const handleEdit = (item) => {
+    setEditingId(item._id);
+    setForm({
+      organization_title: item.organization_title || '',
+      organization_call_number: item.organization_call_number || '',
+      center_head_name: item.center_head_name || '',
+      organization_type: item.organization_type || '',
+    center_code: item.center_code || ''
+    });
+    setShowModal(true);
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setForm({ organization_title: '', organization_call_number: '', center_head_name: '', organization_type: '', center_code:'' });
+  };
+
+  return (
+    <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
+      <Toaster position="top-right" />
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Owners</h1>
+        <button
+          onClick={() => { resetForm(); setShowModal(true); }}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          + New Owner
+        </button>
+      </div>
+
+      <table className="w-full border border-gray-300 rounded-md">
+        <thead>
+          <tr className="bg-gray-200 text-center">
+            <th className="p-2 border">Name</th>
+            <th className="p-2 border">Mobile</th>
+            <th className="p-2 border">Head Name</th>
+            <th className="p-2 border">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orgs.map((item, idx) => (
+            <tr key={idx} className="text-center">
+              <td className="p-2 border">{item.organization_title}</td>
+              <td className="p-2 border">{item.organization_call_number}</td>
+              <td className="p-2 border">{item.center_head_name}</td>
+              <td className="p-2 border space-x-2">
+                <button
+                  onClick={() => handleEdit(item)}
+                  className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(item._id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit Organization' : 'Add New Organization'}</h2>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input type="text" value={form.organization_title} onChange={handleInputChange('organization_title')} className="w-full p-2 border rounded" placeholder="organization_title" required />
+              <input type="text" value={form.center_head_name} onChange={handleInputChange('center_head_name')} className="w-full p-2 border rounded" placeholder="center_head_name" required />
+               <select
+            value={form.organization_type}
+            onChange={handleInputChange('organization_type')}
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+            required
+          >
+            <option value="">Select Organization Type</option>
+            {
+              orgTypes.map((type) => (
+                <option key={type._id} value={type.category}>{type.category}</option>
+              ))
+            }
+          </select>
+               <input
+            type="text"
+            value={form.center_code}
+            onChange={handleInputChange('center_code')}
+            placeholder="Center Code (Login ID & Password)"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+            required
+          />
+              <input type="text"  inputMode="numeric"
+                pattern="[0-9]{10}"
+                maxLength={10} 
+                value={form.organization_call_number} 
+                onChange={handleInputChange('organization_call_number')} 
+                className="w-full p-2 border rounded" placeholder="organization_call_number" required />
+             
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Save'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Owner;

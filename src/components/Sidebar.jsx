@@ -44,6 +44,9 @@ export default function Sidebar() {
         { path: '/dashboard/user', label: 'User', icon: <GroupIcon fontSize="small" /> },
         ...(userType === 'admin'
           ? [{ path: '/dashboard/OrganizationProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }]
+          : []),
+          ...(userType === 'owner'
+          ? [{ path: '/dashboard/Owner', label: 'Owner', icon: <EventNoteIcon fontSize="small" /> }]
           : [])
       ]
     },
