@@ -12,27 +12,30 @@ const AppLoader = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const subdomain = getSubdomain();
+  const subdomain = getSubdomain();
+  const isDevDomain = window.location.hostname.includes('vercel.app') ||
+                      window.location.hostname.includes('localhost');
 
-    if (!subdomain) {
+  if (!subdomain || isDevDomain) {
+    setLoading(false);
+    return;
+  }
+
+  axios.get(`${BASE_URL}/api/resolve-org?subdomain=${subdomain}`)
+    .then((res) => {
+      const org = res.data.organization;
+      localStorage.setItem('organization_id', org._id);
+      localStorage.setItem('organization_title', org.organization_title);
+      localStorage.setItem('theme_color', org.theme_color || '#10B981');
+      document.documentElement.style.setProperty('--theme-color', org.theme_color || '#10B981');
       setLoading(false);
-      return;
-    }
+    })
+    .catch(() => {
+      toast.error('Invalid subdomain.');
+      setLoading(false);
+    });
+}, []);
 
-    axios.get(`${BASE_URL}/api/resolve-org?subdomain=${subdomain}`)
-      .then((res) => {
-        const org = res.data.organization;
-        localStorage.setItem('organization_id', org._id);
-        localStorage.setItem('organization_title', org.organization_title);
-        localStorage.setItem('theme_color', org.theme_color || '#10B981');
-        document.documentElement.style.setProperty('--theme-color', org.theme_color || '#10B981');
-        setLoading(false);
-      })
-      .catch(() => {
-        toast.error('Invalid subdomain.');
-        window.location.href = 'https://landing.mysaas.com';
-      });
-  }, []);
 
   if (loading) return <div className="text-center p-10">🌐 Loading...</div>;
 
