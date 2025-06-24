@@ -4,7 +4,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
 const AddEnquiry = () => {
-  const initialForm = {
+   const initialForm = {
     enquiryDate: '', firstName: '', middleName: '',
     lastName: '', dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
     mobileParent: '', mobileParentWhatsapp: false, address: '', education: '',
@@ -31,7 +31,8 @@ const AddEnquiry = () => {
   const [batches, setBatches] = useState([]);
   const [paymentModes, setPaymentModes] = useState([]);
   const [search, setSearch] = useState('');
-  const organization_id = localStorage.getItem('organization_id');
+  const organization_uuid = localStorage.getItem('organization_id');
+  console.log("organization_uuid in localStorage:", organization_uuid);
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const handleChange = (field) => (e) => {
@@ -55,7 +56,7 @@ const AddEnquiry = () => {
 
   const fetchEnquiries = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}?type=enquiry`);
+      const res = await axios.get(`${BASE_URL}/api/record/org/${organization_uuid}?type=enquiry`);
       setEnquiries(res.data || []);
     } catch {
       toast.error('Failed to fetch enquiries');
@@ -109,15 +110,20 @@ const AddEnquiry = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!organization_id) return toast.error("Missing organization ID");
-    const payload = { ...form, organization_id, type: 'enquiry' };
+    if (!organization_uuid) return toast.error("Missing organization UUID");
+    const payload = {
+  ...form,
+  organization_uuid: organization_uuid,
+  type: 'enquiry'
+};
+
 
     try {
       if (editingId) {
-        await axios.put(`${BASE_URL}/api/enquiry/${editingId}`, payload);
+        await axios.put(`${BASE_URL}/api/record/${editingId}`, payload);
         toast.success('Enquiry updated');
       } else {
-        await axios.post(`${BASE_URL}/api/enquiry`, payload);
+        await axios.post(`${BASE_URL}/api/record`, payload);
         toast.success('Enquiry added');
       }
       setForm(initialForm);
@@ -153,31 +159,36 @@ const AddEnquiry = () => {
       admissionDate: new Date().toISOString().split('T')[0]
     };
     setAdmissionForm(fill);
-    setEnquiryToDeleteId(e._id);
+    setEnquiryToDeleteId(e.uuid); // use uuid instead of _id for conversion
     setShowAdmission(true);
   };
 
   const submitAdmission = async (e) => {
     e.preventDefault();
-    if (!organization_id) return toast.error("Missing organization ID");
-    const { _id, ...rest } = admissionForm;
+    if (!organization_uuid)return toast.error("Missing organization ID");
 
     const payload = {
-      ...rest,
-      organization_id,
-      type: 'admission',
-      _enquiryId: enquiryToDeleteId,
-      fees: Number(admissionForm.fees || 0),
-      discount: Number(admissionForm.discount || 0),
-      total: Number(admissionForm.total || 0),
-      feePaid: Number(admissionForm.feePaid || 0),
-      balance: Number(admissionForm.balance || 0)
+      organization_uuid: organization_uuid,
+      admissionData: {
+        admissionDate: admissionForm.admissionDate,
+        course: admissionForm.course,
+        batchTime: admissionForm.batchTime,
+        examEvent: admissionForm.examEvent,
+        installment: admissionForm.installment,
+        fees: Number(admissionForm.fees || 0),
+        discount: Number(admissionForm.discount || 0),
+        total: Number(admissionForm.total || 0),
+        feePaid: Number(admissionForm.feePaid || 0),
+        paidBy: admissionForm.paidBy,
+        balance: Number(admissionForm.balance || 0),
+        createdBy: localStorage.getItem('name') || 'admin'
+      }
     };
 
     try {
-      await axios.post(`${BASE_URL}/api/record`, payload);
-      await axios.delete(`${BASE_URL}/api/enquiry/${enquiryToDeleteId}`);
-      toast.success('Admission saved and enquiry removed');
+      await axios.post(`http://localhost:5000/api/record/convert/${enquiryToDeleteId}`, payload);
+      toast.success('Admission saved and enquiry updated');
+      setAdmissionForm(admissionTemplate);
       setShowAdmission(false);
       fetchEnquiries();
     } catch (err) {
@@ -198,7 +209,6 @@ const AddEnquiry = () => {
     e.firstName?.toLowerCase().includes(search.toLowerCase()) ||
     e.mobileSelf?.includes(search)
   );
-
   return (
     <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
