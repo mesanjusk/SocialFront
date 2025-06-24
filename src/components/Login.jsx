@@ -24,7 +24,10 @@ const Login = () => {
     const themeColor = localStorage.getItem('theme_color') || '#10B981';
     document.documentElement.style.setProperty('--theme-color', themeColor);
 
-    const subdomain = getSubdomain();
+   const subdomain = getSubdomain();
+
+// ignore subdomain logic for now
+if (false) {
 
 // ⚠️ Ignore resolve-org when on vercel.app (or localhost)
 if (subdomain && !window.location.hostname.includes('vercel.app') && !window.location.hostname.includes('localhost')) {
@@ -51,7 +54,7 @@ if (subdomain && !window.location.hostname.includes('vercel.app') && !window.loc
       setLoadingOrg(false);
     });
 }
-
+}
   }, []);
 
   const submit = async (e) => {
