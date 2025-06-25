@@ -32,7 +32,7 @@ export default function App() {
       <Route path="/reset-password/:id" element={<ResetPassword />} />
 
       {/* 🔐 Protected Routes (Nested in DashboardLayout) */}
-      <Route path="/dashboard" element={<DashboardLayout />}>
+      <Route path="/:username" element={<DashboardLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="user" element={<User />} />
         <Route path="batches" element={<Batches />} />

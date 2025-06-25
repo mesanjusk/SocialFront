@@ -80,7 +80,7 @@ const Login = () => {
 
       toast.success(`Welcome, ${data.user_name}`);
       setTimeout(() => {
-        navigate('/dashboard');
+       navigate(`/${data.login_username}`);
       }, 800);
     } catch (err) {
       console.error(err);
