@@ -12,7 +12,7 @@ const Batches = () => {
   const [loading, setLoading] = useState(false);
   const nameInputRef = useRef();
 
-  const organization_id = localStorage.getItem('organization_id');
+  const institute_id = localStorage.getItem('institute_id');
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const fetchBatches = async () => {
@@ -30,9 +30,9 @@ const Batches = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!organization_id) return toast.error('Missing organization ID');
+    if (!institute_id) return toast.error('Missing institute ID');
 
-    const payload = { ...form, organization_id };
+    const payload = { ...form, institute_id };
     setLoading(true);
     try {
       if (editingId) {

@@ -31,7 +31,7 @@ const Admission = () => {
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const [paymentModes, setPaymentModes] = useState([]);
 
-  const organization_id = localStorage.getItem("organization_id");
+  const institute_id = localStorage.getItem("institute_id");
 
   const fetchCourses = async () => {
     try {
@@ -79,9 +79,9 @@ const Admission = () => {
   };
 
   const fetchAdmissions = async () => {
-    if (!organization_id) return;
+    if (!institute_id) return;
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/org/${organization_id}?type=admission`);
+      const res = await axios.get(`${BASE_URL}/api/record/org/${institute_id}?type=admission`);
       setAdmissions(res.data || []);
     } catch {
       toast.error('Failed to fetch admissions');
@@ -112,11 +112,11 @@ const Admission = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!organization_id) return toast.error("Missing organization ID");
+    if (!institute_id) return toast.error("Missing institute ID");
 
     const payload = {
       ...form,
-      organization_id,
+      institute_id,
       type: 'admission',
       fees: Number(form.fees || 0),
       discount: Number(form.discount || 0),

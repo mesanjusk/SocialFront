@@ -17,7 +17,7 @@ import Exam from './pages/Exam';
 import PaymentMode from './pages/PaymentMode';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
-import OrganizationProfile from './pages/OrganizationProfile';
+import instituteProfile from './pages/instituteProfile';
 import Owner from './pages/Owner';
 
 export default function App() {
@@ -43,7 +43,7 @@ export default function App() {
         <Route path="education" element={<Education />} />
         <Route path="exam" element={<Exam />} />
         <Route path="paymentmode" element={<PaymentMode />} />
-        <Route path="OrganizationProfile" element={<OrganizationProfile />} />
+        <Route path="instituteProfile" element={<instituteProfile />} />
         <Route path="Owner" element={<Owner />} />
       </Route>
     </Routes>

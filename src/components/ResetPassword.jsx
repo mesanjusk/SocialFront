@@ -13,7 +13,7 @@ const ResetPassword = () => {
   const handleReset = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/organization/reset-password/${id}`, {
+      const res = await axios.post(`${BASE_URL}/api/auth/institute/reset-password/${id}`, {
         new_password: password
       });
 

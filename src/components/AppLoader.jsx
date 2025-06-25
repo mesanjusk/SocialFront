@@ -23,9 +23,9 @@ const AppLoader = ({ children }) => {
 
   axios.get(`${BASE_URL}/api/resolve-org?subdomain=${subdomain}`)
     .then((res) => {
-      const org = res.data.organization;
-      localStorage.setItem('organization_id', org._id);
-      localStorage.setItem('organization_title', org.organization_title);
+      const org = res.data.institute;
+      localStorage.setItem('institute_id', org._id);
+      localStorage.setItem('institute_title', org.institute_title);
       localStorage.setItem('theme_color', org.theme_color || '#10B981');
       document.documentElement.style.setProperty('--theme-color', org.theme_color || '#10B981');
       setLoading(false);

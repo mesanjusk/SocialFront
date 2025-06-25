@@ -32,15 +32,15 @@ const Login = () => {
       axios
         .get(`${BASE_URL}/api/resolve-org?subdomain=${subdomain}`)
         .then((res) => {
-          const org = res.data.organization;
+          const org = res.data.institute;
           if (org && org._id) {
             setOrgId(org._id);
-            localStorage.setItem('organization_id', org._id);
-            localStorage.setItem('organization_title', org.organization_title);
+            localStorage.setItem('institute_id', org._id);
+            localStorage.setItem('institute_title', org.institute_title);
             localStorage.setItem('theme_color', org.theme_color || '#10B981');
             document.documentElement.style.setProperty('--theme-color', org.theme_color || '#10B981');
           } else {
-            toast.error('Organization not found');
+            toast.error('institute not found');
           }
         })
         .catch(() => {
@@ -59,7 +59,7 @@ const Login = () => {
       const res = await axios.post(`${BASE_URL}/api/auth/user/login`, {
         username,
         password,
-        organization_id: orgId || localStorage.getItem('organization_id') || null,
+        institute_id: orgId || localStorage.getItem('institute_id') || null,
       });
 
       const data = res.data;
@@ -73,8 +73,8 @@ const Login = () => {
       localStorage.setItem('user_id', data.user_id);
       localStorage.setItem('name', data.user_name);
       localStorage.setItem('last_password_change', data.last_password_change || '');
-      localStorage.setItem('organization_id', data.organization_id);
-      localStorage.setItem('organization_title', data.organization_title);
+      localStorage.setItem('institute_id', data.institute_id);
+      localStorage.setItem('institute_title', data.institute_title);
       localStorage.setItem('theme_color', data.theme_color || '#10B981');
       document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
@@ -99,7 +99,7 @@ const Login = () => {
         <h2 className="text-2xl font-bold text-center text-theme mb-6">User Login</h2>
 
         {loadingOrg ? (
-          <p className="text-center text-gray-500">Loading organization...</p>
+          <p className="text-center text-gray-500">Loading institute...</p>
         ) : (
           <form onSubmit={submit} className="space-y-4">
             <div>

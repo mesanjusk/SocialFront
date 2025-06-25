@@ -31,8 +31,8 @@ const AddEnquiry = () => {
   const [batches, setBatches] = useState([]);
   const [paymentModes, setPaymentModes] = useState([]);
   const [search, setSearch] = useState('');
-  const organization_uuid = localStorage.getItem('organization_id');
-  console.log("organization_uuid in localStorage:", organization_uuid);
+  const institute_uuid = localStorage.getItem('institute_id');
+  console.log("institute_uuid in localStorage:", institute_uuid);
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const handleChange = (field) => (e) => {
@@ -56,7 +56,7 @@ const AddEnquiry = () => {
 
   const fetchEnquiries = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/org/${organization_uuid}?type=enquiry`);
+      const res = await axios.get(`${BASE_URL}/api/record/org/${institute_uuid}?type=enquiry`);
       setEnquiries(res.data || []);
     } catch {
       toast.error('Failed to fetch enquiries');
@@ -110,10 +110,10 @@ const AddEnquiry = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!organization_uuid) return toast.error("Missing organization UUID");
+    if (!institute_uuid) return toast.error("Missing institute UUID");
     const payload = {
   ...form,
-  organization_uuid: organization_uuid,
+  institute_uuid: institute_uuid,
   type: 'enquiry'
 };
 
@@ -165,10 +165,10 @@ const AddEnquiry = () => {
 
   const submitAdmission = async (e) => {
     e.preventDefault();
-    if (!organization_uuid)return toast.error("Missing organization ID");
+    if (!institute_uuid)return toast.error("Missing institute ID");
 
     const payload = {
-      organization_uuid: organization_uuid,
+      institute_uuid: institute_uuid,
       admissionData: {
         admissionDate: admissionForm.admissionDate,
         course: admissionForm.course,

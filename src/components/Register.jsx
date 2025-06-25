@@ -17,7 +17,7 @@ const Register = () => {
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   useEffect(() => {
-    const orgId = localStorage.getItem("organization_id");
+    const orgId = localStorage.getItem("institute_id");
     const userType = localStorage.getItem("type");
 
     if (!orgId || !["Admin", "SuperAdmin"].includes(userType)) {
@@ -31,7 +31,7 @@ const Register = () => {
   const submit = async (e) => {
     e.preventDefault();
 
-    const organization_id = localStorage.getItem("organization_id");
+    const institute_id = localStorage.getItem("institute_id");
 
     try {
       const res = await axios.post("${BASE_URL}/api/auth/register", {
@@ -39,7 +39,7 @@ const Register = () => {
         password: password.trim(),
         mobile: mobile.trim(),
         type,
-        organization_id,
+        institute_id,
       });
 
       if (res.data === "exist") {

@@ -9,10 +9,10 @@ const Owner = () => {
   const [orgs, setOrgs] = useState([]);
   const [orgTypes, setOrgTypes] = useState([]);
   const [form, setForm] = useState({
-    organization_title: '',  
-organization_call_number: '', 
+    institute_title: '',  
+institute_call_number: '', 
 center_head_name: '',
- organization_type: '',
+ institute_type: '',
     center_code: '',
      theme_color: '#10B981'
   });
@@ -28,8 +28,8 @@ center_head_name: '',
         setOrgTypes(res.data);
       })
       .catch(err => {
-        console.error('Failed to fetch organization types:', err);
-        toast.error('Failed to load organization types');
+        console.error('Failed to fetch institute types:', err);
+        toast.error('Failed to load institute types');
       });
   }, []);
 
@@ -40,7 +40,7 @@ center_head_name: '',
   const fetchOrgs = async () => {
 
     try {
-      const res = await axios.get(`${BASE_URL}/api/organization/GetOrganizList`);
+      const res = await axios.get(`${BASE_URL}/api/institute/GetOrganizList`);
       if (res.data?.success) {
         setOrgs(res.data.result);
       } else {
@@ -63,11 +63,11 @@ center_head_name: '',
     try {
       if (editingId) {
   await axios.put(`${BASE_URL}/api/organize/update/${editingId}`, form);
-  toast.success('Organization updated');
+  toast.success('institute updated');
 } else {
   const res = await axios.post(`${BASE_URL}/api/organize/add`, form);
-  if (res.data === 'exist') toast.error('Organization already exists');
-  else if (res.data === 'notexist') toast.success('Organization added');
+  if (res.data === 'exist') toast.error('institute already exists');
+  else if (res.data === 'notexist') toast.success('institute added');
   else toast.error('Unexpected error');
 }
 
@@ -97,10 +97,10 @@ center_head_name: '',
   const handleEdit = (item) => {
     setEditingId(item._id);
     setForm({
-      organization_title: item.organization_title || '',
-      organization_call_number: item.organization_call_number || '',
+      institute_title: item.institute_title || '',
+      institute_call_number: item.institute_call_number || '',
       center_head_name: item.center_head_name || '',
-      organization_type: item.organization_type || '',
+      institute_type: item.institute_type || '',
     center_code: item.center_code || ''
     });
     setShowModal(true);
@@ -108,7 +108,7 @@ center_head_name: '',
 
   const resetForm = () => {
     setEditingId(null);
-    setForm({ organization_title: '', organization_call_number: '', center_head_name: '', organization_type: '', center_code:'' });
+    setForm({ institute_title: '', institute_call_number: '', center_head_name: '', institute_type: '', center_code:'' });
   };
 
   return (
@@ -136,8 +136,8 @@ center_head_name: '',
         <tbody>
           {orgs.map((item, idx) => (
             <tr key={idx} className="text-center">
-              <td className="p-2 border">{item.organization_title}</td>
-              <td className="p-2 border">{item.organization_call_number}</td>
+              <td className="p-2 border">{item.institute_title}</td>
+              <td className="p-2 border">{item.institute_call_number}</td>
               <td className="p-2 border">{item.center_head_name}</td>
               <td className="p-2 border space-x-2">
                 <button
@@ -161,18 +161,18 @@ center_head_name: '',
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit Organization' : 'Add New Organization'}</h2>
+            <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit institute' : 'Add New institute'}</h2>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input type="text" value={form.organization_title} onChange={handleInputChange('organization_title')} className="w-full p-2 border rounded" placeholder="organization_title" required />
+              <input type="text" value={form.institute_title} onChange={handleInputChange('institute_title')} className="w-full p-2 border rounded" placeholder="institute_title" required />
               <input type="text" value={form.center_head_name} onChange={handleInputChange('center_head_name')} className="w-full p-2 border rounded" placeholder="center_head_name" required />
                <select
-            value={form.organization_type}
-            onChange={handleInputChange('organization_type')}
+            value={form.institute_type}
+            onChange={handleInputChange('institute_type')}
             className="w-full px-3 py-2 border rounded-md shadow-sm"
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           >
-            <option value="">Select Organization Type</option>
+            <option value="">Select institute Type</option>
             {
               orgTypes.map((type) => (
                 <option key={type._id} value={type.category}>{type.category}</option>
@@ -191,9 +191,9 @@ center_head_name: '',
               <input type="text"  inputMode="numeric"
                 pattern="[0-9]{10}"
                 maxLength={10} 
-                value={form.organization_call_number} 
-                onChange={handleInputChange('organization_call_number')} 
-                className="w-full p-2 border rounded" placeholder="organization_call_number" required />
+                value={form.institute_call_number} 
+                onChange={handleInputChange('institute_call_number')} 
+                className="w-full p-2 border rounded" placeholder="institute_call_number" required />
              
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>

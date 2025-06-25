@@ -43,7 +43,7 @@ export default function Sidebar() {
       items: [
         { path: '/dashboard/user', label: 'User', icon: <GroupIcon fontSize="small" /> },
         ...(userType === 'admin'
-          ? [{ path: '/dashboard/OrganizationProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }]
+          ? [{ path: '/dashboard/instituteProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }]
           : []),
           ...(userType === 'owner'
           ? [{ path: '/dashboard/Owner', label: 'Owner', icon: <EventNoteIcon fontSize="small" /> }]
@@ -55,7 +55,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-white shadow-md p-4">
       <h1 className="text-xl font-bold mb-6">
-        {localStorage.getItem('organization_title') || 'Dashboard'}
+        {localStorage.getItem('institute_title') || 'Dashboard'}
       </h1>
 
       <nav className="space-y-4">

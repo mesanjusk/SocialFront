@@ -8,10 +8,10 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    organization_title: '',
-    organization_type: '',
+    institute_title: '',
+    institute_type: '',
     center_code: '',
-    mobile_number: '',
+    institute_call_number: '',
     center_head_name: '',
     theme_color: '#10B981'
   });
@@ -26,8 +26,8 @@ const Signup = () => {
         setLoadingTypes(false);
       })
       .catch(err => {
-        console.error('Failed to fetch organization types:', err);
-        toast.error('Failed to load organization types');
+        console.error('Failed to fetch institute types:', err);
+        toast.error('Failed to load institute types');
         setLoadingTypes(false);
       });
   }, []);
@@ -40,45 +40,54 @@ const Signup = () => {
     e.preventDefault();
 
     const {
-      organization_title,
-      organization_type,
+      institute_title,
+      institute_type,
       center_code,
-      mobile_number,
-      center_head_name
+      institute_call_number,
+      center_head_name,
+      theme_color
     } = form;
 
-    if (!organization_title || !organization_type || !center_code || !mobile_number || !center_head_name) {
+    if (!institute_title || !institute_type || !center_code || !institute_call_number || !center_head_name) {
       toast.error('All fields are required');
       return;
     }
 
     const payload = {
-      ...form,
-      organization_call_number: mobile_number,
-      plan_type: 'trial' // ✅ Explicit plan_type (optional, but safe)
+      institute_title,
+      institute_type,
+      center_code,
+      institute_call_number,
+      center_head_name,
+      theme_color,
+      plan_type: 'trial'
     };
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/organize/add`, payload);
+      const res = await axios.post(`${BASE_URL}/api/institute/signup`, payload);
       const data = res.data;
 
       if (data.message === 'exist') {
-        toast.error('Center code already registered');
+        toast.error('Center code or email already registered');
       } else if (data.message === 'duplicate_call_number') {
         toast.error('Mobile number already registered');
       } else if (data.message === 'success') {
         toast.success('Signup successful. You are now on a 14-day trial.');
 
-        localStorage.setItem('name', data.center_code);
-        localStorage.setItem('organization_title', data.organization_title);
-        localStorage.setItem('organization_id', data.organization_id);
-        localStorage.setItem('center_code', data.center_code);
+        localStorage.setItem('name', form.center_head_name);
+        localStorage.setItem('institute_title', data.institute_title);
+        localStorage.setItem('institute_id', data.institute_id);
+        localStorage.setItem('center_code', form.center_code);
         localStorage.setItem('type', 'admin');
         localStorage.setItem('theme_color', data.theme_color || '#10B981');
 
+        if (data.trialExpiresAt) {
+          localStorage.setItem('trialExpiresAt', data.trialExpiresAt);
+        }
+
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
-        setTimeout(() => navigate('/dashboard', { state: { id: data.organization_id } }), 1000);
+        setTimeout(() => navigate('/dashboard', { state: { id: data.institute_id } }), 1000);
       } else {
         toast.error('Unexpected server response');
       }
@@ -101,27 +110,27 @@ const Signup = () => {
           <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
         </div>
 
-        <h2 className="text-2xl font-bold text-center text-theme mb-6">Register Organization</h2>
+        <h2 className="text-2xl font-bold text-center text-theme mb-6">Register Institute</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            value={form.organization_title}
-            onChange={handleChange('organization_title')}
-            placeholder="Organization Title"
+            value={form.institute_title}
+            onChange={handleChange('institute_title')}
+            placeholder="Institute Name"
             className="w-full px-3 py-2 border rounded-md shadow-sm"
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           />
 
           <select
-            value={form.organization_type}
-            onChange={handleChange('organization_type')}
+            value={form.institute_type}
+            onChange={handleChange('institute_type')}
             className="w-full px-3 py-2 border rounded-md shadow-sm"
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
             required
           >
-            <option value="">Select Organization Type</option>
+            <option value="">Select Institute Type</option>
             {loadingTypes ? (
               <option disabled>Loading...</option>
             ) : (
@@ -146,8 +155,8 @@ const Signup = () => {
             inputMode="numeric"
             pattern="[0-9]{10}"
             maxLength={10}
-            value={form.mobile_number}
-            onChange={handleChange('mobile_number')}
+            value={form.institute_call_number}
+            onChange={handleChange('institute_call_number')}
             placeholder="Mobile Number (Login & Contact)"
             className="w-full px-3 py-2 border rounded-md shadow-sm"
             style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}

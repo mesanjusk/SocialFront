@@ -21,9 +21,9 @@ const User = () => {
 
   // 🔓 Removed role protection
   useEffect(() => {
-    const orgId = localStorage.getItem("organization_id");
+    const orgId = localStorage.getItem("institute_id");
     if (!orgId) {
-      toast.error("Organization not found. Please log in.");
+      toast.error("institute not found. Please log in.");
       navigate('/');
     }
   }, []);
@@ -33,9 +33,9 @@ const User = () => {
   }, []);
 
   const fetchUsers = async () => {
-    const orgId = localStorage.getItem("organization_id");
+    const orgId = localStorage.getItem("institute_id");
     if (!orgId) {
-      toast.error("Missing organization ID.");
+      toast.error("Missing institute ID.");
       return;
     }
 
@@ -59,11 +59,11 @@ const User = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔒 Get organization ID from session
-    const orgId = localStorage.getItem("organization_id");
+    // 🔒 Get institute ID from session
+    const orgId = localStorage.getItem("institute_id");
 
     // 📦 Prepare payload for POST or PUT
-    const dataToSend = { ...form, organization_id: orgId };
+    const dataToSend = { ...form, institute_id: orgId };
 
     try {
       if (editingId) {

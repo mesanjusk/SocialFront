@@ -5,8 +5,8 @@ export default function logoutUser() {
   localStorage.removeItem('name');
   localStorage.removeItem('type');
   localStorage.removeItem('last_password_change');
-  localStorage.removeItem('organization_id');
-  localStorage.removeItem('organization_title');
+  localStorage.removeItem('institute_id');
+  localStorage.removeItem('institute_title');
   localStorage.removeItem('theme_color');
 
   // Reset theme color

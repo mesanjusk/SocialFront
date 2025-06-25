@@ -14,7 +14,7 @@ const ForgotPassword = () => {
   const handleVerify = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/organization/forgot-password`, {
+      const res = await axios.post(`${BASE_URL}/api/auth/institute/forgot-password`, {
         center_code: centerCode,
         mobile,
       });

@@ -3,8 +3,8 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
-const OrganizationProfile = () => {
-  const organization_id = localStorage.getItem('organization_id');
+const instituteProfile = () => {
+  const institute_id = localStorage.getItem('institute_id');
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const [data, setData] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
@@ -16,9 +16,9 @@ const OrganizationProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/organize/${organization_id}`);
+      const res = await axios.get(`${BASE_URL}/api/organize/${institute_id}`);
       setData(res.data.result);
-      setLogoPreview(res.data.result.organization_logo);
+      setLogoPreview(res.data.result.institute_logo);
     } catch (err) {
       toast.error('Failed to load profile');
       console.error(err);
@@ -54,8 +54,8 @@ const OrganizationProfile = () => {
         logoUrl = uploaded;
       }
 
-      const updated = { ...data, organization_logo: logoUrl };
-      await axios.put(`${BASE_URL}/api/organize/update/${organization_id}`, updated);
+      const updated = { ...data, institute_logo: logoUrl };
+      await axios.put(`${BASE_URL}/api/organize/update/${institute_id}`, updated);
       toast.success('Profile updated');
       fetchProfile();
     } catch (err) {
@@ -70,13 +70,13 @@ const OrganizationProfile = () => {
     <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
       <div className="max-w-2xl mx-auto p-6 bg-white shadow rounded-lg mt-6">
         <Toaster position="top-center" />
-        <h2 className="text-2xl font-bold mb-6">Organization Profile</h2>
+        <h2 className="text-2xl font-bold mb-6">institute Profile</h2>
 
         <div className="flex flex-col gap-4">
-          <Field label="Organization Title" value={data.organization_title} onChange={handleChange('organization_title')} />
-          <Field label="Organization Type" value={data.organization_type} onChange={handleChange('organization_type')} />
+          <Field label="institute Title" value={data.institute_title} onChange={handleChange('institute_title')} />
+          <Field label="institute Type" value={data.institute_type} onChange={handleChange('institute_type')} />
           <Field label="Center Code" value={data.center_code} onChange={handleChange('center_code')} />
-          <Field label="Call Number" value={data.organization_call_number} onChange={handleChange('organization_call_number')} inputMode="numeric" />
+          <Field label="Call Number" value={data.institute_call_number} onChange={handleChange('institute_call_number')} inputMode="numeric" />
           <Field label="Center Head Name" value={data.center_head_name || ''} onChange={handleChange('center_head_name')} />
           <Field label="Address" value={data.address || ''} onChange={handleChange('address')} />
           <Field label="Email" value={data.email || ''} onChange={handleChange('email')} type="email" />
@@ -131,4 +131,4 @@ const Field = ({ label, value, onChange, ...rest }) => (
   </div>
 );
 
-export default OrganizationProfile;
+export default instituteProfile;

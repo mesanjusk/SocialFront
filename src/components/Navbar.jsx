@@ -9,7 +9,7 @@ export default function Navbar({ toggleSidebar }) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const name = localStorage.getItem('name') || localStorage.getItem('organization_title') || '';
+    const name = localStorage.getItem('name') || localStorage.getItem('institute_title') || '';
     const userType = localStorage.getItem('type') || '';
     setUsername(name);
     setRole(userType);

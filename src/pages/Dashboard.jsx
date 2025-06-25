@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const organizationName = localStorage.getItem('organization_title') || 'Your Organization';
+  const instituteName = localStorage.getItem('institute_title') || 'Your institute';
   const userType = localStorage.getItem('type') || 'User';
   const expiryDateStr = localStorage.getItem('expiry_date');
   const planType = localStorage.getItem('plan_type');
@@ -47,7 +47,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen p-6 bg-gray-100">
-      <h1 className="text-3xl font-bold mb-4 text-theme">Welcome, {organizationName}</h1>
+      <h1 className="text-3xl font-bold mb-4 text-theme">Welcome, {instituteName}</h1>
       <p className="text-lg text-gray-700">Role: {userType}</p>
 
       {planType === 'trial' && expiryDateStr && (
