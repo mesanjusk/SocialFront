@@ -76,7 +76,7 @@ const Signup = () => {
 
         localStorage.setItem('name', form.center_head_name);
         localStorage.setItem('institute_title', data.institute_title);
-        localStorage.setItem('institute_id', data.institute_id);
+        localStorage.setItem('institute_uuid', data.institute_uuid); // ✅ Correct key
         localStorage.setItem('center_code', form.center_code);
         localStorage.setItem('type', 'admin');
         localStorage.setItem('theme_color', data.theme_color || '#10B981');
@@ -87,7 +87,7 @@ const Signup = () => {
 
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
-        setTimeout(() => navigate('/dashboard', { state: { id: data.institute_id } }), 1000);
+        setTimeout(() => navigate('/dashboard', { state: { id: data.institute_uuid } }), 1000); // ✅ Matching ID
       } else {
         toast.error('Unexpected server response');
       }
