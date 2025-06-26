@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
@@ -23,7 +23,7 @@ import Owner from './pages/Owner';
 export default function App() {
   return (
     <Routes>
-      {/* 🔓 Public Routes */}
+      {/* 🌐 Public Routes */}
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/signup" element={<Signup />} />
@@ -31,7 +31,7 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id" element={<ResetPassword />} />
 
-      {/* 🔐 Protected Routes (Nested in DashboardLayout) */}
+      {/* 🔐 Protected Routes - Dynamically under login_username */}
       <Route path="/:username" element={<DashboardLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="user" element={<User />} />
@@ -44,8 +44,11 @@ export default function App() {
         <Route path="exam" element={<Exam />} />
         <Route path="paymentmode" element={<PaymentMode />} />
         <Route path="instituteProfile" element={<InstituteProfile />} />
-        <Route path="Owner" element={<Owner />} />
+        <Route path="owner" element={<Owner />} />
       </Route>
+
+      {/* 🧭 Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

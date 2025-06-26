@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const instituteName = localStorage.getItem('institute_title') || 'Your institute';
+  const instituteName = localStorage.getItem('institute_title') || 'Your Institute';
   const userType = localStorage.getItem('type') || 'User';
   const expiryDateStr = localStorage.getItem('expiry_date');
   const planType = localStorage.getItem('plan_type');
@@ -20,7 +20,6 @@ const Dashboard = () => {
 
       if (days <= 0) {
         setExpired(true);
-        // Optional: auto-convert to free plan locally
         localStorage.setItem('plan_type', 'free');
       } else {
         setDaysLeft(days);
@@ -36,7 +35,7 @@ const Dashboard = () => {
           <p className="mt-2 text-gray-700">Your 14-day trial has ended. Please contact support to upgrade your plan.</p>
           <button
             onClick={() => navigate('/')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="mt-4 px-4 py-2 bg-primary text-white rounded hover:opacity-90"
           >
             Back to Login
           </button>
@@ -46,8 +45,8 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
-      <h1 className="text-3xl font-bold mb-4 text-theme">Welcome, {instituteName}</h1>
+    <div className="min-h-screen p-6 bg-gray-50">
+      <h1 className="text-3xl font-bold mb-4 text-primary">Welcome, {instituteName}</h1>
       <p className="text-lg text-gray-700">Role: {userType}</p>
 
       {planType === 'trial' && expiryDateStr && (
