@@ -11,7 +11,7 @@ const User = () => {
     name: '',
     mobile: '',
     password: '',
-    type: '',
+    role: '',
   });
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -34,7 +34,6 @@ const User = () => {
 
   const fetchUsers = async () => {
     const orgId = localStorage.getItem("institute_uuid");
-console.log(orgId);
     if (!orgId) {
       toast.error("Missing institute ID.");
       return;
@@ -65,7 +64,7 @@ console.log(orgId);
     
 
     // 📦 Prepare payload for POST or PUT
-    const dataToSend = { ...form, institute_id: orgId };
+    const dataToSend = { ...form, institute_uuid: orgId };
 
     try {
       if (editingId) {
@@ -74,7 +73,7 @@ console.log(orgId);
         toast.success('User updated');
       } else {
         // 🆕 Register new user (POST) - ✅ Template string fixed!
-        const res = await axios.post(`${BASE_URL}/api/auth/register`, dataToSend);
+        const res = await axios.post(`http://localhost:5000/api/auth/register`, dataToSend);
 
         // 🧠 Backend returns: 'exist', 'notexist'
         if (res.data === 'exist') toast.error('User already exists');
@@ -110,14 +109,14 @@ console.log(orgId);
       name: item.name || '',
       password: item.password || '',
       mobile: item.mobile || '',
-      type: item.type || '',
+      role: item.role || '',
     });
     setShowModal(true);
   };
 
   const resetForm = () => {
     setEditingId(null);
-    setForm({ name: '', password: '', mobile: '', type: '' });
+    setForm({ name: '', password: '', mobile: '', role: '' });
   };
 
   return (
@@ -185,7 +184,7 @@ console.log(orgId);
                 placeholder="Mobile No."
                 required
               />
-              <select value={form.type} onChange={handleInputChange('type')} className="w-full p-2 border rounded" required>
+              <select value={form.role} onChange={handleInputChange('role')} className="w-full p-2 border rounded" required>
                 <option value="">-- Select Role --</option>
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>

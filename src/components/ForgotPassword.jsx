@@ -18,7 +18,7 @@ const ForgotPassword = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`http://localhost:5000/api/auth/institute/forgot-password`, {
+      const res = await axios.post(`${BASE_URL}/api/auth/institute/forgot-password`, {
         center_code: centerCode,
         mobile,
       });
