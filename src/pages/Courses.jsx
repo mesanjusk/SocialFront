@@ -20,12 +20,12 @@ const Courses = () => {
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
 
-  const institute_id = localStorage.getItem('institute_id');
+  const institute_id = localStorage.getItem('institute_uuid');
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/courses`);
+      const res = await axios.get(`${BASE_URL}/api/courses?institute_uuid=${institute_id}`);
       setCourses(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch courses');
@@ -40,7 +40,8 @@ const Courses = () => {
     e.preventDefault();
     if (!institute_id) return toast.error('Missing institute ID');
 
-    const payload = { ...form, institute_id };
+    const payload = { ...form, institute_uuid: institute_id };
+
 
     try {
       if (editingId) {

@@ -31,8 +31,7 @@ const AddEnquiry = () => {
   const [batches, setBatches] = useState([]);
   const [paymentModes, setPaymentModes] = useState([]);
   const [search, setSearch] = useState('');
-  const institute_uuid = localStorage.getItem('institute_id');
-  console.log("institute_uuid in localStorage:", institute_uuid);
+  const institute_uuid = localStorage.getItem('institute_uuid');
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const handleChange = (field) => (e) => {
@@ -65,7 +64,7 @@ const AddEnquiry = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/courses`);
+      const res = await axios.get(`${BASE_URL}/api/courses?institute_uuid=${institute_uuid}`);
       setCourses(res.data || []);
     } catch {
       toast.error('Failed to load courses');
@@ -159,7 +158,7 @@ const AddEnquiry = () => {
       admissionDate: new Date().toISOString().split('T')[0]
     };
     setAdmissionForm(fill);
-    setEnquiryToDeleteId(e.uuid); // use uuid instead of _id for conversion
+    setEnquiryToDeleteId(e.uuid); 
     setShowAdmission(true);
   };
 
@@ -186,7 +185,7 @@ const AddEnquiry = () => {
     };
 
     try {
-      await axios.post(`http://localhost:5000/api/record/convert/${enquiryToDeleteId}`, payload);
+      await axios.post(`${BASE_URL}/api/record/convert/${enquiryToDeleteId}`, payload);
       toast.success('Admission saved and enquiry updated');
       setAdmissionForm(admissionTemplate);
       setShowAdmission(false);
@@ -222,7 +221,6 @@ const AddEnquiry = () => {
           <tr>
             <th className="border p-2">Name</th>
             <th className="border p-2">Mobile</th>
-            <th className="border p-2">Course</th>
             <th className="border p-2">Actions</th>
           </tr>
         </thead>
@@ -231,7 +229,6 @@ const AddEnquiry = () => {
             <tr key={i} className="text-center">
               <td className="border p-2">{e.firstName} {e.lastName}</td>
               <td className="border p-2">{e.mobileSelf}</td>
-              <td className="border p-2">{e.course}</td>
               <td className="border p-2 space-x-2">
                 <button onClick={() => handleEdit(e)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
                 <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>

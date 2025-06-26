@@ -12,12 +12,12 @@ const Batches = () => {
   const [loading, setLoading] = useState(false);
   const nameInputRef = useRef();
 
-  const institute_id = localStorage.getItem('institute_id');
+  const institute_id = localStorage.getItem('institute_uuid');
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
   const fetchBatches = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/batches`);
+      const res = await axios.get(`${BASE_URL}/api/batches?institute_uuid=${institute_id}`);
       setBatches(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch batches');

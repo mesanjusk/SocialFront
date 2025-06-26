@@ -31,11 +31,11 @@ const Admission = () => {
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const [paymentModes, setPaymentModes] = useState([]);
 
-  const institute_id = localStorage.getItem("institute_id");
+  const institute_uuid = localStorage.getItem("institute_uuid");
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/courses`);
+      const res = await axios.get(`http://localhost:5000/api/courses?institute_uuid=${institute_uuid}`);
       setCourses(Array.isArray(res.data) ? res.data : []);
     } catch {
       toast.error('Failed to load courses');
@@ -62,8 +62,8 @@ const Admission = () => {
 
   const fetchBatches = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/batches`);
-      setBatches(Array.isArray(res.data) ? res.data : []);
+      const res = await axios.get(`http://localhost:5000/api/batches?institute_uuid=${institute_uuid}`);
+      setBatches(res.data || []);
     } catch {
       toast.error('Failed to load batches');
     }
@@ -79,9 +79,9 @@ const Admission = () => {
   };
 
   const fetchAdmissions = async () => {
-    if (!institute_id) return;
+    if (!institute_uuid) return;
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/org/${institute_id}?type=admission`);
+      const res = await axios.get(`${BASE_URL}/api/record/org/${institute_uuid}?type=admission`);
       setAdmissions(res.data || []);
     } catch {
       toast.error('Failed to fetch admissions');
@@ -112,11 +112,11 @@ const Admission = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!institute_id) return toast.error("Missing institute ID");
+    if (!institute_uuid) return toast.error("Missing institute ID");
 
     const payload = {
       ...form,
-      institute_id,
+      institute_uuid,
       type: 'admission',
       fees: Number(form.fees || 0),
       discount: Number(form.discount || 0),
@@ -163,7 +163,7 @@ const Admission = () => {
     if (filteredAdmissions.length === 0) return toast.error("No data to export");
     const doc = new jsPDF();
     autoTable(doc, {
-      head: [['Name', 'Mobile', 'Course']],
+      head: [['Name', 'Mobile']],
       body: filteredAdmissions.map(e => [`${e.firstName} ${e.lastName}`, e.mobileSelf, e.course]),
     });
     doc.save('admissions.pdf');
@@ -220,7 +220,6 @@ const Admission = () => {
           <tr>
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Mobile</th>
-            <th className="p-2 border">Course</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
@@ -229,7 +228,6 @@ const Admission = () => {
             <tr key={i} className="text-center">
               <td className="border p-2">{a.firstName} {a.lastName}</td>
               <td className="border p-2">{a.mobileSelf}</td>
-              <td className="border p-2">{a.course}</td>
               <td className="border p-2 space-x-2">
                 <button onClick={() => handleEdit(a)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
                 <button onClick={() => handleDelete(a._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>

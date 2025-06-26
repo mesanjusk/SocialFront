@@ -73,7 +73,7 @@ const User = () => {
         toast.success('User updated');
       } else {
         // 🆕 Register new user (POST) - ✅ Template string fixed!
-        const res = await axios.post(`http://localhost:5000/api/auth/register`, dataToSend);
+        const res = await axios.post(`${BASE_URL}/api/auth/register`, dataToSend);
 
         // 🧠 Backend returns: 'exist', 'notexist'
         if (res.data === 'exist') toast.error('User already exists');
@@ -142,8 +142,8 @@ const User = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((item, idx) => (
-            <tr key={idx} className="text-center">
+          {users.map((item) => (
+            <tr key={item._id} className="text-center">
               <td className="p-2 border">{item.name}</td>
               <td className="p-2 border">{item.mobile}</td>
               <td className="p-2 border">{item.role}</td>
