@@ -6,20 +6,22 @@ import BASE_URL from '../config';
 
 const ResetPassword = () => {
   const { id } = useParams();
-  const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
+
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   const handleReset = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post(`${BASE_URL}/api/auth/institute/reset-password/${id}`, {
-        new_password: password
+        old_password: oldPassword,
+        new_password: newPassword
       });
 
-
       if (res.data.message === 'reset_success') {
-        toast.success('Password reset. Please login.');
+        toast.success('Password reset successful. Please login.');
         navigate('/');
       } else {
         toast.error(res.data.message || 'Reset failed');
@@ -31,18 +33,24 @@ const ResetPassword = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4"
-      style={{ backgroundColor: themeColor }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ backgroundColor: themeColor }}>
       <Toaster position="top-center" />
       <div className="bg-white w-full max-w-md rounded-lg shadow p-6">
         <h2 className="text-2xl font-bold text-center text-theme mb-6">Reset Password</h2>
         <form onSubmit={handleReset} className="space-y-4">
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            placeholder="Old Password"
+            required
+            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+          />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
             placeholder="New Password"
             required
             className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"

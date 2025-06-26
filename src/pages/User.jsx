@@ -21,7 +21,7 @@ const User = () => {
 
   // 🔓 Removed role protection
   useEffect(() => {
-    const orgId = localStorage.getItem("institute_id");
+    const orgId = localStorage.getItem("institute_uuid");
     if (!orgId) {
       toast.error("institute not found. Please log in.");
       navigate('/');
@@ -33,7 +33,8 @@ const User = () => {
   }, []);
 
   const fetchUsers = async () => {
-    const orgId = localStorage.getItem("institute_id");
+    const orgId = localStorage.getItem("institute_uuid");
+console.log(orgId);
     if (!orgId) {
       toast.error("Missing institute ID.");
       return;
@@ -60,7 +61,8 @@ const User = () => {
     e.preventDefault();
 
     // 🔒 Get institute ID from session
-    const orgId = localStorage.getItem("institute_id");
+    const orgId = localStorage.getItem("institute_uuid");
+    
 
     // 📦 Prepare payload for POST or PUT
     const dataToSend = { ...form, institute_id: orgId };
@@ -145,7 +147,7 @@ const User = () => {
             <tr key={idx} className="text-center">
               <td className="p-2 border">{item.name}</td>
               <td className="p-2 border">{item.mobile}</td>
-              <td className="p-2 border">{item.type}</td>
+              <td className="p-2 border">{item.role}</td>
               <td className="p-2 border space-x-2">
                 <button
                   onClick={() => handleEdit(item)}

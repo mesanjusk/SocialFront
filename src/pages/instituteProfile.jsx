@@ -3,20 +3,20 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
-const instituteProfile = () => {
-  const institute_id = localStorage.getItem('institute_id');
+const InstituteProfile = () => {
+  const institute_id = localStorage.getItem('institute_uuid');
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const [data, setData] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
   const [logoFile, setLogoFile] = useState(null);
 
   useEffect(() => {
-    fetchProfile();
+    if (institute_id) fetchProfile();
   }, []);
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/organize/${institute_id}`);
+      const res = await axios.get(`http://localhost:5000/api/institute/${institute_id}`);
       setData(res.data.result);
       setLogoPreview(res.data.result.institute_logo);
     } catch (err) {
@@ -30,32 +30,33 @@ const instituteProfile = () => {
   };
 
   const handleLogoUpload = async () => {
-    if (!logoFile) return;
+    if (!logoFile) return null;
     const formData = new FormData();
     formData.append('file', logoFile);
     try {
-      const res = await axios.post(`${BASE_URL}/upload`, formData);
+      const res = await axios.post(`${BASE_URL}/api/upload`, formData);
       return res.data.url;
     } catch (err) {
       toast.error('Logo upload failed');
+      console.error(err);
       return null;
     }
   };
 
   const handleSave = async () => {
-    const confirm = window.confirm("Are you sure you want to save these changes?");
-    if (!confirm) return;
+    if (!data) return;
+    if (!window.confirm('Are you sure you want to save these changes?')) return;
 
     try {
       let logoUrl = logoPreview;
       if (logoFile) {
-        const uploaded = await handleLogoUpload();
-        if (!uploaded) return;
-        logoUrl = uploaded;
+        const uploadedUrl = await handleLogoUpload();
+        if (!uploadedUrl) return;
+        logoUrl = uploadedUrl;
       }
 
       const updated = { ...data, institute_logo: logoUrl };
-      await axios.put(`${BASE_URL}/api/organize/update/${institute_id}`, updated);
+      await axios.put(`http://localhost:5000/api/institude/update/${institute_id}`, updated);
       toast.success('Profile updated');
       fetchProfile();
     } catch (err) {
@@ -68,47 +69,46 @@ const instituteProfile = () => {
 
   return (
     <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
-      <div className="max-w-2xl mx-auto p-6 bg-white shadow rounded-lg mt-6">
-        <Toaster position="top-center" />
-        <h2 className="text-2xl font-bold mb-6">institute Profile</h2>
+      <Toaster position="top-center" />
+      <div className="max-w-2xl mx-auto bg-white p-6 shadow rounded">
+        <h2 className="text-2xl font-bold mb-6">Institute Profile</h2>
 
-        <div className="flex flex-col gap-4">
-          <Field label="institute Title" value={data.institute_title} onChange={handleChange('institute_title')} />
-          <Field label="institute Type" value={data.institute_type} onChange={handleChange('institute_type')} />
+        <div className="space-y-4">
+          <Field label="Institute Title" value={data.institute_title} onChange={handleChange('institute_title')} />
+          <Field label="Institute Type" value={data.institute_type} onChange={handleChange('institute_type')} />
           <Field label="Center Code" value={data.center_code} onChange={handleChange('center_code')} />
-          <Field label="Call Number" value={data.institute_call_number} onChange={handleChange('institute_call_number')} inputMode="numeric" />
+          <Field label="Call Number" value={data.institute_call_number} onChange={handleChange('institute_call_number')} />
           <Field label="Center Head Name" value={data.center_head_name || ''} onChange={handleChange('center_head_name')} />
           <Field label="Address" value={data.address || ''} onChange={handleChange('address')} />
-          <Field label="Email" value={data.email || ''} onChange={handleChange('email')} type="email" />
+          <Field label="Email" type="email" value={data.email || ''} onChange={handleChange('email')} />
 
-          <div className="flex flex-col">
+          <div>
             <label className="font-medium">Theme Color</label>
             <input
               type="color"
               value={data.theme_color}
               onChange={handleChange('theme_color')}
-              className="w-16 h-10 p-1 rounded border"
+              className="w-20 h-10 border rounded"
             />
           </div>
 
-          <div className="flex flex-col">
-            <label className="font-medium">Profile Picture / Logo</label>
+          <div>
+            <label className="font-medium">Institute Logo</label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => {
-                setLogoFile(e.target.files[0]);
-                setLogoPreview(URL.createObjectURL(e.target.files[0]));
+                const file = e.target.files[0];
+                setLogoFile(file);
+                setLogoPreview(URL.createObjectURL(file));
               }}
             />
-            {logoPreview && (
-              <img src={logoPreview} alt="Logo" className="h-24 w-auto mt-2 rounded border" />
-            )}
+            {logoPreview && <img src={logoPreview} alt="Logo" className="h-24 mt-2 rounded border" />}
           </div>
 
           <button
             onClick={handleSave}
-            className="bg-blue-600 text-white py-2 rounded mt-4 hover:bg-blue-700"
+            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
           >
             Save Changes
           </button>
@@ -118,17 +118,11 @@ const instituteProfile = () => {
   );
 };
 
-// ✅ Reusable Field Component
 const Field = ({ label, value, onChange, ...rest }) => (
   <div className="flex flex-col">
     <label className="font-medium">{label}</label>
-    <input
-      value={value}
-      onChange={onChange}
-      className="border p-2 rounded"
-      {...rest}
-    />
+    <input value={value} onChange={onChange} className="border p-2 rounded" {...rest} />
   </div>
 );
 
-export default instituteProfile;
+export default InstituteProfile;
