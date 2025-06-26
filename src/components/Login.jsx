@@ -13,40 +13,52 @@ const Login = () => {
   const [loading, setLoading] = useState(true);
   const inputRef = useRef(null);
 
-  const getSubdomain = () => {
+  // Detect subdomain or query param
+  const getInstituteId = () => {
+    const fromQuery = searchParams.get('i');
+    if (fromQuery) return fromQuery;
+
     const host = window.location.hostname;
     const parts = host.split('.');
-    return parts.length > 2 ? parts[0] : null;
+    const subdomain = parts.length > 2 ? parts[0] : null;
+    if (subdomain && subdomain !== 'www' && subdomain !== 'instify') return subdomain;
+
+    return null;
   };
 
   const fetchBranding = async () => {
+    const insti = getInstituteId();
+
     try {
-      const res = await axios.get(`${BASE_URL}/api/branding`);
+      const res = await axios.get(`${BASE_URL}/api/branding${insti ? `?i=${insti}` : ''}`);
       const data = res.data;
 
+      const themeColor = data.theme?.color || '#10B981';
       setBranding(data);
+
+      // Save to localStorage
       localStorage.setItem('institute_title', data.institute || '');
-      localStorage.setItem('theme_color', data.theme?.color || '#10B981');
+      localStorage.setItem('theme_color', themeColor);
       localStorage.setItem('favicon', data.favicon || '');
       localStorage.setItem('logo', data.logo || '');
 
-      // Set global theme
-      document.documentElement.style.setProperty('--theme-color', data.theme?.color || '#10B981');
+      // Apply theme color
+      document.documentElement.style.setProperty('--theme-color', themeColor);
 
       // Set favicon
-      if (data.favicon) {
-        const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
         link.rel = 'icon';
-        link.href = data.favicon;
         document.head.appendChild(link);
       }
+      link.href = data.favicon || '/favicon.ico';
 
-      // Set title
-      if (data.institute) {
-        document.title = `${data.institute} | Instify`;
-      }
+      // Set document title
+      document.title = `${data.institute || 'Instify'} | Instify`;
     } catch (err) {
-      toast.error('Failed to load branding');
+      console.error('Branding fetch error:', err);
+      toast.error('⚠️ Failed to load branding');
     } finally {
       setLoading(false);
     }
@@ -72,20 +84,38 @@ const Login = () => {
         return;
       }
 
+      // ✅ Store in localStorage
       localStorage.setItem('user_id', data.user_id);
       localStorage.setItem('user_name', data.user_name);
       localStorage.setItem('user_type', data.user_role || 'admin');
       localStorage.setItem('login_username', data.login_username);
       localStorage.setItem('institute_id', data.institute_id);
+      localStorage.setItem('institute_uuid', data.institute_uuid);
       localStorage.setItem('institute_title', data.institute_name);
       localStorage.setItem('theme_color', data.theme_color || '#10B981');
 
+      // ✅ Update AppContext if available
+      if (window.updateAppContext) {
+        window.updateAppContext({
+          user: {
+            id: data.user_id,
+            name: data.user_name,
+            role: data.user_role || 'admin',
+            username: data.login_username,
+          },
+          institute: {
+            institute_id: data.institute_id,
+            institute_uuid: data.institute_uuid,
+            institute_title: data.institute_name,
+            theme_color: data.theme_color || '#10B981',
+          }
+        });
+      }
+
       toast.success(`Welcome, ${data.user_name}`);
-      setTimeout(() => {
-        navigate(`/${data.login_username}`); // Redirect to user dashboard
-      }, 800);
+      setTimeout(() => navigate(`/${data.login_username}`), 800);
     } catch (err) {
-      console.error(err);
+      console.error('Login error:', err);
       toast.error('Login failed. Try again.');
     }
   };

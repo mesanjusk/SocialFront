@@ -19,13 +19,31 @@ function hexToRgb(hex) {
   return `${r} ${g} ${b}`;
 }
 
+const getInstituteId = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const fromQuery = urlParams.get('i');
+  if (fromQuery) return fromQuery;
+
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  const subdomain = parts.length > 2 ? parts[0] : null;
+
+  if (subdomain && subdomain !== 'www' && subdomain !== 'instify') {
+    return subdomain;
+  }
+
+  return null;
+};
+
 const BrandingProvider = ({ children }) => {
   const [branding, setBranding] = useState(defaultTheme);
 
   useEffect(() => {
     const fetchBranding = async () => {
+      const insti = getInstituteId();
+
       try {
-        const res = await axios.get(`${BASE_URL}/api/branding`);
+        const res = await axios.get(`${BASE_URL}/api/branding${insti ? `?i=${insti}` : ''}`);
         const data = res.data || {};
 
         const final = {
@@ -37,23 +55,27 @@ const BrandingProvider = ({ children }) => {
 
         setBranding(final);
 
-        // Set CSS variable dynamically
+        // Set theme color as RGB for Tailwind
         const rgb = hexToRgb(final.color);
         document.documentElement.style.setProperty('--tw-color-primary', rgb);
+        document.documentElement.style.setProperty('--theme-color', final.color);
 
-        // Set favicon and title
-        if (final.favicon) {
-          const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+        // Update favicon
+        let link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+          link = document.createElement('link');
           link.rel = 'icon';
-          link.href = final.favicon;
           document.head.appendChild(link);
         }
-        document.title = `${final.institute} | Instify`;
+        link.href = final.favicon || '/favicon.ico';
 
+        // Update title
+        document.title = `${final.institute} | Instify`;
       } catch (err) {
         console.warn('⚠️ Failed to fetch branding, using default.');
         const rgb = hexToRgb(defaultTheme.color);
         document.documentElement.style.setProperty('--tw-color-primary', rgb);
+        document.documentElement.style.setProperty('--theme-color', defaultTheme.color);
         setBranding(defaultTheme);
       }
     };

@@ -2,23 +2,32 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
+import { useApp } from '../Context/AppContext';
 
 const InstituteProfile = () => {
-  const institute_id = localStorage.getItem('institute_uuid');
+  const { institute } = useApp();
+
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const [data, setData] = useState(null);
+
   const [logoPreview, setLogoPreview] = useState('');
   const [logoFile, setLogoFile] = useState(null);
+  const [faviconPreview, setFaviconPreview] = useState('');
+  const [faviconFile, setFaviconFile] = useState(null);
+
+  const instituteUUID = institute?.institute_uuid || localStorage.getItem('institute_uuid');
 
   useEffect(() => {
-    if (institute_id) fetchProfile();
-  }, []);
+    if (instituteUUID) fetchProfile();
+  }, [instituteUUID]);
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/institute/${institute_id}`);
-      setData(res.data.result);
-      setLogoPreview(res.data.result.institute_logo);
+      const res = await axios.get(`${BASE_URL}/api/institute/${instituteUUID}`);
+      const result = res.data.result;
+      setData(result);
+      setLogoPreview(result.institute_logo || '');
+      setFaviconPreview(result.theme_favicon || '');
     } catch (err) {
       toast.error('Failed to load profile');
       console.error(err);
@@ -43,20 +52,49 @@ const InstituteProfile = () => {
     }
   };
 
+  const handleFaviconUpload = async () => {
+    if (!faviconFile) return null;
+    const formData = new FormData();
+    formData.append('file', faviconFile);
+    try {
+      const res = await axios.post(`${BASE_URL}/api/upload`, formData);
+      return res.data.url;
+    } catch (err) {
+      toast.error('Favicon upload failed');
+      console.error(err);
+      return null;
+    }
+  };
+
   const handleSave = async () => {
     if (!data) return;
     if (!window.confirm('Are you sure you want to save these changes?')) return;
 
     try {
       let logoUrl = logoPreview;
+      let faviconUrl = faviconPreview;
+
       if (logoFile) {
-        const uploadedUrl = await handleLogoUpload();
-        if (!uploadedUrl) return;
-        logoUrl = uploadedUrl;
+        const uploaded = await handleLogoUpload();
+        if (!uploaded) return;
+        logoUrl = uploaded;
       }
 
-      const updated = { ...data, institute_logo: logoUrl };
-      await axios.put(`http://localhost:5000/api/institude/update/${institute_id}`, updated);
+      if (faviconFile) {
+        const uploaded = await handleFaviconUpload();
+        if (!uploaded) return;
+        faviconUrl = uploaded;
+      }
+
+      const updated = {
+        ...data,
+        institute_logo: logoUrl,
+        theme_color: data.theme_color || '#10B981',
+        theme_logo: logoUrl,
+        theme_favicon: faviconUrl,
+      };
+
+      await axios.put(`${BASE_URL}/api/institute/update/${instituteUUID}`, updated);
       toast.success('Profile updated');
       fetchProfile();
     } catch (err) {
@@ -104,6 +142,22 @@ const InstituteProfile = () => {
               }}
             />
             {logoPreview && <img src={logoPreview} alt="Logo" className="h-24 mt-2 rounded border" />}
+          </div>
+
+          <div>
+            <label className="font-medium">Favicon</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setFaviconFile(file);
+                setFaviconPreview(URL.createObjectURL(file));
+              }}
+            />
+            {faviconPreview && (
+              <img src={faviconPreview} alt="Favicon" className="h-10 mt-2 border rounded" />
+            )}
           </div>
 
           <button
