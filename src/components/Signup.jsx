@@ -22,6 +22,8 @@ const Signup = () => {
   const [otp, setOtp] = useState('');
   const [serverOtp, setServerOtp] = useState('');
 
+  const themeColor = form.theme_color;
+
   useEffect(() => {
     axios.get(`${BASE_URL}/api/org-categories`)
       .then(res => {
@@ -56,7 +58,7 @@ const Signup = () => {
 
       if (res.data.success) {
         setOtpSent(true);
-        setServerOtp(res.data.otp); 
+        setServerOtp(res.data.otp); // dev only
         toast.success('OTP sent to your mobile');
       } else {
         toast.error(res.data.message || 'Failed to send OTP');
@@ -70,32 +72,17 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    const {
-      institute_title,
-      institute_type,
-      center_code,
-      institute_call_number,
-      center_head_name,
-      theme_color
-    } = form;
-
     if (!otp || otp !== serverOtp) {
       toast.error('Invalid OTP');
       return;
     }
 
-    const payload = {
-      institute_title,
-      institute_type,
-      center_code,
-      institute_call_number,
-      center_head_name,
-      theme_color,
-      plan_type: 'trial'
-    };
-
     try {
-      const res = await axios.post(`${BASE_URL}/api/institute/signup`, payload);
+      const res = await axios.post(`${BASE_URL}/api/institute/signup`, {
+        ...form,
+        plan_type: 'trial'
+      });
+
       const data = res.data;
 
       if (data.message === 'exist') {
@@ -105,20 +92,42 @@ const Signup = () => {
       } else if (data.message === 'success') {
         toast.success('Signup successful. You are now on a 14-day trial.');
 
+        // ✅ Save in localStorage
         localStorage.setItem('name', form.center_head_name);
         localStorage.setItem('institute_title', data.institute_title);
         localStorage.setItem('institute_uuid', data.institute_uuid);
         localStorage.setItem('center_code', form.center_code);
-        localStorage.setItem('type', 'admin');
+        localStorage.setItem('user_type', 'admin'); // <-- Corrected key
+        localStorage.setItem('login_username', form.center_code); // or generate one if required
         localStorage.setItem('theme_color', data.theme_color || '#10B981');
+        localStorage.setItem('institute_id', data.institute_id || '');
 
         if (data.trialExpiresAt) {
           localStorage.setItem('trialExpiresAt', data.trialExpiresAt);
         }
 
+        // ✅ Apply theme color
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
-        setTimeout(() => navigate('/dashboard', { state: { id: data.institute_uuid } }), 1000);
+        // ✅ Update context globally
+        if (window.updateAppcontext) {
+          window.updateAppcontext({
+            user: {
+              id: data.owner_id,
+              name: form.center_head_name,
+              role: 'admin',
+              username: form.center_code
+            },
+            institute: {
+              institute_id: data.institute_id,
+              institute_uuid: data.institute_uuid,
+              institute_title: data.institute_title,
+              theme_color: data.theme_color || '#10B981'
+            }
+          });
+        }
+
+        setTimeout(() => navigate('/dashboard'), 1000);
       } else {
         toast.error('Unexpected server response');
       }
@@ -127,8 +136,6 @@ const Signup = () => {
       toast.error(err.response?.data?.message || 'Server error during signup');
     }
   };
-
-  const themeColor = form.theme_color;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ backgroundColor: themeColor }}>

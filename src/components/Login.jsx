@@ -9,11 +9,11 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [branding, setBranding] = useState(null);
   const [loading, setLoading] = useState(true);
   const inputRef = useRef(null);
 
-  // Detect subdomain or query param
   const getInstituteId = () => {
     const fromQuery = searchParams.get('i');
     if (fromQuery) return fromQuery;
@@ -30,22 +30,20 @@ const Login = () => {
     const insti = getInstituteId();
 
     try {
-      const res = await axios.get(`${BASE_URL}/api/branding${insti ? `?i=${insti}` : ''}`);
+      const res = await axios.get(`${BASE_URL}/api/branding?i=${insti || 'default'}`);
+
       const data = res.data;
 
       const themeColor = data.theme?.color || '#10B981';
       setBranding(data);
 
-      // Save to localStorage
       localStorage.setItem('institute_title', data.institute || '');
       localStorage.setItem('theme_color', themeColor);
       localStorage.setItem('favicon', data.favicon || '');
       localStorage.setItem('logo', data.logo || '');
 
-      // Apply theme color
       document.documentElement.style.setProperty('--theme-color', themeColor);
 
-      // Set favicon
       let link = document.querySelector("link[rel~='icon']");
       if (!link) {
         link = document.createElement('link');
@@ -54,7 +52,6 @@ const Login = () => {
       }
       link.href = data.favicon || '/favicon.ico';
 
-      // Set document title
       document.title = `${data.institute || 'Instify'} | Instify`;
     } catch (err) {
       console.error('Branding fetch error:', err);
@@ -79,22 +76,25 @@ const Login = () => {
       });
 
       const data = res.data;
+
       if (data.message !== 'success') {
         toast.error(data.message || 'Invalid credentials');
         return;
       }
 
-      // ✅ Store in localStorage
-      localStorage.setItem('user_id', data.user_id);
-      localStorage.setItem('user_name', data.user_name);
-      localStorage.setItem('user_type', data.user_role || 'admin');
-      localStorage.setItem('login_username', data.login_username);
-      localStorage.setItem('institute_id', data.institute_id);
-      localStorage.setItem('institute_uuid', data.institute_uuid);
-      localStorage.setItem('institute_title', data.institute_name);
-      localStorage.setItem('theme_color', data.theme_color || '#10B981');
+      const storage = rememberMe ? localStorage : sessionStorage;
+      localStorage.setItem('remember_me', rememberMe ? 'true' : 'false');
 
-      // ✅ Update AppContext if available
+      storage.setItem('user_id', data.user_id);
+      storage.setItem('user_name', data.user_name);
+      storage.setItem('user_type', data.user_role || 'admin');
+      storage.setItem('login_username', data.login_username);
+
+      storage.setItem('institute_id', data.institute_id);
+      storage.setItem('institute_uuid', data.institute_uuid);
+      storage.setItem('institute_title', data.institute_name);
+      storage.setItem('theme_color', data.theme_color || '#10B981');
+
       if (window.updateAppContext) {
         window.updateAppContext({
           user: {
@@ -166,6 +166,17 @@ const Login = () => {
                 className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none"
                 placeholder="Enter password"
               />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                id="rememberMe"
+                className="mr-2"
+              />
+              <label htmlFor="rememberMe" className="text-sm text-gray-700">Keep me logged in</label>
             </div>
 
             <div className="text-right text-sm">

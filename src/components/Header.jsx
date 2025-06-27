@@ -1,4 +1,4 @@
-import { useBranding } from '../Context/BrandingContext';
+import { useBranding } from '../context/Brandingcontext';
 
 const Header = () => {
   const branding = useBranding();

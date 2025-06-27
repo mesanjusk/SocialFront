@@ -55,12 +55,10 @@ const BrandingProvider = ({ children }) => {
 
         setBranding(final);
 
-        // Set theme color as RGB for Tailwind
         const rgb = hexToRgb(final.color);
         document.documentElement.style.setProperty('--tw-color-primary', rgb);
         document.documentElement.style.setProperty('--theme-color', final.color);
 
-        // Update favicon
         let link = document.querySelector("link[rel~='icon']");
         if (!link) {
           link = document.createElement('link');
@@ -69,7 +67,6 @@ const BrandingProvider = ({ children }) => {
         }
         link.href = final.favicon || '/favicon.ico';
 
-        // Update title
         document.title = `${final.institute} | Instify`;
       } catch (err) {
         console.warn('⚠️ Failed to fetch branding, using default.');

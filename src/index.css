@@ -1,3 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: global styles */
 :root {
-  --tw-color-primary: 16 185 129; /* default #10B981 in RGB */
+  --theme-color: #10B981; /* fallback default theme color */
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f9f9f9;
 }

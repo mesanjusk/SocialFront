@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
-import { useApp } from '../Context/AppContext';
+import { useApp } from '../context/Appcontext';
 
 const InstituteProfile = () => {
-  const { institute } = useApp();
-
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
+  const { institute, setInstitute } = useApp();
   const [data, setData] = useState(null);
 
   const [logoPreview, setLogoPreview] = useState('');
@@ -15,7 +13,8 @@ const InstituteProfile = () => {
   const [faviconPreview, setFaviconPreview] = useState('');
   const [faviconFile, setFaviconFile] = useState(null);
 
-  const instituteUUID = institute?.institute_uuid || localStorage.getItem('institute_uuid');
+  const themeColor = institute?.theme_color || '#10B981';
+  const instituteUUID = institute?.institute_uuid;
 
   useEffect(() => {
     if (instituteUUID) fetchProfile();
@@ -67,7 +66,7 @@ const InstituteProfile = () => {
   };
 
   const handleSave = async () => {
-    if (!data) return;
+    if (!data || !instituteUUID) return;
     if (!window.confirm('Are you sure you want to save these changes?')) return;
 
     try {
@@ -97,6 +96,32 @@ const InstituteProfile = () => {
       await axios.put(`${BASE_URL}/api/institute/update/${instituteUUID}`, updated);
       toast.success('Profile updated');
       fetchProfile();
+
+      // ✅ Update theme, favicon, title, localStorage, context
+      document.documentElement.style.setProperty('--theme-color', updated.theme_color);
+
+      document.title = `${updated.institute_title || 'Instify'} | Instify`;
+
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = updated.theme_favicon || '/favicon.ico';
+
+      localStorage.setItem('institute_title', updated.institute_title);
+      localStorage.setItem('theme_color', updated.theme_color);
+      localStorage.setItem('favicon', updated.theme_favicon);
+      localStorage.setItem('logo', updated.institute_logo);
+
+      setInstitute((prev) => ({
+        ...prev,
+        institute_title: updated.institute_title,
+        theme_color: updated.theme_color,
+        institute_logo: updated.institute_logo,
+        theme_favicon: updated.theme_favicon,
+      }));
     } catch (err) {
       toast.error('Update failed');
       console.error(err);

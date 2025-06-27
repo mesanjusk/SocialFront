@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import BASE_URL from '../config';
+import { useApp } from '../context/Appcontext'; // ✅ New import
 
 // MUI Icons
 import HomeIcon from '@mui/icons-material/Home';
@@ -14,7 +15,8 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 export default function Sidebar() {
   const { pathname } = useLocation();
   const [openMenus, setOpenMenus] = useState({});
-  const userType = localStorage.getItem('type');
+  const { user } = useApp(); // ✅ use context
+  const userType = user?.role;
 
   const toggleMenu = (menu) => {
     setOpenMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
@@ -45,7 +47,7 @@ export default function Sidebar() {
         ...(userType === 'admin'
           ? [{ path: '/dashboard/instituteProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }]
           : []),
-          ...(userType === 'owner'
+        ...(userType === 'owner'
           ? [{ path: '/dashboard/Owner', label: 'Owner', icon: <EventNoteIcon fontSize="small" /> }]
           : [])
       ]

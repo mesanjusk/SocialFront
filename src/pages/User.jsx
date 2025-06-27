@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
+import { useApp } from '../context/Appcontext';
 
 const User = () => {
+  const { user, institute, loading } = useApp();
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState({
     name: '',
@@ -17,27 +18,26 @@ const User = () => {
   const [editingId, setEditingId] = useState(null);
   const navigate = useNavigate();
 
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
+  const themeColor = institute?.theme_color || '#10B981';
 
-  // 🔓 Removed role protection
+  // ✅ Prevent early redirect until loading is complete
   useEffect(() => {
-    const orgId = localStorage.getItem("institute_uuid");
-    if (!orgId) {
-      toast.error("institute not found. Please log in.");
+    if (!loading && !institute?.institute_uuid) {
+      toast.error("Institute not found. Please log in.");
       navigate('/');
     }
-  }, []);
+  }, [institute, loading]);
 
+  // ✅ Fetch users once institute is ready
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (institute?.institute_uuid) {
+      fetchUsers();
+    }
+  }, [institute]);
 
   const fetchUsers = async () => {
-    const orgId = localStorage.getItem("institute_uuid");
-    if (!orgId) {
-      toast.error("Missing institute ID.");
-      return;
-    }
+    const orgId = institute?.institute_uuid;
+    if (!orgId) return;
 
     try {
       const res = await axios.get(`${BASE_URL}/api/auth/GetUserList/${orgId}`);
@@ -58,30 +58,25 @@ const User = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const orgId = institute?.institute_uuid;
+    if (!orgId) {
+      toast.error('Institute ID missing.');
+      return;
+    }
 
-    // 🔒 Get institute ID from session
-    const orgId = localStorage.getItem("institute_uuid");
-    
-
-    // 📦 Prepare payload for POST or PUT
     const dataToSend = { ...form, institute_uuid: orgId };
 
     try {
       if (editingId) {
-        // 🛠 Update user (PUT)
         await axios.put(`${BASE_URL}/api/auth/${editingId}`, dataToSend);
         toast.success('User updated');
       } else {
-        // 🆕 Register new user (POST) - ✅ Template string fixed!
         const res = await axios.post(`${BASE_URL}/api/auth/register`, dataToSend);
-
-        // 🧠 Backend returns: 'exist', 'notexist'
         if (res.data === 'exist') toast.error('User already exists');
         else if (res.data === 'notexist') toast.success('User added');
         else toast.error('Unexpected error');
       }
 
-      // 🔄 Cleanup and refresh
       setShowModal(false);
       resetForm();
       fetchUsers();
@@ -118,6 +113,15 @@ const User = () => {
     setEditingId(null);
     setForm({ name: '', password: '', mobile: '', role: '' });
   };
+
+  // ✅ Show loading screen if context is still initializing
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-500">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>

@@ -2,56 +2,54 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import BASE_URL from '../config'; // Adjust the path based on your folder structure
-
+import BASE_URL from '../config';
+import { useApp } from '../context/Appcontext';
 
 const Register = () => {
   const navigate = useNavigate();
   const nameInputRef = useRef(null);
+
+  const { user, institute } = useApp();
+  const themeColor = institute?.theme_color || '#10B981';
 
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [mobile, setMobile] = useState('');
   const [type, setType] = useState('');
 
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
-
   useEffect(() => {
-    const orgId = localStorage.getItem("institute_id");
-    const userType = localStorage.getItem("type");
-
-    if (!orgId || !["Admin", "SuperAdmin"].includes(userType)) {
-      toast.error("Access denied");
+    if (!institute?.institute_id || !['Admin', 'SuperAdmin'].includes(user?.role)) {
+      toast.error('Access denied');
       navigate('/');
     }
 
     nameInputRef.current?.focus();
-  }, []);
+  }, [user, institute, navigate]);
 
   const submit = async (e) => {
     e.preventDefault();
 
-    const institute_id = localStorage.getItem("institute_id");
-
     try {
-      const res = await axios.post("${BASE_URL}/api/auth/register", {
+      const res = await axios.post(`${BASE_URL}/api/auth/register`, {
         name: name.trim(),
         password: password.trim(),
         mobile: mobile.trim(),
         type,
-        institute_id,
+        institute_id: institute?.institute_id,
       });
 
-      if (res.data === "exist") {
-        toast.error("User already exists");
-      } else if (res.data === "notexist") {
-        toast.success("User added successfully");
+      if (res.data === 'exist') {
+        toast.error('User already exists');
+      } else if (res.data === 'notexist') {
+        toast.success('User added successfully');
         setTimeout(() => {
-          navigate("/dashboard/user", { replace: true }); // or wherever your User page is
+          navigate('/dashboard/user', { replace: true });
         }, 800);
+      } else {
+        toast.error('Unexpected response from server');
       }
     } catch (e) {
-      toast.error("Registration failed");
+      toast.error('Registration failed');
       console.error(e);
     }
   };

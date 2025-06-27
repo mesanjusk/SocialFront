@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useApp } from '../context/Appcontext'; // ✅ context import
 
-// MUI Icons (Optional - You can change or add more)
+// MUI Icons
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -9,7 +10,9 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 export default function RightSidebar() {
   const { pathname } = useLocation();
   const [openMenus, setOpenMenus] = useState({});
-  const userType = localStorage.getItem('type');
+  const { user } = useApp(); // ✅ Get user from context
+
+  const userType = user?.role;
 
   const toggleMenu = (menu) => {
     setOpenMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
@@ -19,16 +22,30 @@ export default function RightSidebar() {
     {
       label: 'Account',
       items: [
-        { path: '/dashboard/profile', label: 'My Profile', icon: <AccountCircleIcon fontSize="small" /> },
+        {
+          path: '/dashboard/profile',
+          label: 'My Profile',
+          icon: <AccountCircleIcon fontSize="small" />
+        },
         ...(userType === 'admin'
-          ? [{ path: '/dashboard/notifications', label: 'Notifications', icon: <NotificationsIcon fontSize="small" /> }]
+          ? [
+              {
+                path: '/dashboard/notifications',
+                label: 'Notifications',
+                icon: <NotificationsIcon fontSize="small" />
+              }
+            ]
           : [])
       ]
     },
     {
       label: 'Help',
       items: [
-        { path: '/dashboard/help', label: 'Support', icon: <HelpOutlineIcon fontSize="small" /> },
+        {
+          path: '/dashboard/help',
+          label: 'Support',
+          icon: <HelpOutlineIcon fontSize="small" />
+        }
       ]
     }
   ];

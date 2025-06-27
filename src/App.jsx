@@ -19,6 +19,7 @@ import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import InstituteProfile from './pages/instituteProfile';
 import Owner from './pages/Owner';
+import PrivateRoute from './components/PrivateRoute'; // ✅ Assuming this is implemented
 
 export default function App() {
   return (
@@ -31,8 +32,15 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id" element={<ResetPassword />} />
 
-      {/* 🔐 Protected Routes - Dynamically under login_username */}
-      <Route path="/:username" element={<DashboardLayout />}>
+      {/* 🔐 Protected Routes under :username */}
+      <Route
+        path="/:username"
+        element={
+          <PrivateRoute>
+            <DashboardLayout />
+          </PrivateRoute>
+        }
+      >
         <Route index element={<Dashboard />} />
         <Route path="user" element={<User />} />
         <Route path="batches" element={<Batches />} />

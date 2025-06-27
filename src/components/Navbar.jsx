@@ -2,19 +2,17 @@ import { useEffect, useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import BASE_URL from '../config';
 import logoutUser from '../utils/logout';
+import { useApp } from '../context/Appcontext';
 
 export default function Navbar({ toggleSidebar }) {
-  const [username, setUsername] = useState('');
-  const [role, setRole] = useState('');
+  const { user, institute } = useApp(); // ✅ Pull from context
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    const name = localStorage.getItem('name') || localStorage.getItem('institute_title') || '';
-    const userType = localStorage.getItem('type') || '';
-    setUsername(name);
-    setRole(userType);
+  const username = user?.name || institute?.institute_title || '';
+  const role = user?.role || '';
 
-    const user_id = localStorage.getItem('user_id');
+  useEffect(() => {
+    const user_id = user?.id;
     const lastStored = localStorage.getItem('last_password_change');
 
     if (user_id && lastStored) {
@@ -36,7 +34,7 @@ export default function Navbar({ toggleSidebar }) {
           console.error('Auto logout check failed:', err);
         });
     }
-  }, []);
+  }, [user]);
 
   return (
     <>

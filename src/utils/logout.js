@@ -1,17 +1,35 @@
-// src/utils/logout.js
-export default function logoutUser() {
-  // Clear user and org data
+import { useNavigate } from 'react-router-dom';
+
+const logoutUser = () => {
+  // Clear localStorage
   localStorage.removeItem('user_id');
-  localStorage.removeItem('name');
-  localStorage.removeItem('type');
-  localStorage.removeItem('last_password_change');
+  localStorage.removeItem('user_name');
+  localStorage.removeItem('user_type');
+  localStorage.removeItem('login_username');
   localStorage.removeItem('institute_id');
+  localStorage.removeItem('institute_uuid');
   localStorage.removeItem('institute_title');
   localStorage.removeItem('theme_color');
+  localStorage.removeItem('remember_me');
+  localStorage.removeItem('last_password_change');
 
-  // Reset theme color
-  document.documentElement.style.setProperty('--theme-color', '#10B981');
+  // Clear sessionStorage
+  sessionStorage.removeItem('user_id');
+  sessionStorage.removeItem('user_name');
+  sessionStorage.removeItem('user_type');
+  sessionStorage.removeItem('login_username');
+  sessionStorage.removeItem('institute_id');
+  sessionStorage.removeItem('institute_uuid');
+  sessionStorage.removeItem('institute_title');
+  sessionStorage.removeItem('theme_color');
+
+  // Reset AppContext
+  if (window.updateAppcontext) {
+    window.updateAppcontext({ user: null, institute: null });
+  }
 
   // Redirect to login
   window.location.href = '/';
-}
+};
+
+export default logoutUser;

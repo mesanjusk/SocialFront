@@ -1,9 +1,13 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}", // Scan all JSX/TSX in src
+    "./public/index.html"         // Optional: also scan HTML
+  ],
   theme: {
     extend: {
       colors: {
-        primary: 'rgb(var(--tw-color-primary) / <alpha-value>)',
+        theme: "var(--theme-color)", // Optional: dynamic theme color via CSS variable
       },
     },
   },
