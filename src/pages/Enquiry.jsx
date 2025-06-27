@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
-const Enquiry = () => {
+const AddEnquiry = () => {
    const initialForm = {
     enquiryDate: '', firstName: '', middleName: '',
     lastName: '', dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
@@ -21,37 +21,21 @@ const Enquiry = () => {
   const [form, setForm] = useState(initialForm);
   const [admissionForm, setAdmissionForm] = useState(admissionTemplate);
   const [enquiries, setEnquiries] = useState([]);
-  const [editingId, setEditingId] = useState(null);
+  const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showAdmission, setShowAdmission] = useState(false);
-  const [enquiryToDeleteId, setEnquiryToDeleteId] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [educations, setEducations] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [batches, setBatches] = useState([]);
-  const [paymentModes, setPaymentModes] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+  const [followUpDate, setFollowUpDate] = useState('');
+  const [followUpRemarks, setFollowUpRemarks] = useState('');
   const [search, setSearch] = useState('');
   const institute_uuid = localStorage.getItem('institute_uuid');
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
 
-  const handleChange = (field) => (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setForm({ ...form, [field]: value });
-  };
-
-  const handleAdmissionChange = (field) => (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    let updated = { ...admissionForm, [field]: value };
-
-    const fees = Number(field === 'fees' ? value : updated.fees || 0);
-    const discount = Number(field === 'discount' ? value : updated.discount || 0);
-    const feePaid = Number(field === 'feePaid' ? value : updated.feePaid || 0);
-
-    updated.total = fees - discount;
-    updated.balance = updated.total - feePaid;
-
-    setAdmissionForm(updated);
-  };
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    mobileSelf: '',
+    course: '',
+  });
 
   const fetchEnquiries = async () => {
     try {
@@ -62,322 +46,232 @@ const Enquiry = () => {
     }
   };
 
-  const fetchCourses = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/courses?institute_uuid=${institute_uuid}`);
-      setCourses(res.data || []);
-    } catch {
-      toast.error('Failed to load courses');
-    }
-  };
-
-  const fetchEducations = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/education`);
-      setEducations(res.data || []);
-    } catch {
-      toast.error('Failed to load education options');
-    }
-  };
-
-  const fetchExams = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/exams`);
-      setExams(res.data || []);
-    } catch {
-      toast.error('Failed to load exam events');
-    }
-  };
-
-  const fetchBatches = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/batches`);
-      setBatches(res.data || []);
-    } catch {
-      toast.error('Failed to load batches');
-    }
-  };
-
-  const fetchPaymentModes = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/paymentmode`);
-      setPaymentModes(res.data || []);
-    } catch {
-      toast.error('Failed to load payment modes');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!institute_uuid) return toast.error("Missing institute UUID");
-    const payload = {
-  ...form,
-  institute_uuid: institute_uuid,
-  type: 'enquiry'
-};
-
-
+    if (!form.firstName || !form.mobileSelf) {
+      toast.error('First name and mobile are required');
+      return;
+    }
     try {
-      if (editingId) {
-        await axios.put(`${BASE_URL}/api/record/${editingId}`, payload);
-        toast.success('Enquiry updated');
+      if (isEditMode && selectedEnquiry) {
+        await axios.put(`${BASE_URL}/api/record/${selectedEnquiry._id}`, {
+          ...form,
+          institute_uuid,
+          type: 'enquiry',
+        });
+        toast.success('Enquiry updated successfully');
       } else {
-        await axios.post(`${BASE_URL}/api/record`, payload);
-        toast.success('Enquiry added');
+        await axios.post(`${BASE_URL}/api/record`, {
+          ...form,
+          institute_uuid,
+          type: 'enquiry',
+        });
+        toast.success('Enquiry added successfully');
       }
-      setForm(initialForm);
-      setEditingId(null);
+      setForm({ firstName: '', lastName: '', mobileSelf: '', course: '' });
       setShowModal(false);
       fetchEnquiries();
     } catch {
-      toast.error('Error submitting enquiry');
+      toast.error('Failed to save enquiry');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this enquiry?')) return;
+    if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
     try {
       await axios.delete(`${BASE_URL}/api/enquiry/${id}`);
-      toast.success('Deleted');
+      toast.success('Enquiry deleted');
       fetchEnquiries();
     } catch {
-      toast.error('Delete failed');
+      toast.error('Failed to delete enquiry');
     }
   };
 
-  const handleEdit = (e) => {
-    setForm({ ...e });
-    setEditingId(e._id);
+  const handleFollowUpSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${BASE_URL}/api/followup`, {
+        enquiry_uuid: selectedEnquiry.uuid,
+        followUpDate,
+        remarks: followUpRemarks,
+        updatedBy: localStorage.getItem('name') || 'admin',
+      });
+      toast.success('Follow-Up saved');
+      setShowFollowUpModal(false);
+      setFollowUpDate('');
+      setFollowUpRemarks('');
+      fetchEnquiries();
+    } catch {
+      toast.error('Failed to save follow-up');
+    }
+  };
+
+  const openAddModal = () => {
+    setForm({ firstName: '', lastName: '', mobileSelf: '', course: '' });
+    setIsEditMode(false);
     setShowModal(true);
   };
 
-  const handleConvert = (e) => {
-    const fill = {
-      ...admissionTemplate,
-      ...e,
-      admissionDate: new Date().toISOString().split('T')[0]
-    };
-    setAdmissionForm(fill);
-    setEnquiryToDeleteId(e.uuid); 
-    setShowAdmission(true);
+  const openEditModal = (enquiry) => {
+    setForm({
+      firstName: enquiry.firstName || '',
+      lastName: enquiry.lastName || '',
+      mobileSelf: enquiry.mobileSelf || '',
+      course: enquiry.course || '',
+    });
+    setSelectedEnquiry(enquiry);
+    setIsEditMode(true);
+    setShowModal(true);
   };
 
-  const submitAdmission = async (e) => {
-    e.preventDefault();
-    if (!institute_uuid)return toast.error("Missing institute ID");
-
-    const payload = {
-      institute_uuid: institute_uuid,
-      admissionData: {
-        admissionDate: admissionForm.admissionDate,
-        course: admissionForm.course,
-        batchTime: admissionForm.batchTime,
-        examEvent: admissionForm.examEvent,
-        installment: admissionForm.installment,
-        fees: Number(admissionForm.fees || 0),
-        discount: Number(admissionForm.discount || 0),
-        total: Number(admissionForm.total || 0),
-        feePaid: Number(admissionForm.feePaid || 0),
-        paidBy: admissionForm.paidBy,
-        balance: Number(admissionForm.balance || 0),
-        createdBy: localStorage.getItem('name') || 'admin'
-      }
-    };
-
-    try {
-      await axios.post(`${BASE_URL}/api/record/convert/${enquiryToDeleteId}`, payload);
-      toast.success('Admission saved and enquiry updated');
-      setAdmissionForm(admissionTemplate);
-      setShowAdmission(false);
-      fetchEnquiries();
-    } catch (err) {
-      toast.error('Failed to convert to admission');
-    }
+  const openFollowUpModal = (enquiry) => {
+    setSelectedEnquiry(enquiry);
+    setShowFollowUpModal(true);
   };
 
   useEffect(() => {
     fetchEnquiries();
-    fetchCourses();
-    fetchEducations();
-    fetchExams();
-    fetchBatches();
-    fetchPaymentModes();
   }, []);
 
-  const filtered = enquiries.filter(e =>
-    e.firstName?.toLowerCase().includes(search.toLowerCase()) ||
-    e.mobileSelf?.includes(search)
+  const filtered = enquiries.filter(
+    (e) =>
+      e.firstName?.toLowerCase().includes(search.toLowerCase()) ||
+      e.mobileSelf?.includes(search)
   );
+
   return (
-    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
+    <div className="min-h-screen p-4 bg-gray-100">
       <Toaster />
       <div className="flex gap-2 mb-4">
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />
-        <button onClick={() => { setForm(initialForm); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">+ Enquiry</button>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name or mobile"
+          className="border p-2 w-full max-w-xs"
+        />
+        <button
+          onClick={openAddModal}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          + Add Enquiry
+        </button>
       </div>
 
-      <table className="w-full border">
-        <thead>
-          <tr>
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Mobile</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((e, i) => (
-            <tr key={i} className="text-center">
-              <td className="border p-2">{e.firstName} {e.lastName}</td>
-              <td className="border p-2">{e.mobileSelf}</td>
-              <td className="border p-2 space-x-2">
-                <button onClick={() => handleEdit(e)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-                <button onClick={() => handleConvert(e)} className="bg-green-600 text-white px-2 py-1 rounded">Convert</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Card View */}
+      <div className="flex flex-col gap-2">
+        {filtered.map((e, idx) => (
+          <div
+            key={idx}
+            className="bg-white p-4 rounded shadow"
+          >
+            <div className="font-semibold text-lg">{e.firstName} {e.lastName}</div>
+            <div className="text-gray-600 text-sm">📞 {e.mobileSelf}</div>
+            <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
+            <div className="flex gap-2 mt-2">
+              <button onClick={() => openEditModal(e)} className="bg-yellow-500 text-white px-3 py-1 rounded text-sm">Edit</button>
+              <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-3 py-1 rounded text-sm">Delete</button>
+              <button onClick={() => toast('Convert to Admission logic goes here')} className="bg-green-600 text-white px-3 py-1 rounded text-sm">Convert</button>
+              <button onClick={() => openFollowUpModal(e)} className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Follow-Up</button>
+            </div>
+          </div>
+        ))}
+      </div>
 
-      {/* Enquiry Modal */}
+      {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded max-w-lg w-full overflow-y-auto max-h-[90vh]">
-            <h2 className="text-xl font-bold mb-4">{editingId ? 'Edit Enquiry' : 'Add Enquiry'}</h2>
+          <div className="bg-white p-6 rounded max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">{isEditMode ? 'Edit Enquiry' : 'Add Enquiry'}</h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              {/* Removed enquiryDate input */}
-              <input value={form.firstName} onChange={handleChange('firstName')} placeholder="First Name" className="border p-2" />
-              <input value={form.lastName} onChange={handleChange('lastName')} placeholder="Last Name" className="border p-2" />
               <input
-                value={form.mobileSelf}
-                onChange={handleChange('mobileSelf')}
-                placeholder="Mobile"
-                inputMode="numeric"
-                pattern="[0-9]{10}"
-                maxLength={10}
+                type="text"
+                placeholder="First Name"
+                value={form.firstName}
+                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                className="border p-2"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                 className="border p-2"
               />
-              <select value={form.course} onChange={handleChange('course')} className="border p-2">
-                <option value="">Select Course</option>
-                {Array.isArray(courses) && courses.map(c => (
-                  <option key={c._id} value={c.name}>{c.name}</option>
-                ))}
-              </select>
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Add'}</button>
+              <input
+                type="text"
+                placeholder="Mobile Number"
+                value={form.mobileSelf}
+                onChange={(e) => setForm({ ...form, mobileSelf: e.target.value })}
+                className="border p-2"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Course"
+                value={form.course}
+                onChange={(e) => setForm({ ...form, course: e.target.value })}
+                className="border p-2"
+              />
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  {isEditMode ? 'Update' : 'Add'}
+                </button>
               </div>
             </form>
-
           </div>
         </div>
       )}
 
-      {/* Admission Convert Modal */}
-      {showAdmission && (
-  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
-      <h2 className="text-2xl font-bold mb-4 text-green-700">Convert to Admission</h2>
-      <form onSubmit={submitAdmission} className="flex flex-col gap-3">
-
-        <input type="date" value={admissionForm.admissionDate} onChange={handleAdmissionChange('admissionDate')} className="border p-2" />
-
-        <input value={admissionForm.firstName} onChange={handleAdmissionChange('firstName')} placeholder="First Name" className="border p-2" />
-        <input value={admissionForm.middleName} onChange={handleAdmissionChange('middleName')} placeholder="Middle Name" className="border p-2" />
-        <input value={admissionForm.lastName} onChange={handleAdmissionChange('lastName')} placeholder="Last Name" className="border p-2" />
-
-        <input type="date" value={admissionForm.dob?.substring(0, 10)} onChange={handleAdmissionChange('dob')} className="border p-2" />
-        
-        <div className="flex gap-4">
-          <label><input type="radio" name="gender" value="Male" checked={admissionForm.gender === 'Male'} onChange={handleAdmissionChange('gender')} /> Male</label>
-          <label><input type="radio" name="gender" value="Female" checked={admissionForm.gender === 'Female'} onChange={handleAdmissionChange('gender')} /> Female</label>
+      {/* Follow-Up Modal */}
+      {showFollowUpModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Add Follow-Up</h2>
+            <form onSubmit={handleFollowUpSubmit} className="flex flex-col gap-3">
+              <input
+                type="date"
+                value={followUpDate}
+                onChange={(e) => setFollowUpDate(e.target.value)}
+                className="border p-2"
+                required
+              />
+              <textarea
+                value={followUpRemarks}
+                onChange={(e) => setFollowUpRemarks(e.target.value)}
+                placeholder="Remarks"
+                className="border p-2"
+                required
+              ></textarea>
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowFollowUpModal(false)}
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <input
-          placeholder="Mobile (Self)"
-          value={admissionForm.mobileSelf}
-          onChange={handleAdmissionChange('mobileSelf')}
-          inputMode="numeric"
-          pattern="[0-9]{10}"
-          maxLength={10}
-          className="border p-2"
-        />
-        <input
-          placeholder="Mobile (Parent)"
-          value={admissionForm.mobileParent}
-          onChange={handleAdmissionChange('mobileParent')}
-          inputMode="numeric"
-          pattern="[0-9]{10}"
-          maxLength={10}
-          className="border p-2"
-        />
-        <input placeholder="Address" value={admissionForm.address} onChange={handleAdmissionChange('address')} className="border p-2" />
-
-        <select value={admissionForm.education} onChange={handleAdmissionChange('education')} className="border p-2">
-          <option value="">-- Select Education --</option>
-          {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
-        </select>
-
-        <select
-          value={admissionForm.course}
-          onChange={(e) => {
-            const selectedCourse = courses.find(c => c.name === e.target.value);
-            const courseFee = Number(selectedCourse?.courseFees || 0);
-            const discount = Number(admissionForm.discount || 0);
-            const feePaid = Number(admissionForm.feePaid || 0);
-            const total = courseFee - discount;
-            const balance = total - feePaid;
-
-            setAdmissionForm(prev => ({
-              ...prev,
-              course: e.target.value,
-              fees: courseFee,
-              total,
-              balance
-            }));
-          }}
-          className="border p-2"
-        >
-          <option value="">-- Select Course --</option>
-          {courses.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
-        </select>
-
-        <select value={admissionForm.batchTime} onChange={handleAdmissionChange('batchTime')} className="border p-2">
-          <option value="">-- Select Batch --</option>
-          {batches.map(b => (
-            <option key={b._id} value={b.time || b.batchTime || b.name || ''}>
-              {b.time || b.batchTime || b.name || 'Unnamed Batch'}
-            </option>
-          ))}
-        </select>
-
-        <select value={admissionForm.examEvent} onChange={handleAdmissionChange('examEvent')} className="border p-2">
-          <option value="">-- Select Exam --</option>
-          {exams.map(e => <option key={e._id} value={e.exam}>{e.exam}</option>)}
-        </select>
-
-        <input placeholder="Installment" value={admissionForm.installment} onChange={handleAdmissionChange('installment')} className="border p-2" />
-        <input placeholder="Fees" value={admissionForm.fees} type="number" className="border p-2" readOnly />
-        <input placeholder="Discount" value={admissionForm.discount} type="number" onChange={handleAdmissionChange('discount')} className="border p-2" />
-        <input placeholder="Total" value={admissionForm.total} type="number" className="border p-2" readOnly />
-        <input placeholder="Fee Paid" value={admissionForm.feePaid} type="number" onChange={handleAdmissionChange('feePaid')} className="border p-2" />
-
-        <select value={admissionForm.paidBy} onChange={handleAdmissionChange('paidBy')} className="border p-2">
-          <option value="">-- Select Payment Mode --</option>
-          {paymentModes.map(p => <option key={p._id} value={p.mode}>{p.mode}</option>)}
-        </select>
-
-        <input placeholder="Balance" value={admissionForm.balance} type="number" className="border p-2" readOnly />
-
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={() => setShowAdmission(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 };
