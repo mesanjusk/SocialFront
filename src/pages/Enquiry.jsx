@@ -4,53 +4,14 @@ import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
 const AddEnquiry = () => {
-  const initialForm = {
-    enquiryDate: '', firstName: '', middleName: '',
-    lastName: '', dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
-    mobileParent: '', mobileParentWhatsapp: false, address: '', education: '',
-    schoolName: '', referredBy: '', followUpDate: '', remarks: '', course: ''
-  };
-
-  const admissionTemplate = {
-    ...initialForm,
-    admissionDate: '', batchTime: '', examEvent: '',
-    installment: '', fees: '', discount: '', total: '', feePaid: '',
-    paidBy: '', balance: ''
-  };
-
-  const [form, setForm] = useState(initialForm);
-  const [admissionForm, setAdmissionForm] = useState(admissionTemplate);
   const [enquiries, setEnquiries] = useState([]);
-  const [editingId, setEditingId] = useState(null);
+  const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showAdmission, setShowAdmission] = useState(false);
-  const [enquiryToDeleteId, setEnquiryToDeleteId] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [educations, setEducations] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [batches, setBatches] = useState([]);
-  const [paymentModes, setPaymentModes] = useState([]);
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+  const [followUpDate, setFollowUpDate] = useState('');
+  const [followUpRemarks, setFollowUpRemarks] = useState('');
   const [search, setSearch] = useState('');
   const institute_uuid = localStorage.getItem('institute_uuid');
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
-
-  const handleChange = (field) => (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setForm(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleAdmissionChange = (field) => (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setAdmissionForm(prev => {
-      const updated = { ...prev, [field]: value };
-      const fees = Number(updated.fees || 0);
-      const discount = Number(updated.discount || 0);
-      const feePaid = Number(updated.feePaid || 0);
-      updated.total = fees - discount;
-      updated.balance = updated.total - feePaid;
-      return updated;
-    });
-  };
 
   const fetchEnquiries = async () => {
     try {
@@ -61,154 +22,177 @@ const AddEnquiry = () => {
     }
   };
 
-  const fetchDropdowns = async () => {
-    try {
-      const [c, e, ex, b, p] = await Promise.all([
-        axios.get(`${BASE_URL}/api/courses?institute_uuid=${institute_uuid}`),
-        axios.get(`${BASE_URL}/api/education`),
-        axios.get(`${BASE_URL}/api/exams`),
-        axios.get(`${BASE_URL}/api/batches`),
-        axios.get(`${BASE_URL}/api/paymentmode`),
-      ]);
-      setCourses(c.data || []);
-      setEducations(e.data || []);
-      setExams(ex.data || []);
-      setBatches(b.data || []);
-      setPaymentModes(p.data || []);
-    } catch {
-      toast.error('Failed to load dropdown data');
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleFollowUpSubmit = async (e) => {
     e.preventDefault();
-    if (!institute_uuid) return toast.error("Missing institute UUID");
-    const payload = { ...form, institute_uuid, type: 'enquiry' };
     try {
-      if (editingId) {
-        await axios.put(`${BASE_URL}/api/record/${editingId}`, payload);
-        toast.success('Enquiry updated');
-      } else {
-        await axios.post(`${BASE_URL}/api/record`, payload);
-        toast.success('Enquiry added');
-      }
-      setForm(initialForm);
-      setEditingId(null);
-      setShowModal(false);
+      await axios.post(`${BASE_URL}/api/followup`, {
+        enquiry_uuid: selectedEnquiry.uuid,
+        followUpDate,
+        remarks: followUpRemarks,
+        updatedBy: localStorage.getItem('name') || 'admin',
+      });
+      toast.success('Follow-Up saved');
+      setShowFollowUpModal(false);
+      setFollowUpDate('');
+      setFollowUpRemarks('');
       fetchEnquiries();
     } catch {
-      toast.error('Error submitting enquiry');
+      toast.error('Failed to save follow-up');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this enquiry?')) return;
+    if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
     try {
       await axios.delete(`${BASE_URL}/api/enquiry/${id}`);
-      toast.success('Deleted');
+      toast.success('Enquiry deleted');
       fetchEnquiries();
+      setShowModal(false);
     } catch {
-      toast.error('Delete failed');
+      toast.error('Failed to delete enquiry');
     }
   };
 
-  const handleEdit = (e) => {
-    setForm({ ...e });
-    setEditingId(e._id);
-    setShowModal(true);
+  const handleEdit = () => {
+    toast('Edit action triggered');
+    // Implement your edit modal logic here
+    setShowModal(false);
   };
 
-  const handleConvert = (e) => {
-    setAdmissionForm({ ...admissionTemplate, ...e, admissionDate: new Date().toISOString().split('T')[0] });
-    setEnquiryToDeleteId(e.uuid);
-    setShowAdmission(true);
-  };
-
-  const submitAdmission = async (e) => {
-    e.preventDefault();
-    if (!institute_uuid) return toast.error("Missing institute UUID");
-    const payload = {
-      institute_uuid,
-      admissionData: {
-        ...admissionForm,
-        fees: Number(admissionForm.fees || 0),
-        discount: Number(admissionForm.discount || 0),
-        total: Number(admissionForm.total || 0),
-        feePaid: Number(admissionForm.feePaid || 0),
-        balance: Number(admissionForm.balance || 0),
-        createdBy: localStorage.getItem('name') || 'admin'
-      }
-    };
-    try {
-      await axios.post(`${BASE_URL}/api/record/convert/${enquiryToDeleteId}`, payload);
-      toast.success('Admission saved and enquiry updated');
-      setAdmissionForm(admissionTemplate);
-      setShowAdmission(false);
-      fetchEnquiries();
-    } catch {
-      toast.error('Failed to convert to admission');
-    }
+  const handleConvert = () => {
+    toast('Convert to admission triggered');
+    // Implement your convert modal logic here
+    setShowModal(false);
   };
 
   useEffect(() => {
     fetchEnquiries();
-    fetchDropdowns();
   }, []);
 
-  const filtered = enquiries.filter(e => e.firstName?.toLowerCase().includes(search.toLowerCase()) || e.mobileSelf?.includes(search));
+  const filtered = enquiries.filter(
+    (e) =>
+      e.firstName?.toLowerCase().includes(search.toLowerCase()) ||
+      e.mobileSelf?.includes(search)
+  );
 
   return (
-    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
+    <div className="min-h-screen p-4 bg-gray-100">
       <Toaster />
       <div className="flex gap-2 mb-4">
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2 w-full max-w-xs" />
-        <button onClick={() => { setForm(initialForm); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">+ Enquiry</button>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name or mobile"
+          className="border p-2 w-full max-w-xs"
+        />
       </div>
 
-      {/* Table view for desktop */}
-      <table className="w-full border hidden md:table">
-        <thead>
-          <tr>
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Mobile</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((e, i) => (
-            <tr key={i} className="text-center">
-              <td className="border p-2">{e.firstName} {e.lastName}</td>
-              <td className="border p-2">{e.mobileSelf}</td>
-              <td className="border p-2 space-x-2">
-                <button onClick={() => handleEdit(e)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-                <button onClick={() => handleConvert(e)} className="bg-green-600 text-white px-2 py-1 rounded">Convert</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Card view for mobile */}
-      <div className="flex flex-col gap-2 md:hidden">
-        {filtered.map((e, i) => (
-          <div key={i} className="bg-white rounded shadow p-4 flex justify-between items-center">
-            <div>
-              <div className="font-semibold text-lg">{e.firstName} {e.lastName}</div>
-              <div className="text-gray-600 text-sm">{e.mobileSelf}</div>
-              <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <button onClick={() => handleEdit(e)} className="bg-yellow-500 text-white px-2 py-1 rounded text-sm">✏️</button>
-              <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-2 py-1 rounded text-sm">🗑️</button>
-              <button onClick={() => handleConvert(e)} className="bg-green-600 text-white px-2 py-1 rounded text-sm">➡️</button>
-            </div>
+      {/* Card View */}
+      <div className="flex flex-col gap-2">
+        {filtered.map((e, idx) => (
+          <div
+            key={idx}
+            className="bg-white p-4 rounded shadow cursor-pointer"
+            onClick={() => {
+              setSelectedEnquiry(e);
+              setShowModal(true);
+            }}
+          >
+            <div className="font-semibold text-lg">{e.firstName} {e.lastName}</div>
+            <div className="text-gray-600 text-sm">📞 {e.mobileSelf}</div>
+            <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
           </div>
         ))}
       </div>
 
-      {/* Modals remain unchanged for clean workflow */}
+      {/* Enquiry Detail Modal */}
+      {showModal && selectedEnquiry && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded max-w-sm w-full">
+            <h2 className="text-xl font-bold mb-2">
+              {selectedEnquiry.firstName} {selectedEnquiry.lastName}
+            </h2>
+            <p className="text-sm text-gray-600 mb-2">📞 {selectedEnquiry.mobileSelf}</p>
+            <p className="text-sm text-gray-600 mb-4">Course: {selectedEnquiry.course || 'N/A'}</p>
 
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={handleEdit}
+                className="bg-yellow-500 text-white py-2 rounded"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(selectedEnquiry._id)}
+                className="bg-red-500 text-white py-2 rounded"
+              >
+                Delete
+              </button>
+              <button
+                onClick={handleConvert}
+                className="bg-green-600 text-white py-2 rounded"
+              >
+                Convert to Admission
+              </button>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setShowFollowUpModal(true);
+                }}
+                className="bg-blue-600 text-white py-2 rounded"
+              >
+                Add Follow-Up
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-400 text-white py-2 rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Follow-Up Modal */}
+      {showFollowUpModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Add Follow-Up</h2>
+            <form onSubmit={handleFollowUpSubmit} className="flex flex-col gap-3">
+              <input
+                type="date"
+                value={followUpDate}
+                onChange={(e) => setFollowUpDate(e.target.value)}
+                className="border p-2"
+                required
+              />
+              <textarea
+                value={followUpRemarks}
+                onChange={(e) => setFollowUpRemarks(e.target.value)}
+                placeholder="Remarks"
+                className="border p-2"
+                required
+              ></textarea>
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowFollowUpModal(false)}
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
