@@ -234,6 +234,8 @@ const AllEnquiry = () => {
               </a>
               <a
                 href={`https://wa.me/${e.mobileSelf}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
                 className="bg-green-500 text-white px-2 py-1 rounded text-xs"
               >
