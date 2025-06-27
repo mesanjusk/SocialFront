@@ -7,11 +7,19 @@ const AddEnquiry = () => {
   const [enquiries, setEnquiries] = useState([]);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [showFollowUpModal, setShowFollowUpModal] = useState(false);
   const [followUpDate, setFollowUpDate] = useState('');
   const [followUpRemarks, setFollowUpRemarks] = useState('');
   const [search, setSearch] = useState('');
   const institute_uuid = localStorage.getItem('institute_uuid');
+
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    mobileSelf: '',
+    course: '',
+  });
 
   const fetchEnquiries = async () => {
     try {
@@ -19,6 +27,47 @@ const AddEnquiry = () => {
       setEnquiries(res.data || []);
     } catch {
       toast.error('Failed to fetch enquiries');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.firstName || !form.mobileSelf) {
+      toast.error('First name and mobile are required');
+      return;
+    }
+    try {
+      if (isEditMode && selectedEnquiry) {
+        await axios.put(`${BASE_URL}/api/record/${selectedEnquiry._id}`, {
+          ...form,
+          institute_uuid,
+          type: 'enquiry',
+        });
+        toast.success('Enquiry updated successfully');
+      } else {
+        await axios.post(`${BASE_URL}/api/record`, {
+          ...form,
+          institute_uuid,
+          type: 'enquiry',
+        });
+        toast.success('Enquiry added successfully');
+      }
+      setForm({ firstName: '', lastName: '', mobileSelf: '', course: '' });
+      setShowModal(false);
+      fetchEnquiries();
+    } catch {
+      toast.error('Failed to save enquiry');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
+    try {
+      await axios.delete(`${BASE_URL}/api/enquiry/${id}`);
+      toast.success('Enquiry deleted');
+      fetchEnquiries();
+    } catch {
+      toast.error('Failed to delete enquiry');
     }
   };
 
@@ -41,28 +90,27 @@ const AddEnquiry = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
-    try {
-      await axios.delete(`${BASE_URL}/api/enquiry/${id}`);
-      toast.success('Enquiry deleted');
-      fetchEnquiries();
-      setShowModal(false);
-    } catch {
-      toast.error('Failed to delete enquiry');
-    }
+  const openAddModal = () => {
+    setForm({ firstName: '', lastName: '', mobileSelf: '', course: '' });
+    setIsEditMode(false);
+    setShowModal(true);
   };
 
-  const handleEdit = () => {
-    toast('Edit action triggered');
-    // Implement your edit modal logic here
-    setShowModal(false);
+  const openEditModal = (enquiry) => {
+    setForm({
+      firstName: enquiry.firstName || '',
+      lastName: enquiry.lastName || '',
+      mobileSelf: enquiry.mobileSelf || '',
+      course: enquiry.course || '',
+    });
+    setSelectedEnquiry(enquiry);
+    setIsEditMode(true);
+    setShowModal(true);
   };
 
-  const handleConvert = () => {
-    toast('Convert to admission triggered');
-    // Implement your convert modal logic here
-    setShowModal(false);
+  const openFollowUpModal = (enquiry) => {
+    setSelectedEnquiry(enquiry);
+    setShowFollowUpModal(true);
   };
 
   useEffect(() => {
@@ -85,6 +133,12 @@ const AddEnquiry = () => {
           placeholder="Search by name or mobile"
           className="border p-2 w-full max-w-xs"
         />
+        <button
+          onClick={openAddModal}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          + Add Enquiry
+        </button>
       </div>
 
       {/* Card View */}
@@ -92,64 +146,73 @@ const AddEnquiry = () => {
         {filtered.map((e, idx) => (
           <div
             key={idx}
-            className="bg-white p-4 rounded shadow cursor-pointer"
-            onClick={() => {
-              setSelectedEnquiry(e);
-              setShowModal(true);
-            }}
+            className="bg-white p-4 rounded shadow"
           >
             <div className="font-semibold text-lg">{e.firstName} {e.lastName}</div>
             <div className="text-gray-600 text-sm">📞 {e.mobileSelf}</div>
             <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
+            <div className="flex gap-2 mt-2">
+              <button onClick={() => openEditModal(e)} className="bg-yellow-500 text-white px-3 py-1 rounded text-sm">Edit</button>
+              <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-3 py-1 rounded text-sm">Delete</button>
+              <button onClick={() => toast('Convert to Admission logic goes here')} className="bg-green-600 text-white px-3 py-1 rounded text-sm">Convert</button>
+              <button onClick={() => openFollowUpModal(e)} className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Follow-Up</button>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Enquiry Detail Modal */}
-      {showModal && selectedEnquiry && (
+      {/* Add/Edit Modal */}
+      {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded max-w-sm w-full">
-            <h2 className="text-xl font-bold mb-2">
-              {selectedEnquiry.firstName} {selectedEnquiry.lastName}
-            </h2>
-            <p className="text-sm text-gray-600 mb-2">📞 {selectedEnquiry.mobileSelf}</p>
-            <p className="text-sm text-gray-600 mb-4">Course: {selectedEnquiry.course || 'N/A'}</p>
-
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={handleEdit}
-                className="bg-yellow-500 text-white py-2 rounded"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(selectedEnquiry._id)}
-                className="bg-red-500 text-white py-2 rounded"
-              >
-                Delete
-              </button>
-              <button
-                onClick={handleConvert}
-                className="bg-green-600 text-white py-2 rounded"
-              >
-                Convert to Admission
-              </button>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setShowFollowUpModal(true);
-                }}
-                className="bg-blue-600 text-white py-2 rounded"
-              >
-                Add Follow-Up
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-gray-400 text-white py-2 rounded"
-              >
-                Close
-              </button>
-            </div>
+            <h2 className="text-lg font-bold mb-4">{isEditMode ? 'Edit Enquiry' : 'Add Enquiry'}</h2>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <input
+                type="text"
+                placeholder="First Name"
+                value={form.firstName}
+                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                className="border p-2"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                className="border p-2"
+              />
+              <input
+                type="text"
+                placeholder="Mobile Number"
+                value={form.mobileSelf}
+                onChange={(e) => setForm({ ...form, mobileSelf: e.target.value })}
+                className="border p-2"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Course"
+                value={form.course}
+                onChange={(e) => setForm({ ...form, course: e.target.value })}
+                className="border p-2"
+              />
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  {isEditMode ? 'Update' : 'Add'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
