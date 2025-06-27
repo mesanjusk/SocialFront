@@ -215,28 +215,42 @@ const Followup = () => {
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />
       </div>
 
-      <table className="w-full border">
-        <thead>
-          <tr>
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Mobile</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((e, i) => (
-            <tr key={i} className="text-center">
-              <td className="border p-2">{e.firstName} {e.lastName}</td>
-              <td className="border p-2">{e.mobileSelf}</td>
-              <td className="border p-2 space-x-2">
-                <button onClick={() => handleEdit(e)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-                <button onClick={() => handleConvert(e)} className="bg-green-600 text-white px-2 py-1 rounded">Convert</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {filtered.map((e) => (
+          <div
+            key={e._id}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:ring hover:ring-blue-400"
+          >
+            <div className="font-semibold text-lg">
+              {e.firstName} {e.lastName}
+            </div>
+            <div className="text-gray-600 text-sm">📞 {e.mobileSelf}</div>
+            <div className="text-gray-500 text-xs">
+              {e.course || 'No course selected'}
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <button
+                onClick={() => handleEdit(e)}
+                className="bg-yellow-500 text-white px-3 py-1 rounded text-xs"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(e._id)}
+                className="bg-red-500 text-white px-3 py-1 rounded text-xs"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => handleConvert(e)}
+                className="bg-green-600 text-white px-3 py-1 rounded text-xs"
+              >
+                Convert
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Admission Convert Modal */}
       {showAdmission && (

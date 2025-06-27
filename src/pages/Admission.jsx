@@ -214,28 +214,37 @@ const Admission = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <table className="w-full border">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">Name</th>
-            <th className="p-2 border">Mobile</th>
-            <th className="p-2 border">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAdmissions.map((a, i) => (
-            <tr key={i} className="text-center">
-              <td className="border p-2">{a.firstName} {a.lastName}</td>
-              <td className="border p-2">{a.mobileSelf}</td>
-              <td className="border p-2 space-x-2">
-                <button onClick={() => handleEdit(a)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                <button onClick={() => handleDelete(a._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Card View */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {filteredAdmissions.map((a) => (
+          <div
+            key={a._id}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:ring hover:ring-blue-400"
+          >
+            <div className="font-semibold text-lg">
+              {a.firstName} {a.lastName}
+            </div>
+            <div className="text-gray-600 text-sm">📞 {a.mobileSelf}</div>
+            <div className="text-gray-500 text-xs">
+              {a.course || 'No course selected'}
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <button
+                onClick={() => handleEdit(a)}
+                className="bg-yellow-500 text-white px-3 py-1 rounded text-xs"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(a._id)}
+                className="bg-red-500 text-white px-3 py-1 rounded text-xs"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Modal */}
       {showModal && (
