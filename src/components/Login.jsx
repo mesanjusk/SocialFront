@@ -31,12 +31,10 @@ const Login = () => {
 
     try {
       const res = await axios.get(`${BASE_URL}/api/branding?i=${insti || 'default'}`);
-
       const data = res.data;
-
       const themeColor = data.theme?.color || '#10B981';
-      setBranding(data);
 
+      setBranding(data);
       localStorage.setItem('institute_title', data.institute || '');
       localStorage.setItem('theme_color', themeColor);
       localStorage.setItem('favicon', data.favicon || '');
@@ -51,7 +49,6 @@ const Login = () => {
         document.head.appendChild(link);
       }
       link.href = data.favicon || '/favicon.ico';
-
       document.title = `${data.institute || 'Instify'} | Instify`;
     } catch (err) {
       console.error('Branding fetch error:', err);
@@ -82,34 +79,28 @@ const Login = () => {
         return;
       }
 
-      const storage = rememberMe ? localStorage : sessionStorage;
+      const userObj = {
+        id: data.user_id,
+        name: data.user_name,
+        role: data.user_role || 'admin',
+        username: data.login_username,
+      };
+
+      const instituteObj = {
+        institute_id: data.institute_id,
+        institute_uuid: data.institute_uuid,
+        institute_title: data.institute_name,
+        theme_color: data.theme_color || '#10B981',
+      };
+
       localStorage.setItem('remember_me', rememberMe ? 'true' : 'false');
+      const storage = rememberMe ? localStorage : sessionStorage;
 
-      storage.setItem('user_id', data.user_id);
-      storage.setItem('user_name', data.user_name);
-      storage.setItem('user_type', data.user_role || 'admin');
-      storage.setItem('login_username', data.login_username);
-
-      storage.setItem('institute_id', data.institute_id);
-      storage.setItem('institute_uuid', data.institute_uuid);
-      storage.setItem('institute_title', data.institute_name);
-      storage.setItem('theme_color', data.theme_color || '#10B981');
+      storage.setItem('user', JSON.stringify(userObj));
+      storage.setItem('institute', JSON.stringify(instituteObj));
 
       if (window.updateAppContext) {
-        window.updateAppContext({
-          user: {
-            id: data.user_id,
-            name: data.user_name,
-            role: data.user_role || 'admin',
-            username: data.login_username,
-          },
-          institute: {
-            institute_id: data.institute_id,
-            institute_uuid: data.institute_uuid,
-            institute_title: data.institute_name,
-            theme_color: data.theme_color || '#10B981',
-          }
-        });
+        window.updateAppContext({ user: userObj, institute: instituteObj });
       }
 
       toast.success(`Welcome, ${data.user_name}`);
@@ -125,17 +116,10 @@ const Login = () => {
       <Toaster position="top-center" />
       <div className="bg-white w-full max-w-md rounded-lg shadow p-6">
         <div className="flex justify-center mb-6">
-          <img
-            src={branding?.logo || '/logo.png'}
-            alt="Logo"
-            className="w-20 h-20 object-contain"
-          />
+          <img src={branding?.logo || '/logo.png'} alt="Logo" className="w-20 h-20 object-contain" />
         </div>
 
-        <h2
-          className="text-2xl font-bold text-center mb-6"
-          style={{ color: branding?.theme?.color || '#10B981' }}
-        >
+        <h2 className="text-2xl font-bold text-center mb-6" style={{ color: branding?.theme?.color || '#10B981' }}>
           {branding?.institute || 'Login'}
         </h2>
 
@@ -155,7 +139,6 @@ const Login = () => {
                 placeholder="Enter username"
               />
             </div>
-
             <div>
               <label className="block mb-1 text-sm text-gray-700">Password</label>
               <input
@@ -167,7 +150,6 @@ const Login = () => {
                 placeholder="Enter password"
               />
             </div>
-
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -178,7 +160,6 @@ const Login = () => {
               />
               <label htmlFor="rememberMe" className="text-sm text-gray-700">Keep me logged in</label>
             </div>
-
             <div className="text-right text-sm">
               <button
                 type="button"
@@ -188,7 +169,6 @@ const Login = () => {
                 Forgot Password?
               </button>
             </div>
-
             <button
               type="submit"
               className="w-full py-2 rounded text-white"

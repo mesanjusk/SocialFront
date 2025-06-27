@@ -11,27 +11,17 @@ export const AppProvider = ({ children }) => {
     const remember = localStorage.getItem('remember_me') === 'true';
     const storage = remember ? localStorage : sessionStorage;
 
-    const user_id = storage.getItem('user_id');
-    const institute_uuid = storage.getItem('institute_uuid');
+    const storedUser = storage.getItem('user');
+    const storedInstitute = storage.getItem('institute');
 
-    if (user_id && institute_uuid) {
-      const storedUser = {
-        id: user_id,
-        name: storage.getItem('user_name'),
-        role: storage.getItem('user_type'),
-        username: storage.getItem('login_username'),
-      };
-
-      const storedInstitute = {
-        institute_id: storage.getItem('institute_id'),
-        institute_uuid,
-        institute_title: storage.getItem('institute_title'),
-        theme_color: storage.getItem('theme_color'),
-      };
-
-      setUser(storedUser);
-      setInstitute(storedInstitute);
-      console.log('[AppContext] Restored from', remember ? 'localStorage' : 'sessionStorage');
+    if (storedUser && storedInstitute) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setInstitute(JSON.parse(storedInstitute));
+        console.log('[AppContext] Restored user/institute from', remember ? 'localStorage' : 'sessionStorage');
+      } catch (err) {
+        console.error('[AppContext] Failed to parse stored user/institute:', err);
+      }
     } else {
       console.warn('[AppContext] No stored user or institute found');
     }
@@ -41,8 +31,14 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     window.updateAppContext = ({ user, institute }) => {
-      if (user) setUser(user);
-      if (institute) setInstitute(institute);
+      setUser(user);
+      setInstitute(institute);
+
+      const remember = localStorage.getItem('remember_me') === 'true';
+      const storage = remember ? localStorage : sessionStorage;
+
+      if (user) storage.setItem('user', JSON.stringify(user));
+      if (institute) storage.setItem('institute', JSON.stringify(institute));
     };
   }, []);
 

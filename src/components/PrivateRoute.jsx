@@ -6,7 +6,7 @@ const PrivateRoute = ({ children }) => {
   const { user, institute, loading } = useApp();
   const location = useLocation();
 
-  // Wait for Context to load before making access decision
+  // Wait for context to load before deciding
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-500">
@@ -15,12 +15,12 @@ const PrivateRoute = ({ children }) => {
     );
   }
 
-  // Redirect to login if no valid user or institute
+  // Redirect to login if user is not authenticated
   if (!user || !institute?.institute_uuid) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  // Render the protected page
+  // Allow access
   return children;
 };
 
