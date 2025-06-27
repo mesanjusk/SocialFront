@@ -224,7 +224,22 @@ const AllEnquiry = () => {
             onClick={() => setActionModal(e)}
           >
             <div className="font-semibold text-lg">{e.firstName} {e.lastName}</div>
-            <div className="text-gray-600 text-sm">📞 {e.mobileSelf}</div>
+            <div className="flex items-center gap-2 text-gray-600 text-sm">
+              <a
+                href={`tel:${e.mobileSelf}`}
+                onClick={ev => ev.stopPropagation()}
+                className="hover:underline"
+              >
+                📞 {e.mobileSelf}
+              </a>
+              <a
+                href={`https://wa.me/${e.mobileSelf}`}
+                onClick={ev => ev.stopPropagation()}
+                className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+              >
+                WhatsApp
+              </a>
+            </div>
             <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
           </div>
         ))}

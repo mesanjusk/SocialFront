@@ -223,7 +223,22 @@ const AllAdmission = () => {
             onClick={() => setActionModal(a)}
           >
             <div className="font-semibold text-lg">{a.firstName} {a.lastName}</div>
-            <div className="text-gray-600 text-sm">📞 {a.mobileSelf}</div>
+            <div className="flex items-center gap-2 text-gray-600 text-sm">
+              <a
+                href={`tel:${a.mobileSelf}`}
+                onClick={ev => ev.stopPropagation()}
+                className="hover:underline"
+              >
+                📞 {a.mobileSelf}
+              </a>
+              <a
+                href={`https://wa.me/${a.mobileSelf}`}
+                onClick={ev => ev.stopPropagation()}
+                className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+              >
+                WhatsApp
+              </a>
+            </div>
             <div className="text-gray-500 text-xs">{a.course || 'No course selected'}</div>
           </div>
         ))}
