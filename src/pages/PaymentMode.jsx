@@ -6,7 +6,7 @@ import BASE_URL from '../config';
 const PaymentMode = () => {
   const [list, setList] = useState([]);
   const [form, setForm] = useState({ mode: '', description: '' });
-  const [editingId, setEditingId] = useState(null); // will store uuid now
+  const [editingId, setEditingId] = useState(null); 
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,7 @@ const PaymentMode = () => {
     try {
       if (editingId) {
         if (!window.confirm('Update this payment mode?')) return;
-        await axios.put(`${BASE_URL}/api/paymentmode/uuid/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/paymentmode/${editingId}`, form);
         toast.success('Updated');
       } else {
         await axios.post(`${BASE_URL}/api/paymentmode`, form);
@@ -53,14 +53,14 @@ const PaymentMode = () => {
 
   const handleEdit = (item) => {
     setForm({ mode: item.mode, description: item.description });
-    setEditingId(item.uuid); // store uuid instead of _id
+    setEditingId(item._id); 
     setShowModal(true);
   };
 
-  const handleDelete = async (uuid) => {
+  const handleDelete = async (_id) => {
     if (!window.confirm('Delete this entry?')) return;
     try {
-      await axios.delete(`${BASE_URL}/api/paymentmode/uuid/${uuid}`);
+      await axios.delete(`${BASE_URL}/api/paymentmode/${_id}`);
       toast.success('Deleted');
       fetchData();
     } catch {
@@ -118,7 +118,7 @@ const PaymentMode = () => {
             </tr>
           ) : (
             filtered.map((item) => (
-              <tr key={item.uuid} className="text-center hover:bg-gray-100 transition">
+              <tr key={item._id} className="text-center hover:bg-gray-100 transition">
                 
                 <td className="border p-2">{item.mode}</td>
                 <td className="border p-2">{item.description}</td>
@@ -130,7 +130,7 @@ const PaymentMode = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(item.uuid)}
+                    onClick={() => handleDelete(item._id)}
                     className="bg-red-600 text-white px-2 py-1 rounded"
                   >
                     Delete

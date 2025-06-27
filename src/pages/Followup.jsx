@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
-const Enquiry = () => {
+const Followup = () => {
    const initialForm = {
     enquiryDate: '', firstName: '', middleName: '',
     lastName: '', dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
@@ -55,7 +55,7 @@ const Enquiry = () => {
 
   const fetchEnquiries = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/org/${institute_uuid}?type=enquiry`);
+      const res = await axios.get(`${BASE_URL}/api/record/${institute_uuid}?type=enquiry`);
       setEnquiries(res.data || []);
     } catch {
       toast.error('Failed to fetch enquiries');
@@ -213,7 +213,6 @@ const Enquiry = () => {
       <Toaster />
       <div className="flex gap-2 mb-4">
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />
-        <button onClick={() => { setForm(initialForm); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">+ Enquiry</button>
       </div>
 
       <table className="w-full border">
@@ -238,40 +237,6 @@ const Enquiry = () => {
           ))}
         </tbody>
       </table>
-
-      {/* Enquiry Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded max-w-lg w-full overflow-y-auto max-h-[90vh]">
-            <h2 className="text-xl font-bold mb-4">{editingId ? 'Edit Enquiry' : 'Add Enquiry'}</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              {/* Removed enquiryDate input */}
-              <input value={form.firstName} onChange={handleChange('firstName')} placeholder="First Name" className="border p-2" />
-              <input value={form.lastName} onChange={handleChange('lastName')} placeholder="Last Name" className="border p-2" />
-              <input
-                value={form.mobileSelf}
-                onChange={handleChange('mobileSelf')}
-                placeholder="Mobile"
-                inputMode="numeric"
-                pattern="[0-9]{10}"
-                maxLength={10}
-                className="border p-2"
-              />
-              <select value={form.course} onChange={handleChange('course')} className="border p-2">
-                <option value="">Select Course</option>
-                {Array.isArray(courses) && courses.map(c => (
-                  <option key={c._id} value={c.name}>{c.name}</option>
-                ))}
-              </select>
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Add'}</button>
-              </div>
-            </form>
-
-          </div>
-        </div>
-      )}
 
       {/* Admission Convert Modal */}
       {showAdmission && (
@@ -382,4 +347,4 @@ const Enquiry = () => {
   );
 };
 
-export default Enquiry;
+export default Followup;

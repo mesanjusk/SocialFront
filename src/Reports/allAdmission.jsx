@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import BASE_URL from '../config';
 
-const Admission = () => {
+const AllAdmission = () => {
   const initialForm = {
     branchCode: '',
     admissionDate: new Date().toISOString().substring(0, 10),
@@ -210,7 +210,6 @@ const Admission = () => {
         <div className="flex gap-2">
           <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded">Export PDF</button>
           <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded">Export Excel</button>
-          <button onClick={() => { setForm(initialForm); setEditingId(null); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">+ Admission</button>
         </div>
       </div>
 
@@ -350,4 +349,4 @@ const Admission = () => {
   );
 };
 
-export default Admission;
+export default AllAdmission;

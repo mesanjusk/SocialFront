@@ -17,7 +17,7 @@ const Batches = () => {
 
   const fetchBatches = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/batches?institute_uuid=${institute_id}`);
+      const res = await axios.get(`${BASE_URL}/api/batches`);
       setBatches(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch batches');

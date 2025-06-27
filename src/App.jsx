@@ -20,6 +20,12 @@ import ResetPassword from './components/ResetPassword';
 import InstituteProfile from './pages/instituteProfile';
 import Owner from './pages/Owner';
 import PrivateRoute from './components/PrivateRoute'; // ✅ Assuming this is implemented
+import CoursesCategory from './pages/CoursesCategory';
+import AllEnquiry from './Reports/allEnquiry';
+import AllAdmission from './Reports/allAdmission';
+import AddAdmission from './pages/addAdmission';
+import AddEnquiry from './pages/addEnquiry';
+import Followup from './pages/Followup';
 
 export default function App() {
   return (
@@ -31,6 +37,7 @@ export default function App() {
       <Route path="/upload" element={<ImageUploader />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id" element={<ResetPassword />} />
+     
 
       {/* 🔐 Protected Routes under :username */}
       <Route
@@ -53,6 +60,12 @@ export default function App() {
         <Route path="paymentmode" element={<PaymentMode />} />
         <Route path="instituteProfile" element={<InstituteProfile />} />
         <Route path="owner" element={<Owner />} />
+        <Route path="coursesCategory" element={<CoursesCategory />} />
+         <Route path="allEnquiry" element={<AllEnquiry />} />
+         <Route path="allAdmission" element={<AllAdmission />} />
+         <Route path="addAdmission" element={<AddAdmission />} />
+         <Route path="addEnquiry" element={<AddEnquiry />} />
+         <Route path="followup" element={<Followup />} />
       </Route>
 
       {/* 🧭 Fallback */}

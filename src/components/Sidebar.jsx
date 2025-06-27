@@ -23,13 +23,7 @@ export default function Sidebar() {
   };
 
   const navItems = [
-    {
-      label: 'Admissions',
-      items: [
-        { path: '/dashboard/Enquiry', label: 'Enquiry', icon: <ContactMailIcon fontSize="small" /> },
-        { path: '/dashboard/Admission', label: 'Admission', icon: <MenuBookIcon fontSize="small" /> },
-      ]
-    },
+    
     {
       label: 'Academic',
       items: [

@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import BASE_URL from '../config';
 
-const Admission = () => {
+const AddAdmission = () => {
   const initialForm = {
     branchCode: '',
     admissionDate: new Date().toISOString().substring(0, 10),
@@ -200,45 +200,7 @@ const Admission = () => {
   return (
     <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
-      {/* Search & Export */}
-      <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
-        <div className="flex gap-2">
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="border p-2 rounded" />
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="border p-2 rounded" />
-          <input type="text" placeholder="Search by name or number" value={search} onChange={e => setSearch(e.target.value)} className="border p-2 rounded" />
-        </div>
-        <div className="flex gap-2">
-          <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded">Export PDF</button>
-          <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded">Export Excel</button>
-          <button onClick={() => { setForm(initialForm); setEditingId(null); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded">+ Admission</button>
-        </div>
-      </div>
-
-      {/* Table */}
-      <table className="w-full border">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">Name</th>
-            <th className="p-2 border">Mobile</th>
-            <th className="p-2 border">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAdmissions.map((a, i) => (
-            <tr key={i} className="text-center">
-              <td className="border p-2">{a.firstName} {a.lastName}</td>
-              <td className="border p-2">{a.mobileSelf}</td>
-              <td className="border p-2 space-x-2">
-                <button onClick={() => handleEdit(a)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                <button onClick={() => handleDelete(a._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Modal */}
-      {showModal && (
+    
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4 text-blue-700">{editingId ? 'Edit Admission' : 'Add New Admission'}</h2>
@@ -345,9 +307,9 @@ const Admission = () => {
             </form>
           </div>
         </div>
-      )}
+      
     </div>
   );
 };
 
-export default Admission;
+export default AddAdmission;

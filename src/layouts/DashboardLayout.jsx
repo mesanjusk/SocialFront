@@ -1,18 +1,30 @@
 import { Outlet } from 'react-router-dom';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import RightSidebar from '../components/RightSidebar';
 import Navbar from '../components/Navbar';
 import BASE_URL from '../config';
+import Footer from '../components/Footer';
+import FloatingButtons from "./floatingButton";
+import admission from '../assets/payment.svg';
+import enquiry from '../assets/reciept.svg';
 
 export default function DashboardLayout() {
+  const navigate = useNavigate();
   const [showSidebar, setShowSidebar] = useState(false);
 
   const toggleSidebar = () => {
     setShowSidebar((prev) => !prev);
   };
 
+  const buttonsList = [
+      { onClick: ()=> navigate('/dashboard/addEnquiry'), src: enquiry },
+      { onClick: ()=> navigate('/dashboard/addAdmission'), src: admission },
+    ];
+
   return (
+    <>
     <div className="flex min-h-screen">
       {/* Sidebar (hidden on mobile, toggleable) */}
       <div className={`fixed z-40 inset-y-0 left-0 w-64 transform transition-transform duration-200 bg-white shadow-lg md:relative md:translate-x-0 ${showSidebar ? 'translate-x-0' : '-translate-x-full'} md:block`}>
@@ -40,6 +52,9 @@ export default function DashboardLayout() {
           </div>
         </div>
       </div>
+      <FloatingButtons buttonType="bars" buttonsList={buttonsList} direction="up" />
     </div>
+    <Footer />
+    </>
   );
 }

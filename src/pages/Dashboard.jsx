@@ -55,6 +55,7 @@ const Dashboard = () => {
           <p>{daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining</p>
         </div>
       )}
+      
     </div>
   );
 };
