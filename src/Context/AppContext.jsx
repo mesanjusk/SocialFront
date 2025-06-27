@@ -11,19 +11,23 @@ export const AppProvider = ({ children }) => {
     const remember = localStorage.getItem('remember_me') === 'true';
     const storage = remember ? localStorage : sessionStorage;
 
-    const storedUser = storage.getItem('user');
-    const storedInstitute = storage.getItem('institute');
+    try {
+      const userStr = storage.getItem('user');
+      const instiStr = storage.getItem('institute');
 
-    if (storedUser && storedInstitute) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setInstitute(JSON.parse(storedInstitute));
-        console.log('[AppContext] Restored user/institute from', remember ? 'localStorage' : 'sessionStorage');
-      } catch (err) {
-        console.error('[AppContext] Failed to parse stored user/institute:', err);
+      if (userStr && instiStr) {
+        const userObj = JSON.parse(userStr);
+        const instiObj = JSON.parse(instiStr);
+
+        setUser(userObj);
+        setInstitute(instiObj);
+
+        console.log('✅ [AppContext] Restored from', remember ? 'localStorage' : 'sessionStorage');
+      } else {
+        console.warn('⚠️ [AppContext] No stored user or institute found');
       }
-    } else {
-      console.warn('[AppContext] No stored user or institute found');
+    } catch (err) {
+      console.error('❌ [AppContext] Failed to parse stored values:', err);
     }
 
     setLoading(false);
@@ -31,19 +35,22 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     window.updateAppContext = ({ user, institute }) => {
-      setUser(user);
-      setInstitute(institute);
-
       const remember = localStorage.getItem('remember_me') === 'true';
       const storage = remember ? localStorage : sessionStorage;
 
-      if (user) storage.setItem('user', JSON.stringify(user));
-      if (institute) storage.setItem('institute', JSON.stringify(institute));
+      if (user) {
+        setUser(user);
+        storage.setItem('user', JSON.stringify(user));
+      }
+      if (institute) {
+        setInstitute(institute);
+        storage.setItem('institute', JSON.stringify(institute));
+      }
     };
   }, []);
 
   return (
-    <AppContext.Provider value={{ user, institute, loading, setUser, setInstitute }}>
+    <AppContext.Provider value={{ user, institute, loading }}>
       {children}
     </AppContext.Provider>
   );

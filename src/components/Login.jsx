@@ -93,12 +93,15 @@ const Login = () => {
         theme_color: data.theme_color || '#10B981',
       };
 
+      // Store login method
       localStorage.setItem('remember_me', rememberMe ? 'true' : 'false');
       const storage = rememberMe ? localStorage : sessionStorage;
 
+      // Store full objects
       storage.setItem('user', JSON.stringify(userObj));
       storage.setItem('institute', JSON.stringify(instituteObj));
 
+      // Update AppContext
       if (window.updateAppContext) {
         window.updateAppContext({ user: userObj, institute: instituteObj });
       }
