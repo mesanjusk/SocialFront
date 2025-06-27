@@ -30,6 +30,7 @@ const AllEnquiry = () => {
   const [exams, setExams] = useState([]);
   const [batches, setBatches] = useState([]);
   const [paymentModes, setPaymentModes] = useState([]);
+  const [actionModal, setActionModal] = useState(null);
   const [search, setSearch] = useState('');
   const institute_uuid = localStorage.getItem('institute_uuid');
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
@@ -215,31 +216,22 @@ const AllEnquiry = () => {
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />
       </div>
 
-      <table className="w-full border">
-        <thead>
-          <tr>
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Mobile</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((e, i) => (
-            <tr key={i} className="text-center">
-              <td className="border p-2">{e.firstName} {e.lastName}</td>
-              <td className="border p-2">{e.mobileSelf}</td>
-              <td className="border p-2 space-x-2">
-                <button onClick={() => handleEdit(e)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-                <button onClick={() => handleConvert(e)} className="bg-green-600 text-white px-2 py-1 rounded">Convert</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {filtered.map((e) => (
+          <div
+            key={e._id}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:ring hover:ring-blue-400"
+            onClick={() => setActionModal(e)}
+          >
+            <div className="font-semibold text-lg">{e.firstName} {e.lastName}</div>
+            <div className="text-gray-600 text-sm">📞 {e.mobileSelf}</div>
+            <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
+          </div>
+        ))}
+      </div>
 
       {/* Admission Convert Modal */}
-      {showAdmission && (
+  {showAdmission && (
   <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
       <h2 className="text-2xl font-bold mb-4 text-green-700">Convert to Admission</h2>
@@ -342,6 +334,52 @@ const AllEnquiry = () => {
     </div>
   </div>
 )}
+
+      {/* Action Modal */}
+      {actionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">
+              {actionModal.firstName} {actionModal.lastName}
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  handleEdit(actionModal);
+                  setActionModal(null);
+                }}
+                className="bg-yellow-500 text-white px-4 py-2 rounded text-sm"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => {
+                  handleDelete(actionModal._id);
+                  setActionModal(null);
+                }}
+                className="bg-red-500 text-white px-4 py-2 rounded text-sm"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => {
+                  handleConvert(actionModal);
+                  setActionModal(null);
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+              >
+                Convert
+              </button>
+              <button
+                onClick={() => setActionModal(null)}
+                className="bg-gray-400 text-white px-4 py-2 rounded text-sm ml-auto"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
