@@ -67,17 +67,15 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/user/login`, {
-        username,
-        password
-      });
-
+      const res = await axios.post(`${BASE_URL}/api/auth/user/login`, { username, password });
       const data = res.data;
 
       if (data.message !== 'success') {
         toast.error(data.message || 'Invalid credentials');
         return;
       }
+
+      toast.success(`Welcome, ${data.user_name}`);
 
       const userObj = {
         id: data.user_id,
@@ -93,38 +91,36 @@ const Login = () => {
         theme_color: data.theme_color || '#10B981',
       };
 
-      // Store login method
+      document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
+
       localStorage.setItem('remember_me', rememberMe ? 'true' : 'false');
       const storage = rememberMe ? localStorage : sessionStorage;
 
-      // Store full objects
       storage.setItem('user', JSON.stringify(userObj));
       storage.setItem('institute', JSON.stringify(instituteObj));
 
-  // Legacy individual keys for pages that still rely on them
-      const allStores = [localStorage, sessionStorage];
-      allStores.forEach((s) => {
-        s.setItem('user_id', String(data.user_id));
-        s.setItem('user_name', data.user_name);
-        s.setItem('user_role', data.user_role || 'admin');
-        s.setItem('login_username', data.login_username);
-        s.setItem('institute_id', String(data.institute_id));
-        s.setItem('institute_uuid', data.institute_uuid);
-        s.setItem('institute_title', data.institute_name);
-        s.setItem('theme_color', data.theme_color || '#10B981');
-      });
+      storage.setItem('name', data.user_name);
+      storage.setItem('institute_title', data.institute_name);
+      storage.setItem('institute_uuid', data.institute_uuid);
+      storage.setItem('center_code', data.login_username);
+      storage.setItem('user_type', data.user_role || 'admin');
+      storage.setItem('login_username', data.login_username);
+      storage.setItem('theme_color', data.theme_color || '#10B981');
+      storage.setItem('institute_id', data.institute_id || '');
 
+      if (data.trialExpiresAt) {
+        storage.setItem('trialExpiresAt', data.trialExpiresAt);
+      }
 
-      // Update AppContext
       if (window.updateAppContext) {
         window.updateAppContext({ user: userObj, institute: instituteObj });
       }
 
-      toast.success(`Welcome, ${data.user_name}`);
-      setTimeout(() => navigate(`/${data.login_username}`), 800);
+      setTimeout(() => navigate('/dashboard'), 800);
+
     } catch (err) {
       console.error('Login error:', err);
-      toast.error('Login failed. Try again.');
+      toast.error(err.response?.data?.message || 'Server error during login');
     }
   };
 
