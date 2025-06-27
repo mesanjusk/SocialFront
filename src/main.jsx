@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import BrandingProvider from './context/BrandingContext';
+import { AppProvider } from './context/BrandingContext';
 import { AppProvider } from './context/Appcontext';
 
 import './index.css'; // Tailwind CSS
