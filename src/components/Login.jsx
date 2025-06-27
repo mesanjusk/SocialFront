@@ -101,6 +101,20 @@ const Login = () => {
       storage.setItem('user', JSON.stringify(userObj));
       storage.setItem('institute', JSON.stringify(instituteObj));
 
+  // Legacy individual keys for pages that still rely on them
+      const allStores = [localStorage, sessionStorage];
+      allStores.forEach((s) => {
+        s.setItem('user_id', String(data.user_id));
+        s.setItem('user_name', data.user_name);
+        s.setItem('user_role', data.user_role || 'admin');
+        s.setItem('login_username', data.login_username);
+        s.setItem('institute_id', String(data.institute_id));
+        s.setItem('institute_uuid', data.institute_uuid);
+        s.setItem('institute_title', data.institute_name);
+        s.setItem('theme_color', data.theme_color || '#10B981');
+      });
+
+
       // Update AppContext
       if (window.updateAppContext) {
         window.updateAppContext({ user: userObj, institute: instituteObj });
