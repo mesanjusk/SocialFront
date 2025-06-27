@@ -24,6 +24,7 @@ const Admission = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [actionModal, setActionModal] = useState(null);
   const [courses, setCourses] = useState([]);
   const [educations, setEducations] = useState([]);
   const [exams, setExams] = useState([]);
@@ -220,6 +221,7 @@ const Admission = () => {
           <div
             key={a._id}
             className="bg-white p-4 rounded shadow cursor-pointer hover:ring hover:ring-blue-400"
+            onClick={() => setActionModal(a)}
           >
             <div className="font-semibold text-lg">
               {a.firstName} {a.lastName}
@@ -227,20 +229,6 @@ const Admission = () => {
             <div className="text-gray-600 text-sm">📞 {a.mobileSelf}</div>
             <div className="text-gray-500 text-xs">
               {a.course || 'No course selected'}
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <button
-                onClick={() => handleEdit(a)}
-                className="bg-yellow-500 text-white px-3 py-1 rounded text-xs"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(a._id)}
-                className="bg-red-500 text-white px-3 py-1 rounded text-xs"
-              >
-                Delete
-              </button>
             </div>
           </div>
         ))}
@@ -352,6 +340,43 @@ const Admission = () => {
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Submit'}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Action Modal */}
+      {actionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">
+              {actionModal.firstName} {actionModal.lastName}
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  handleEdit(actionModal);
+                  setActionModal(null);
+                }}
+                className="bg-yellow-500 text-white px-4 py-2 rounded text-sm"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => {
+                  handleDelete(actionModal._id);
+                  setActionModal(null);
+                }}
+                className="bg-red-500 text-white px-4 py-2 rounded text-sm"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setActionModal(null)}
+                className="bg-gray-400 text-white px-4 py-2 rounded text-sm ml-auto"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
