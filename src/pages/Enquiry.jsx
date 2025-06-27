@@ -4,22 +4,12 @@ import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
 const Enquiry = () => {
-   const initialForm = {
-    enquiryDate: '', firstName: '', middleName: '',
-    lastName: '', dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
-    mobileParent: '', mobileParentWhatsapp: false, address: '', education: '',
-    schoolName: '', referredBy: '', followUpDate: '', remarks: '', course: ''
-  };
-
-  const admissionTemplate = {
-    ...initialForm,
-    admissionDate: '', batchTime: '', examEvent: '',
-    installment: '', fees: '', discount: '', total: '', feePaid: '',
-    paidBy: '', balance: ''
-  };
-
-  const [form, setForm] = useState(initialForm);
-  const [admissionForm, setAdmissionForm] = useState(admissionTemplate);
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    mobileSelf: '',
+    course: '',
+  });
   const [enquiries, setEnquiries] = useState([]);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -30,18 +20,11 @@ const Enquiry = () => {
   const [search, setSearch] = useState('');
   const institute_uuid = localStorage.getItem('institute_uuid');
 
-  const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    mobileSelf: '',
-    course: '',
-  });
-
   const fetchEnquiries = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/record/org/${institute_uuid}?type=enquiry`);
       setEnquiries(res.data || []);
-    } catch {
+    } catch (err) {
       toast.error('Failed to fetch enquiries');
     }
   };
@@ -59,30 +42,30 @@ const Enquiry = () => {
           institute_uuid,
           type: 'enquiry',
         });
-        toast.success('Enquiry updated successfully');
+        toast.success('Enquiry updated');
       } else {
         await axios.post(`${BASE_URL}/api/record`, {
           ...form,
           institute_uuid,
           type: 'enquiry',
         });
-        toast.success('Enquiry added successfully');
+        toast.success('Enquiry added');
       }
       setForm({ firstName: '', lastName: '', mobileSelf: '', course: '' });
       setShowModal(false);
       fetchEnquiries();
-    } catch {
+    } catch (err) {
       toast.error('Failed to save enquiry');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
+    if (!window.confirm('Delete this enquiry?')) return;
     try {
-      await axios.delete(`${BASE_URL}/api/enquiry/${id}`);
+      await axios.delete(`${BASE_URL}/api/record/${id}`);
       toast.success('Enquiry deleted');
       fetchEnquiries();
-    } catch {
+    } catch (err) {
       toast.error('Failed to delete enquiry');
     }
   };
@@ -101,7 +84,7 @@ const Enquiry = () => {
       setFollowUpDate('');
       setFollowUpRemarks('');
       fetchEnquiries();
-    } catch {
+    } catch (err) {
       toast.error('Failed to save follow-up');
     }
   };
@@ -147,7 +130,7 @@ const Enquiry = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or mobile"
-          className="border p-2 w-full max-w-xs"
+          className="border p-2 w-full max-w-xs rounded"
         />
         <button
           onClick={openAddModal}
@@ -157,21 +140,21 @@ const Enquiry = () => {
         </button>
       </div>
 
-      {/* Card View */}
-      <div className="flex flex-col gap-2">
-        {filtered.map((e, idx) => (
+      {/* Card View (mobile-friendly like WhatsApp) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {filtered.map((e) => (
           <div
-            key={idx}
-            className="bg-white p-4 rounded shadow"
+            key={e._id}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:ring hover:ring-blue-400"
           >
             <div className="font-semibold text-lg">{e.firstName} {e.lastName}</div>
             <div className="text-gray-600 text-sm">📞 {e.mobileSelf}</div>
             <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
-            <div className="flex gap-2 mt-2">
-              <button onClick={() => openEditModal(e)} className="bg-yellow-500 text-white px-3 py-1 rounded text-sm">Edit</button>
-              <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-3 py-1 rounded text-sm">Delete</button>
-              <button onClick={() => toast('Convert to Admission logic goes here')} className="bg-green-600 text-white px-3 py-1 rounded text-sm">Convert</button>
-              <button onClick={() => openFollowUpModal(e)} className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Follow-Up</button>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <button onClick={() => openEditModal(e)} className="bg-yellow-500 text-white px-3 py-1 rounded text-xs">Edit</button>
+              <button onClick={() => handleDelete(e._id)} className="bg-red-500 text-white px-3 py-1 rounded text-xs">Delete</button>
+              <button onClick={() => toast('Convert to Admission logic pending')} className="bg-green-600 text-white px-3 py-1 rounded text-xs">Convert</button>
+              <button onClick={() => openFollowUpModal(e)} className="bg-blue-600 text-white px-3 py-1 rounded text-xs">Follow-Up</button>
             </div>
           </div>
         ))}
@@ -188,7 +171,7 @@ const Enquiry = () => {
                 placeholder="First Name"
                 value={form.firstName}
                 onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                className="border p-2"
+                className="border p-2 rounded"
                 required
               />
               <input
@@ -196,14 +179,14 @@ const Enquiry = () => {
                 placeholder="Last Name"
                 value={form.lastName}
                 onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                className="border p-2"
+                className="border p-2 rounded"
               />
               <input
                 type="text"
                 placeholder="Mobile Number"
                 value={form.mobileSelf}
                 onChange={(e) => setForm({ ...form, mobileSelf: e.target.value })}
-                className="border p-2"
+                className="border p-2 rounded"
                 required
               />
               <input
@@ -211,7 +194,7 @@ const Enquiry = () => {
                 placeholder="Course"
                 value={form.course}
                 onChange={(e) => setForm({ ...form, course: e.target.value })}
-                className="border p-2"
+                className="border p-2 rounded"
               />
               <div className="flex gap-2 justify-end">
                 <button
@@ -243,14 +226,14 @@ const Enquiry = () => {
                 type="date"
                 value={followUpDate}
                 onChange={(e) => setFollowUpDate(e.target.value)}
-                className="border p-2"
+                className="border p-2 rounded"
                 required
               />
               <textarea
                 value={followUpRemarks}
                 onChange={(e) => setFollowUpRemarks(e.target.value)}
                 placeholder="Remarks"
-                className="border p-2"
+                className="border p-2 rounded"
                 required
               ></textarea>
               <div className="flex gap-2 justify-end">
