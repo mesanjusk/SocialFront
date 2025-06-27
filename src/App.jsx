@@ -32,7 +32,7 @@ export default function App() {
     <Routes>
       {/* 🌐 Public Routes */}
       <Route path="/" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      {<Route path="/register" element={<Register />} />}
       <Route path="/signup" element={<Signup />} />
       <Route path="/upload" element={<ImageUploader />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
