@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import BASE_URL from '../config';
-import { useApp } from '../context/Appcontext';
+import { useApp } from '../Context/AppContext';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();

@@ -109,9 +109,9 @@ const Signup = () => {
         // ✅ Apply theme color
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
-        // ✅ Update context globally
-        if (window.updateAppcontext) {
-          window.updateAppcontext({
+        // ✅ Update Context globally
+        if (window.updateAppContext) {
+          window.updateAppContext({
             user: {
               id: data.owner_id,
               name: form.center_head_name,

@@ -24,8 +24,8 @@ const logoutUser = () => {
   sessionStorage.removeItem('theme_color');
 
   // Reset AppContext
-  if (window.updateAppcontext) {
-    window.updateAppcontext({ user: null, institute: null });
+  if (window.updateAppContext) {
+    window.updateAppContext({ user: null, institute: null });
   }
 
   // Redirect to login

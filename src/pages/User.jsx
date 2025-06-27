@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import BASE_URL from '../config';
-import { useApp } from '../context/Appcontext';
+import { useApp } from '../Context/AppContext';
 
 const User = () => {
   const { user, institute, loading } = useApp();
@@ -114,7 +114,7 @@ const User = () => {
     setForm({ name: '', password: '', mobile: '', role: '' });
   };
 
-  // ✅ Show loading screen if context is still initializing
+  // ✅ Show loading screen if Context is still initializing
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen text-gray-500">

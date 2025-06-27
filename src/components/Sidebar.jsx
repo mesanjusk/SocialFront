@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import BASE_URL from '../config';
-import { useApp } from '../context/Appcontext'; // ✅ New import
+import { useApp } from '../Context/AppContext'; // ✅ New import
 
 // MUI Icons
 import HomeIcon from '@mui/icons-material/Home';
@@ -15,7 +15,7 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 export default function Sidebar() {
   const { pathname } = useLocation();
   const [openMenus, setOpenMenus] = useState({});
-  const { user } = useApp(); // ✅ use context
+  const { user } = useApp(); // ✅ use Context
   const userType = user?.role;
 
   const toggleMenu = (menu) => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
-import { useApp } from '../context/Appcontext';
+import { useApp } from '../Context/AppContext';
 
 const InstituteProfile = () => {
   const { institute, setInstitute } = useApp();
@@ -97,7 +97,7 @@ const InstituteProfile = () => {
       toast.success('Profile updated');
       fetchProfile();
 
-      // ✅ Update theme, favicon, title, localStorage, context
+      // ✅ Update theme, favicon, title, localStorage, Context
       document.documentElement.style.setProperty('--theme-color', updated.theme_color);
 
       document.title = `${updated.institute_title || 'Instify'} | Instify`;

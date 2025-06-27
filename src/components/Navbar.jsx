@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import BASE_URL from '../config';
 import logoutUser from '../utils/logout';
-import { useApp } from '../context/Appcontext';
+import { useApp } from '../Context/AppContext';
 
 export default function Navbar({ toggleSidebar }) {
-  const { user, institute } = useApp(); // ✅ Pull from context
+  const { user, institute } = useApp(); // ✅ Pull from Context
   const [showModal, setShowModal] = useState(false);
 
   const username = user?.name || institute?.institute_title || '';

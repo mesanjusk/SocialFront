@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { useApp } from '../context/Appcontext'; // ✅ context import
+import { useApp } from '../Context/AppContext'; // ✅ Context import
 
 // MUI Icons
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -10,7 +10,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 export default function RightSidebar() {
   const { pathname } = useLocation();
   const [openMenus, setOpenMenus] = useState({});
-  const { user } = useApp(); // ✅ Get user from context
+  const { user } = useApp(); // ✅ Get user from Context
 
   const userType = user?.role;
 

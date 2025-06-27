@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const Appcontext = createContext();
+const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -47,10 +47,10 @@ export const AppProvider = ({ children }) => {
   }, []);
 
   return (
-    <Appcontext.Provider value={{ user, institute, loading, setUser, setInstitute }}>
+    <AppContext.Provider value={{ user, institute, loading, setUser, setInstitute }}>
       {children}
-    </Appcontext.Provider>
+    </AppContext.Provider>
   );
 };
 
-export const useApp = () => useContext(Appcontext);
+export const useApp = () => useContext(AppContext);
