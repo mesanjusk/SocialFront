@@ -98,30 +98,34 @@ const AddAdmission = () => {
 
   // Generate installment plan and EMI whenever related fields change
   useEffect(() => {
-    const inst = parseInt(form.installment);
+    const inst = parseInt(form.installment, 10);
     const bal = Number(form.balance || 0);
-    if (!inst || !bal || !form.admissionDate) {
+    if (!inst || inst <= 0 || !bal || !form.admissionDate) {
       setInstallmentPlan([]);
-      if (form.emi !== '') setForm(prev => ({ ...prev, emi: '' }));
+      if (form.emi !== '') {
+        setForm(prev => ({ ...prev, emi: '' }));
+      }
       return;
     }
-    const emi = Math.round(bal / inst);
+
+    const emi = parseFloat((bal / inst).toFixed(2));
     const plan = [];
     let remaining = bal;
     for (let i = 1; i <= inst; i++) {
       const due = new Date(form.admissionDate);
       due.setMonth(due.getMonth() + i);
-      const amount = i === inst ? remaining : emi;
-      remaining -= amount;
+      const amount = i === inst ? parseFloat(remaining.toFixed(2)) : emi;
+      remaining = parseFloat((remaining - amount).toFixed(2));
       plan.push({
         installmentNo: i,
-        dueDate: due.toISOString().substring(0, 10),
+        dueDate: due.toISOString().split('T')[0],
         amount
       });
     }
     setInstallmentPlan(plan);
-    if (form.emi !== emi) setForm(prev => ({ ...prev, emi }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (form.emi !== emi) {
+      setForm(prev => ({ ...prev, emi }));
+    }
   }, [form.installment, form.balance, form.admissionDate]);
 
   const fetchAdmissions = async () => {
@@ -298,7 +302,7 @@ const AddAdmission = () => {
                 value={form.course}
                 onChange={(e) => {
                   const selectedCourse = courses.find(c => c.name === e.target.value);
-                  const courseFee = Number(selectedCourse?.courseFees || 0); // ✅ use courseFees
+                  const courseFee = Number(selectedCourse?.courseFees || 0);
                   const discount = Number(form.discount || 0);
                   const feePaid = Number(form.feePaid || 0);
                   const total = courseFee - discount;
@@ -340,6 +344,9 @@ const AddAdmission = () => {
                 placeholder="Installment"
                 value={form.installment}
                 onChange={handleChange('installment')}
+                type="number"
+                min="1"
+                step="1"
                 className="border p-2"
               />
               <input
