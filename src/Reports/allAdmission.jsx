@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
-<<<<<<< HEAD
-=======
+
+
 import { Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -243,29 +243,23 @@ const AllAdmission = () => {
             <div className="font-semibold text-lg">{a.firstName} {a.lastName}</div>
             <div className="flex items-center gap-2 text-gray-600 text-sm">
               <a
-                href={`tel:${a.mobileSelf}`}
+                href={`tel:${e.mobileSelf}`}
                 onClick={ev => ev.stopPropagation()}
                 className="hover:text-blue-600 flex items-center"
               >
-<<<<<<< HEAD
-                <FaPhoneAlt className="mr-1" />{a.mobileSelf}
-=======
-                <FaPhoneAlt className="mr-1 text-xl" />{a.mobileSelf}
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
+                <FaPhoneAlt className="mr-1 text-xl" />
+                {e.mobileSelf}
               </a>
               <a
-                href={`https://wa.me/${a.mobileSelf}`}
+                href={`https://wa.me/${e.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
-<<<<<<< HEAD
-                className="text-green-600 text-xl"
-=======
                 className="text-green-600 text-2xl"
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
               >
                 <FaWhatsapp />
               </a>
+
             </div>
             <div className="text-gray-500 text-xs">{a.course || 'No course selected'}</div>
           </div>
@@ -283,7 +277,7 @@ const AllAdmission = () => {
               <input placeholder="Last Name" value={form.lastName} onChange={handleChange('lastName')} className="border p-2" />
               <div className="flex items-center gap-4">
 
-                <input type="date"  value={form.dob?.substring(0, 10)}  onChange={handleChange('dob')}
+                <input type="date" value={form.dob?.substring(0, 10)} onChange={handleChange('dob')}
                   className="border p-2 flex-1"
                   required
                 /> <label className="w-32 text-sm font-medium">Date of Birth</label>
@@ -318,7 +312,7 @@ const AllAdmission = () => {
                 <option value="">-- Select Education --</option>
                 {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
               </select>
-<select
+              <select
                 value={form.course}
                 onChange={(e) => {
                   const selectedCourse = courses.find(c => c.name === e.target.value);
@@ -357,7 +351,7 @@ const AllAdmission = () => {
                 {exams.map(e => <option key={e._id} value={e.exam}>{e.exam}</option>)}
               </select>
 
-              
+
 
 
               <input placeholder="Installment" value={form.installment} onChange={handleChange('installment')} className="border p-2" />

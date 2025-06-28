@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
-<<<<<<< HEAD
-=======
+
 import { Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
+
 import BASE_URL from '../config';
 
 const AllEnquiry = () => {
-   const initialForm = {
+  const initialForm = {
     enquiryDate: '', firstName: '', middleName: '',
     lastName: '', dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
     mobileParent: '', mobileParentWhatsapp: false, address: '', education: '',
@@ -120,10 +119,10 @@ const AllEnquiry = () => {
     e.preventDefault();
     if (!institute_uuid) return toast.error("Missing institute UUID");
     const payload = {
-  ...form,
-  institute_uuid: institute_uuid,
-  type: 'enquiry'
-};
+      ...form,
+      institute_uuid: institute_uuid,
+      type: 'enquiry'
+    };
 
 
     try {
@@ -200,7 +199,7 @@ const AllEnquiry = () => {
 
   const submitAdmission = async (e) => {
     e.preventDefault();
-    if (!institute_uuid)return toast.error("Missing institute ID");
+    if (!institute_uuid) return toast.error("Missing institute ID");
 
     const payload = {
       institute_uuid: institute_uuid,
@@ -267,11 +266,8 @@ const AllEnquiry = () => {
         </div>
       </div>
 
-<<<<<<< HEAD
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-=======
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
+
         {filtered.map((e) => (
           <div
             key={e._id}
@@ -285,25 +281,19 @@ const AllEnquiry = () => {
                 onClick={ev => ev.stopPropagation()}
                 className="hover:text-blue-600 flex items-center"
               >
-<<<<<<< HEAD
-                <FaPhoneAlt className="mr-1" />{e.mobileSelf}
-=======
-                <FaPhoneAlt className="mr-1 text-xl" />{e.mobileSelf}
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
+                <FaPhoneAlt className="mr-1 text-xl" />
+                {e.mobileSelf}
               </a>
               <a
                 href={`https://wa.me/${e.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
-<<<<<<< HEAD
-                className="text-green-600 text-xl"
-=======
                 className="text-green-600 text-2xl"
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
               >
                 <FaWhatsapp />
               </a>
+
             </div>
             <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
           </div>
@@ -353,109 +343,109 @@ const AllEnquiry = () => {
       )}
 
       {/* Admission Convert Modal */}
-  {showAdmission && (
-  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
-      <h2 className="text-2xl font-bold mb-4 text-green-700">Convert to Admission</h2>
-      <form onSubmit={submitAdmission} className="flex flex-col gap-3">
+      {showAdmission && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-4 text-green-700">Convert to Admission</h2>
+            <form onSubmit={submitAdmission} className="flex flex-col gap-3">
 
-        <input type="date" value={admissionForm.admissionDate} onChange={handleAdmissionChange('admissionDate')} className="border p-2" />
+              <input type="date" value={admissionForm.admissionDate} onChange={handleAdmissionChange('admissionDate')} className="border p-2" />
 
-        <input value={admissionForm.firstName} onChange={handleAdmissionChange('firstName')} placeholder="First Name" className="border p-2" />
-        <input value={admissionForm.middleName} onChange={handleAdmissionChange('middleName')} placeholder="Middle Name" className="border p-2" />
-        <input value={admissionForm.lastName} onChange={handleAdmissionChange('lastName')} placeholder="Last Name" className="border p-2" />
+              <input value={admissionForm.firstName} onChange={handleAdmissionChange('firstName')} placeholder="First Name" className="border p-2" />
+              <input value={admissionForm.middleName} onChange={handleAdmissionChange('middleName')} placeholder="Middle Name" className="border p-2" />
+              <input value={admissionForm.lastName} onChange={handleAdmissionChange('lastName')} placeholder="Last Name" className="border p-2" />
 
-        <input type="date" value={admissionForm.dob?.substring(0, 10)} onChange={handleAdmissionChange('dob')} className="border p-2" />
-        
-        <div className="flex gap-4">
-          <label><input type="radio" name="gender" value="Male" checked={admissionForm.gender === 'Male'} onChange={handleAdmissionChange('gender')} /> Male</label>
-          <label><input type="radio" name="gender" value="Female" checked={admissionForm.gender === 'Female'} onChange={handleAdmissionChange('gender')} /> Female</label>
+              <input type="date" value={admissionForm.dob?.substring(0, 10)} onChange={handleAdmissionChange('dob')} className="border p-2" />
+
+              <div className="flex gap-4">
+                <label><input type="radio" name="gender" value="Male" checked={admissionForm.gender === 'Male'} onChange={handleAdmissionChange('gender')} /> Male</label>
+                <label><input type="radio" name="gender" value="Female" checked={admissionForm.gender === 'Female'} onChange={handleAdmissionChange('gender')} /> Female</label>
+              </div>
+
+              <input
+                placeholder="Mobile (Self)"
+                value={admissionForm.mobileSelf}
+                onChange={handleAdmissionChange('mobileSelf')}
+                inputMode="numeric"
+                pattern="[0-9]{10}"
+                maxLength={10}
+                className="border p-2"
+              />
+              <input
+                placeholder="Mobile (Parent)"
+                value={admissionForm.mobileParent}
+                onChange={handleAdmissionChange('mobileParent')}
+                inputMode="numeric"
+                pattern="[0-9]{10}"
+                maxLength={10}
+                className="border p-2"
+              />
+              <input placeholder="Address" value={admissionForm.address} onChange={handleAdmissionChange('address')} className="border p-2" />
+
+              <select value={admissionForm.education} onChange={handleAdmissionChange('education')} className="border p-2">
+                <option value="">-- Select Education --</option>
+                {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
+              </select>
+
+              <select
+                value={admissionForm.course}
+                onChange={(e) => {
+                  const selectedCourse = courses.find(c => c.name === e.target.value);
+                  const courseFee = Number(selectedCourse?.courseFees || 0);
+                  const discount = Number(admissionForm.discount || 0);
+                  const feePaid = Number(admissionForm.feePaid || 0);
+                  const total = courseFee - discount;
+                  const balance = total - feePaid;
+
+                  setAdmissionForm(prev => ({
+                    ...prev,
+                    course: e.target.value,
+                    fees: courseFee,
+                    total,
+                    balance
+                  }));
+                }}
+                className="border p-2"
+              >
+                <option value="">-- Select Course --</option>
+                {courses.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+              </select>
+
+              <select value={admissionForm.batchTime} onChange={handleAdmissionChange('batchTime')} className="border p-2">
+                <option value="">-- Select Batch --</option>
+                {batches.map(b => (
+                  <option key={b._id} value={b.time || b.batchTime || b.name || ''}>
+                    {b.time || b.batchTime || b.name || 'Unnamed Batch'}
+                  </option>
+                ))}
+              </select>
+
+              <select value={admissionForm.examEvent} onChange={handleAdmissionChange('examEvent')} className="border p-2">
+                <option value="">-- Select Exam --</option>
+                {exams.map(e => <option key={e._id} value={e.exam}>{e.exam}</option>)}
+              </select>
+
+              <input placeholder="Installment" value={admissionForm.installment} onChange={handleAdmissionChange('installment')} className="border p-2" />
+              <input placeholder="Fees" value={admissionForm.fees} type="number" className="border p-2" readOnly />
+              <input placeholder="Discount" value={admissionForm.discount} type="number" onChange={handleAdmissionChange('discount')} className="border p-2" />
+              <input placeholder="Total" value={admissionForm.total} type="number" className="border p-2" readOnly />
+              <input placeholder="Fee Paid" value={admissionForm.feePaid} type="number" onChange={handleAdmissionChange('feePaid')} className="border p-2" />
+
+              <select value={admissionForm.paidBy} onChange={handleAdmissionChange('paidBy')} className="border p-2">
+                <option value="">-- Select Payment Mode --</option>
+                {paymentModes.map(p => <option key={p._id} value={p.mode}>{p.mode}</option>)}
+              </select>
+
+              <input placeholder="Balance" value={admissionForm.balance} type="number" className="border p-2" readOnly />
+
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowAdmission(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Save</button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <input
-          placeholder="Mobile (Self)"
-          value={admissionForm.mobileSelf}
-          onChange={handleAdmissionChange('mobileSelf')}
-          inputMode="numeric"
-          pattern="[0-9]{10}"
-          maxLength={10}
-          className="border p-2"
-        />
-        <input
-          placeholder="Mobile (Parent)"
-          value={admissionForm.mobileParent}
-          onChange={handleAdmissionChange('mobileParent')}
-          inputMode="numeric"
-          pattern="[0-9]{10}"
-          maxLength={10}
-          className="border p-2"
-        />
-        <input placeholder="Address" value={admissionForm.address} onChange={handleAdmissionChange('address')} className="border p-2" />
-
-        <select value={admissionForm.education} onChange={handleAdmissionChange('education')} className="border p-2">
-          <option value="">-- Select Education --</option>
-          {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
-        </select>
-
-        <select
-          value={admissionForm.course}
-          onChange={(e) => {
-            const selectedCourse = courses.find(c => c.name === e.target.value);
-            const courseFee = Number(selectedCourse?.courseFees || 0);
-            const discount = Number(admissionForm.discount || 0);
-            const feePaid = Number(admissionForm.feePaid || 0);
-            const total = courseFee - discount;
-            const balance = total - feePaid;
-
-            setAdmissionForm(prev => ({
-              ...prev,
-              course: e.target.value,
-              fees: courseFee,
-              total,
-              balance
-            }));
-          }}
-          className="border p-2"
-        >
-          <option value="">-- Select Course --</option>
-          {courses.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
-        </select>
-
-        <select value={admissionForm.batchTime} onChange={handleAdmissionChange('batchTime')} className="border p-2">
-          <option value="">-- Select Batch --</option>
-          {batches.map(b => (
-            <option key={b._id} value={b.time || b.batchTime || b.name || ''}>
-              {b.time || b.batchTime || b.name || 'Unnamed Batch'}
-            </option>
-          ))}
-        </select>
-
-        <select value={admissionForm.examEvent} onChange={handleAdmissionChange('examEvent')} className="border p-2">
-          <option value="">-- Select Exam --</option>
-          {exams.map(e => <option key={e._id} value={e.exam}>{e.exam}</option>)}
-        </select>
-
-        <input placeholder="Installment" value={admissionForm.installment} onChange={handleAdmissionChange('installment')} className="border p-2" />
-        <input placeholder="Fees" value={admissionForm.fees} type="number" className="border p-2" readOnly />
-        <input placeholder="Discount" value={admissionForm.discount} type="number" onChange={handleAdmissionChange('discount')} className="border p-2" />
-        <input placeholder="Total" value={admissionForm.total} type="number" className="border p-2" readOnly />
-        <input placeholder="Fee Paid" value={admissionForm.feePaid} type="number" onChange={handleAdmissionChange('feePaid')} className="border p-2" />
-
-        <select value={admissionForm.paidBy} onChange={handleAdmissionChange('paidBy')} className="border p-2">
-          <option value="">-- Select Payment Mode --</option>
-          {paymentModes.map(p => <option key={p._id} value={p.mode}>{p.mode}</option>)}
-        </select>
-
-        <input placeholder="Balance" value={admissionForm.balance} type="number" className="border p-2" readOnly />
-
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={() => setShowAdmission(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
 
       {/* Action Modal */}
       {actionModal && (
