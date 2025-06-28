@@ -24,10 +24,15 @@ root.render(
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(() => {
-      if (Notification && Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
-    });
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then(() => {
+        if (Notification && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+      })
+      .catch(err => {
+        console.error('Service worker registration failed:', err);
+      });
   });
 }
