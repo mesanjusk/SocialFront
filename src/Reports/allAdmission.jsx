@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
-<<<<<<< HEAD
-=======
 import { Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -247,22 +244,14 @@ const AllAdmission = () => {
                 onClick={ev => ev.stopPropagation()}
                 className="hover:text-blue-600 flex items-center"
               >
-<<<<<<< HEAD
-                <FaPhoneAlt className="mr-1" />{a.mobileSelf}
-=======
                 <FaPhoneAlt className="mr-1 text-xl" />{a.mobileSelf}
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
               </a>
               <a
                 href={`https://wa.me/${a.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
-<<<<<<< HEAD
-                className="text-green-600 text-xl"
-=======
                 className="text-green-600 text-2xl"
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
               >
                 <FaWhatsapp />
               </a>

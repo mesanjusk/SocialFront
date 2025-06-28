@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
-<<<<<<< HEAD
-=======
 import { Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
 import BASE_URL from '../config';
 
 const AllEnquiry = () => {
@@ -267,11 +264,7 @@ const AllEnquiry = () => {
         </div>
       </div>
 
-<<<<<<< HEAD
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-=======
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
         {filtered.map((e) => (
           <div
             key={e._id}
@@ -285,22 +278,14 @@ const AllEnquiry = () => {
                 onClick={ev => ev.stopPropagation()}
                 className="hover:text-blue-600 flex items-center"
               >
-<<<<<<< HEAD
-                <FaPhoneAlt className="mr-1" />{e.mobileSelf}
-=======
                 <FaPhoneAlt className="mr-1 text-xl" />{e.mobileSelf}
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
               </a>
               <a
                 href={`https://wa.me/${e.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
-<<<<<<< HEAD
-                className="text-green-600 text-xl"
-=======
                 className="text-green-600 text-2xl"
->>>>>>> origin/a5cq9b-codex/fix-buttons-and-implement-full-screen-view
               >
                 <FaWhatsapp />
               </a>
