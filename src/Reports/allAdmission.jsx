@@ -243,15 +243,15 @@ const AllAdmission = () => {
             <div className="font-semibold text-lg">{a.firstName} {a.lastName}</div>
             <div className="flex items-center gap-2 text-gray-600 text-sm">
               <a
-                href={`tel:${e.mobileSelf}`}
+                href={`tel:${a.mobileSelf}`}
                 onClick={ev => ev.stopPropagation()}
                 className="hover:text-blue-600 flex items-center"
               >
                 <FaPhoneAlt className="mr-1 text-xl" />
-                {e.mobileSelf}
+                {a.mobileSelf}
               </a>
               <a
-                href={`https://wa.me/${e.mobileSelf}`}
+                href={`https://wa.me/${a.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
