@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
+import { Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import BASE_URL from '../config';
 
 const Followup = () => {
@@ -159,8 +164,35 @@ const Followup = () => {
       admissionDate: new Date().toISOString().split('T')[0]
     };
     setAdmissionForm(fill);
-    setEnquiryToDeleteId(e.uuid); 
+    setEnquiryToDeleteId(e.uuid);
     setShowAdmission(true);
+  };
+
+  const exportPDF = () => {
+    if (filtered.length === 0) return toast.error('No data to export');
+    const doc = new jsPDF();
+    autoTable(doc, {
+      head: [['Name', 'Mobile']],
+      body: filtered.map(e => [`${e.firstName} ${e.lastName}`, e.mobileSelf])
+    });
+    doc.save('followups.pdf');
+  };
+
+  const exportExcel = () => {
+    if (filtered.length === 0) return toast.error('No data to export');
+    const sheet = XLSX.utils.json_to_sheet(filtered.map(e => ({
+      Name: `${e.firstName} ${e.lastName}`,
+      Mobile: e.mobileSelf
+    })));
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, 'Followups');
+    XLSX.writeFile(book, 'followups.xlsx');
+  };
+
+  const handleAdd = () => {
+    setForm(initialForm);
+    setEditingId(null);
+    setShowModal(true);
   };
 
   const submitAdmission = async (e) => {
@@ -212,8 +244,24 @@ const Followup = () => {
   return (
     <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
-      <div className="flex gap-2 mb-4">
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />
+      <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search"
+          className="border p-2 rounded w-full max-w-xs"
+        />
+        <div className="flex gap-2">
+          <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded" title="Export PDF">
+            <PictureAsPdf fontSize="small" />
+          </button>
+          <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded" title="Export Excel">
+            <FileDownload fontSize="small" />
+          </button>
+          <button onClick={handleAdd} className="bg-blue-600 text-white px-4 py-2 rounded" title="Add Enquiry">
+            <Add fontSize="small" />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -230,18 +278,18 @@ const Followup = () => {
               <a
                 href={`tel:${e.mobileSelf}`}
                 onClick={ev => ev.stopPropagation()}
-                className="hover:underline"
+                className="hover:text-blue-600 flex items-center"
               >
-                📞 {e.mobileSelf}
+                <FaPhoneAlt className="mr-1 text-2xl" />{e.mobileSelf}
               </a>
               <a
                 href={`https://wa.me/${e.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
-                className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+                className="text-green-600 text-2xl"
               >
-                WhatsApp
+                <FaWhatsapp />
               </a>
             </div>
             <div className="text-gray-500 text-xs">
@@ -250,6 +298,48 @@ const Followup = () => {
           </div>
         ))}
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-white p-6 rounded shadow w-full max-w-3xl mx-2">
+            <h2 className="text-xl font-bold mb-4">{editingId ? 'Edit Enquiry' : 'Add Enquiry'}</h2>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <input value={form.firstName} onChange={handleChange('firstName')} placeholder="First Name" className="border p-2" />
+              <input value={form.lastName} onChange={handleChange('lastName')} placeholder="Last Name" className="border p-2" />
+              <input
+                value={form.mobileSelf}
+                onChange={handleChange('mobileSelf')}
+                placeholder="Mobile"
+                inputMode="numeric"
+                pattern="[0-9]{10}"
+                maxLength={10}
+                className="border p-2"
+              />
+              <select value={form.course} onChange={handleChange('course')} className="border p-2">
+                <option value="">Select Course</option>
+                {courses.map(c => (
+                  <option key={c._id} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+              <div className="flex items-center gap-4">
+                <label className="w-32 text-sm font-medium">Follow-Up</label>
+                <input
+                  type="date"
+                  value={form.followUpDate?.substring(0, 10)}
+                  onChange={handleChange('followUpDate')}
+                  className="border p-2 flex-1"
+                  required
+                />
+              </div>
+              <input value={form.remarks} onChange={handleChange('remarks')} placeholder="Remark" className="border p-2" />
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => { setShowModal(false); setForm(initialForm); setEditingId(null); }} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Add'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Admission Convert Modal */}
       {showAdmission && (
@@ -359,7 +449,7 @@ const Followup = () => {
       {/* Action Modal */}
       {actionModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded max-w-sm w-full">
+          <div className="bg-white p-6 rounded shadow w-full h-full overflow-y-auto">
             <h2 className="text-lg font-bold mb-4">
               {actionModal.firstName} {actionModal.lastName}
             </h2>
