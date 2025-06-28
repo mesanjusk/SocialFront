@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom';
-
 const logoutUser = () => {
   // Clear localStorage
   localStorage.removeItem('user');
