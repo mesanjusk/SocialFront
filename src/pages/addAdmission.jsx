@@ -157,6 +157,20 @@ const AddAdmission = () => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     let updatedForm = { ...form, [field]: value };
 
+    if (field === 'admissionDate') {
+      const d = new Date(value);
+      d.setMonth(d.getMonth() + 1);
+      const nextMonth = d.toISOString().substring(0, 10);
+      const prevDefault = (() => {
+        const pd = new Date(form.admissionDate);
+        pd.setMonth(pd.getMonth() + 1);
+        return pd.toISOString().substring(0, 10);
+      })();
+      if (form.emiDate === prevDefault || form.emiDate === '') {
+        updatedForm.emiDate = nextMonth;
+      }
+    }
+
     const fees = Number(field === 'fees' ? value : form.fees || 0);
     const discount = Number(field === 'discount' ? value : form.discount || 0);
     const feePaid = Number(field === 'feePaid' ? value : form.feePaid || 0);
@@ -365,7 +379,13 @@ const AddAdmission = () => {
         {tab === 2 && (
           <>
             <input placeholder="Installments" value={form.installment} onChange={handleChange('installment')} type="number" min="1" className="border p-2" />
-            <input type="date" value={form.emiDate} onChange={handleChange('emiDate')} className="border p-2" />
+            <input
+              type="date"
+              placeholder="EMI Start Date"
+              value={form.emiDate}
+              onChange={handleChange('emiDate')}
+              className="border p-2"
+            />
             <input placeholder="EMI" value={form.emi} type="number" className="border p-2" readOnly />
             <input placeholder="Fees" value={form.fees} type="number" className="border p-2" readOnly />
             <input placeholder="Discount" value={form.discount} type="number" onChange={handleChange('discount')} className="border p-2" />

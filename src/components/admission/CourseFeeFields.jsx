@@ -52,6 +52,7 @@ const CourseFeeFields = ({ form, onChange, courses, batches, exams }) => (
     />
     <input
       type="date"
+      placeholder="EMI Start Date"
       value={form.emiDate}
       onChange={onChange('emiDate')}
       className="border p-2"
