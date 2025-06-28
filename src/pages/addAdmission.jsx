@@ -7,9 +7,16 @@ import * as XLSX from 'xlsx';
 import BASE_URL from '../config';
 
 const AddAdmission = () => {
+  const nextMonthDate = (() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    return d.toISOString().substring(0, 10);
+  })();
+
   const initialForm = {
     branchCode: '',
     admissionDate: new Date().toISOString().substring(0, 10),
+    emiDate: nextMonthDate,
     firstName: '',
     middleName: '',
     lastName: '',
@@ -102,7 +109,7 @@ const AddAdmission = () => {
   useEffect(() => {
     const inst = parseInt(form.installment, 10);
     const bal = Number(form.balance || 0);
-    if (!inst || inst <= 0 || !bal || !form.admissionDate) {
+    if (!inst || inst <= 0 || !bal) {
       setInstallmentPlan([]);
       if (form.emi !== '') {
         setForm(prev => ({ ...prev, emi: '' }));
@@ -113,22 +120,28 @@ const AddAdmission = () => {
     const emi = parseFloat((bal / inst).toFixed(2));
     const plan = [];
     let remaining = bal;
-    for (let i = 1; i <= inst; i++) {
-      const due = new Date(form.admissionDate);
+    const start = form.emiDate ? new Date(form.emiDate) : (() => {
+      const d = new Date(form.admissionDate);
+      d.setMonth(d.getMonth() + 1);
+      return d;
+    })();
+
+    for (let i = 0; i < inst; i++) {
+      const due = new Date(start);
       due.setMonth(due.getMonth() + i);
-      const amount = i === inst ? parseFloat(remaining.toFixed(2)) : emi;
+      const amount = i + 1 === inst ? parseFloat(remaining.toFixed(2)) : emi;
       remaining = parseFloat((remaining - amount).toFixed(2));
       plan.push({
-        installmentNo: i,
+        installmentNo: i + 1,
         dueDate: due.toISOString().split('T')[0],
-        amount
+        amount,
       });
     }
     setInstallmentPlan(plan);
     if (form.emi !== emi) {
       setForm(prev => ({ ...prev, emi }));
     }
-  }, [form.installment, form.balance, form.admissionDate]);
+  }, [form.installment, form.balance, form.admissionDate, form.emiDate]);
 
   const fetchAdmissions = async () => {
     if (!institute_uuid) return;
@@ -143,6 +156,20 @@ const AddAdmission = () => {
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     let updatedForm = { ...form, [field]: value };
+
+    if (field === 'admissionDate') {
+      const d = new Date(value);
+      d.setMonth(d.getMonth() + 1);
+      const nextMonth = d.toISOString().substring(0, 10);
+      const prevDefault = (() => {
+        const pd = new Date(form.admissionDate);
+        pd.setMonth(pd.getMonth() + 1);
+        return pd.toISOString().substring(0, 10);
+      })();
+      if (form.emiDate === prevDefault || form.emiDate === '') {
+        updatedForm.emiDate = nextMonth;
+      }
+    }
 
     const fees = Number(field === 'fees' ? value : form.fees || 0);
     const discount = Number(field === 'discount' ? value : form.discount || 0);
@@ -352,6 +379,13 @@ const AddAdmission = () => {
         {tab === 2 && (
           <>
             <input placeholder="Installments" value={form.installment} onChange={handleChange('installment')} type="number" min="1" className="border p-2" />
+            <input
+              type="date"
+              placeholder="EMI Start Date"
+              value={form.emiDate}
+              onChange={handleChange('emiDate')}
+              className="border p-2"
+            />
             <input placeholder="EMI" value={form.emi} type="number" className="border p-2" readOnly />
             <input placeholder="Fees" value={form.fees} type="number" className="border p-2" readOnly />
             <input placeholder="Discount" value={form.discount} type="number" onChange={handleChange('discount')} className="border p-2" />
