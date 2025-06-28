@@ -10,11 +10,28 @@ const AddAdmission = () => {
   const initialForm = {
     branchCode: '',
     admissionDate: new Date().toISOString().substring(0, 10),
-    firstName: '', middleName: '', lastName: '',
-    dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
-    mobileParent: '', mobileParentWhatsapp: false, address: '',
-    education: '', examEvent: '', course: '', batchTime: '', installment: '',
-    fees: '', discount: '', total: '', feePaid: '', paidBy: '', balance: ''
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    dob: '',
+    gender: '',
+    mobileSelf: '',
+    mobileSelfWhatsapp: false,
+    mobileParent: '',
+    mobileParentWhatsapp: false,
+    address: '',
+    education: '',
+    examEvent: '',
+    course: '',
+    batchTime: '',
+    installment: '',
+    fees: '',
+    discount: '',
+    total: '',
+    feePaid: '',
+    paidBy: '',
+    balance: '',
+    emi: ''
   };
 
   const [form, setForm] = useState(initialForm);
@@ -30,6 +47,7 @@ const AddAdmission = () => {
   const [batches, setBatches] = useState([]);
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const [paymentModes, setPaymentModes] = useState([]);
+  const [installmentPlan, setInstallmentPlan] = useState([]);
 
   const institute_uuid = localStorage.getItem("institute_uuid");
 
@@ -78,6 +96,34 @@ const AddAdmission = () => {
     }
   };
 
+  // Generate installment plan and EMI whenever related fields change
+  useEffect(() => {
+    const inst = parseInt(form.installment);
+    const bal = Number(form.balance || 0);
+    if (!inst || !bal || !form.admissionDate) {
+      setInstallmentPlan([]);
+      if (form.emi !== '') setForm(prev => ({ ...prev, emi: '' }));
+      return;
+    }
+    const emi = Math.round(bal / inst);
+    const plan = [];
+    let remaining = bal;
+    for (let i = 1; i <= inst; i++) {
+      const due = new Date(form.admissionDate);
+      due.setMonth(due.getMonth() + i);
+      const amount = i === inst ? remaining : emi;
+      remaining -= amount;
+      plan.push({
+        installmentNo: i,
+        dueDate: due.toISOString().substring(0, 10),
+        amount
+      });
+    }
+    setInstallmentPlan(plan);
+    if (form.emi !== emi) setForm(prev => ({ ...prev, emi }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.installment, form.balance, form.admissionDate]);
+
   const fetchAdmissions = async () => {
     if (!institute_uuid) return;
     try {
@@ -122,7 +168,9 @@ const AddAdmission = () => {
       discount: Number(form.discount || 0),
       total: Number(form.total || 0),
       feePaid: Number(form.feePaid || 0),
-      balance: Number(form.balance || 0)
+      balance: Number(form.balance || 0),
+      emi: Number(form.emi || 0),
+      installmentPlan
     };
 
     try {
@@ -144,6 +192,7 @@ const AddAdmission = () => {
 
   const handleEdit = (data) => {
     setForm(data);
+    setInstallmentPlan(data.installmentPlan || []);
     setEditingId(data._id);
     setShowModal(true);
   };
@@ -287,7 +336,19 @@ const AddAdmission = () => {
               
 
 
-              <input placeholder="Installment" value={form.installment} onChange={handleChange('installment')} className="border p-2" />
+              <input
+                placeholder="Installment"
+                value={form.installment}
+                onChange={handleChange('installment')}
+                className="border p-2"
+              />
+              <input
+                placeholder="EMI"
+                value={form.emi}
+                type="number"
+                className="border p-2"
+                readOnly
+              />
               <input placeholder="Fees" value={form.fees} type="number" className="border p-2" readOnly />
               <input placeholder="Discount" value={form.discount} type="number" onChange={handleChange('discount')} className="border p-2" />
               <input placeholder="Total" value={form.total} type="number" className="border p-2" readOnly />
@@ -298,7 +359,29 @@ const AddAdmission = () => {
                 {paymentModes.map(p => <option key={p._id} value={p.mode}>{p.mode}</option>)}
               </select>
 
+
               <input placeholder="Balance" value={form.balance} type="number" className="border p-2" readOnly />
+
+              {installmentPlan.length > 0 && (
+                <table className="w-full border mt-2 text-sm">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border px-2 py-1">#</th>
+                      <th className="border px-2 py-1">Due Date</th>
+                      <th className="border px-2 py-1">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {installmentPlan.map(p => (
+                      <tr key={p.installmentNo}>
+                        <td className="border px-2 py-1 text-center">{p.installmentNo}</td>
+                        <td className="border px-2 py-1">{p.dueDate}</td>
+                        <td className="border px-2 py-1 text-right">{p.amount}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
 
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
