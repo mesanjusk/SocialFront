@@ -35,6 +35,8 @@ const AddAdmission = () => {
   };
 
   const [form, setForm] = useState(initialForm);
+  const [tab, setTab] = useState(0);
+
   const [admissions, setAdmissions] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState('');
@@ -251,155 +253,149 @@ const AddAdmission = () => {
   });
 
   return (
-    <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
-      <Toaster />
-    
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4 text-blue-700">{editingId ? 'Edit Admission' : 'Add New Admission'}</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <input placeholder="First Name" value={form.firstName} onChange={handleChange('firstName')} className="border p-2" required />
-              <input placeholder="Middle Name" value={form.middleName} onChange={handleChange('middleName')} className="border p-2" />
-              <input placeholder="Last Name" value={form.lastName} onChange={handleChange('lastName')} className="border p-2" />
-              <div className="flex items-center gap-4">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <Toaster />
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-xl max-h-[90vh] overflow-y-auto">
+      <div className="flex justify-between items-center p-4 border-b">
+        <h2 className="text-lg font-bold text-blue-700">
+          {editingId ? 'Edit Admission' : 'Add New Admission'}
+        </h2>
+        <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-black text-2xl">&times;</button>
+      </div>
 
-                <input type="date"  value={form.dob?.substring(0, 10)}  onChange={handleChange('dob')}
-                  className="border p-2 flex-1"
-                  required
-                /> <label className="w-32 text-sm font-medium">Date of Birth</label>
-              </div>
+      {/* Tab Navigation */}
+      <div className="flex justify-around border-b">
+        {['Student Info', 'Course & Batch', 'Payment & Installments'].map((tabName, idx) => (
+          <button
+            key={idx}
+            onClick={() => setTab(idx)}
+            className={`flex-1 py-2 text-sm font-medium ${tab === idx ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600'}`}
+          >
+            {tabName}
+          </button>
+        ))}
+      </div>
 
+      <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-3">
 
-              <div className="flex gap-4">
-                <label><input type="radio" name="gender" value="Male" checked={form.gender === 'Male'} onChange={handleChange('gender')} /> Male</label>
-                <label><input type="radio" name="gender" value="Female" checked={form.gender === 'Female'} onChange={handleChange('gender')} /> Female</label>
-              </div>
-              <input
-                placeholder="Mobile (Self)"
-                value={form.mobileSelf}
-                onChange={handleChange('mobileSelf')}
-                inputMode="numeric"
-                pattern="[0-9]{10}"
-                maxLength={10}
-                className="border p-2"
-              />
-              <input
-                placeholder="Mobile (Parent)"
-                value={form.mobileParent}
-                onChange={handleChange('mobileParent')}
-                inputMode="numeric"
-                pattern="[0-9]{10}"
-                maxLength={10}
-                className="border p-2"
-              />
-              <input placeholder="Address" value={form.address} onChange={handleChange('address')} className="border p-2" />
+        {/* TAB 1: Student Info */}
+        {tab === 0 && (
+          <>
+            <input placeholder="First Name" value={form.firstName} onChange={handleChange('firstName')} className="border p-2" required />
+            <input placeholder="Middle Name" value={form.middleName} onChange={handleChange('middleName')} className="border p-2" />
+            <input placeholder="Last Name" value={form.lastName} onChange={handleChange('lastName')} className="border p-2" />
 
-              <select value={form.education} onChange={handleChange('education')} className="border p-2">
-                <option value="">-- Select Education --</option>
-                {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
-              </select>
-<select
-                value={form.course}
-                onChange={(e) => {
-                  const selectedCourse = courses.find(c => c.name === e.target.value);
-                  const courseFee = Number(selectedCourse?.courseFees || 0);
-                  const discount = Number(form.discount || 0);
-                  const feePaid = Number(form.feePaid || 0);
-                  const total = courseFee - discount;
-                  const balance = total - feePaid;
+            <div className="flex items-center gap-4">
+              <input type="date" value={form.dob?.substring(0, 10)} onChange={handleChange('dob')} className="border p-2 flex-1" required />
+              <label className="text-sm font-medium">Date of Birth</label>
+            </div>
 
-                  setForm(prev => ({
-                    ...prev,
-                    course: e.target.value,
-                    fees: courseFee,
-                    total,
-                    balance
-                  }));
-                }}
-                className="border p-2"
-              >
-                <option value="">-- Select Course --</option>
-                {courses.map(c => (
-                  <option key={c._id} value={c.name}>{c.name}</option>
-                ))}
-              </select>
-              <select value={form.batchTime} onChange={handleChange('batchTime')} className="border p-2">
-                <option value="">-- Select Batch --</option>
-                {batches.map(b => (
-                  <option key={b._id} value={b.time || b.batchTime || b.name || ''}>
-                    {b.time || b.batchTime || b.name || 'Unnamed Batch'}
-                  </option>
-                ))}
-              </select>
+            <div className="flex gap-4">
+              <label><input type="radio" name="gender" value="Male" checked={form.gender === 'Male'} onChange={handleChange('gender')} /> Male</label>
+              <label><input type="radio" name="gender" value="Female" checked={form.gender === 'Female'} onChange={handleChange('gender')} /> Female</label>
+            </div>
 
-              <select value={form.examEvent} onChange={handleChange('examEvent')} className="border p-2">
-                <option value="">-- Select Exam --</option>
-                {exams.map(e => <option key={e._id} value={e.exam}>{e.exam}</option>)}
-              </select>
+            <input placeholder="Mobile (Self)" value={form.mobileSelf} onChange={handleChange('mobileSelf')} inputMode="numeric" pattern="[0-9]{10}" maxLength={10} className="border p-2" />
+            <input placeholder="Mobile (Parent)" value={form.mobileParent} onChange={handleChange('mobileParent')} inputMode="numeric" pattern="[0-9]{10}" maxLength={10} className="border p-2" />
+            <input placeholder="Address" value={form.address} onChange={handleChange('address')} className="border p-2" />
 
-              
+            <select value={form.education} onChange={handleChange('education')} className="border p-2">
+              <option value="">-- Select Education --</option>
+              {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
+            </select>
+          </>
+        )}
 
+        {/* TAB 2: Course & Batch */}
+        {tab === 1 && (
+          <>
+            <select
+              value={form.course}
+              onChange={(e) => {
+                const selectedCourse = courses.find(c => c.name === e.target.value);
+                const courseFee = Number(selectedCourse?.courseFees || 0);
+                const discount = Number(form.discount || 0);
+                const feePaid = Number(form.feePaid || 0);
+                const total = courseFee - discount;
+                const balance = total - feePaid;
+                setForm(prev => ({
+                  ...prev,
+                  course: e.target.value,
+                  fees: courseFee,
+                  total,
+                  balance
+                }));
+              }}
+              className="border p-2"
+            >
+              <option value="">-- Select Course --</option>
+              {courses.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+            </select>
 
-              <input
-                placeholder="Installment"
-                value={form.installment}
-                onChange={handleChange('installment')}
-                type="number"
-                min="1"
-                step="1"
-                className="border p-2"
-              />
-              <input
-                placeholder="EMI"
-                value={form.emi}
-                type="number"
-                className="border p-2"
-                readOnly
-              />
-              <input placeholder="Fees" value={form.fees} type="number" className="border p-2" readOnly />
-              <input placeholder="Discount" value={form.discount} type="number" onChange={handleChange('discount')} className="border p-2" />
-              <input placeholder="Total" value={form.total} type="number" className="border p-2" readOnly />
-              <input placeholder="Fee Paid" value={form.feePaid} type="number" onChange={handleChange('feePaid')} className="border p-2" />
+            <select value={form.batchTime} onChange={handleChange('batchTime')} className="border p-2">
+              <option value="">-- Select Batch --</option>
+              {batches.map(b => (
+                <option key={b._id} value={b.time || b.batchTime || b.name || ''}>
+                  {b.time || b.batchTime || b.name || 'Unnamed Batch'}
+                </option>
+              ))}
+            </select>
 
-              <select value={form.paidBy} onChange={handleChange('paidBy')} className="border p-2">
-                <option value="">-- Select Payment Mode --</option>
-                {paymentModes.map(p => <option key={p._id} value={p.mode}>{p.mode}</option>)}
-              </select>
+            <select value={form.examEvent} onChange={handleChange('examEvent')} className="border p-2">
+              <option value="">-- Select Exam --</option>
+              {exams.map(e => <option key={e._id} value={e.exam}>{e.exam}</option>)}
+            </select>
+          </>
+        )}
 
+        {/* TAB 3: Payment & Installments */}
+        {tab === 2 && (
+          <>
+            <input placeholder="Installments" value={form.installment} onChange={handleChange('installment')} type="number" min="1" className="border p-2" />
+            <input placeholder="EMI" value={form.emi} type="number" className="border p-2" readOnly />
+            <input placeholder="Fees" value={form.fees} type="number" className="border p-2" readOnly />
+            <input placeholder="Discount" value={form.discount} type="number" onChange={handleChange('discount')} className="border p-2" />
+            <input placeholder="Total" value={form.total} type="number" className="border p-2" readOnly />
+            <input placeholder="Fee Paid" value={form.feePaid} type="number" onChange={handleChange('feePaid')} className="border p-2" />
+            <input placeholder="Balance" value={form.balance} type="number" className="border p-2" readOnly />
 
-              <input placeholder="Balance" value={form.balance} type="number" className="border p-2" readOnly />
+            <select value={form.paidBy} onChange={handleChange('paidBy')} className="border p-2">
+              <option value="">-- Select Payment Mode --</option>
+              {paymentModes.map(p => <option key={p._id} value={p.mode}>{p.mode}</option>)}
+            </select>
 
-              {installmentPlan.length > 0 && (
-                <table className="w-full border mt-2 text-sm">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border px-2 py-1">#</th>
-                      <th className="border px-2 py-1">Due Date</th>
-                      <th className="border px-2 py-1">Amount</th>
+            {installmentPlan.length > 0 && (
+              <table className="w-full border mt-2 text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border px-2 py-1">#</th>
+                    <th className="border px-2 py-1">Due Date</th>
+                    <th className="border px-2 py-1">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {installmentPlan.map(p => (
+                    <tr key={p.installmentNo}>
+                      <td className="border px-2 py-1 text-center">{p.installmentNo}</td>
+                      <td className="border px-2 py-1">{p.dueDate}</td>
+                      <td className="border px-2 py-1 text-right">{p.amount}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {installmentPlan.map(p => (
-                      <tr key={p.installmentNo}>
-                        <td className="border px-2 py-1 text-center">{p.installmentNo}</td>
-                        <td className="border px-2 py-1">{p.dueDate}</td>
-                        <td className="border px-2 py-1 text-right">{p.amount}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </>
+        )}
 
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Submit'}</button>
-              </div>
-            </form>
-          </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Submit'}</button>
         </div>
-      
+      </form>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default AddAdmission;
