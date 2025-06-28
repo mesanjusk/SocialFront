@@ -10,7 +10,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(true); // checkbox is now purely cosmetic
   const [branding, setBranding] = useState(JSON.parse(localStorage.getItem('branding')) || null);
   const inputRef = useRef(null);
 
@@ -62,7 +62,13 @@ const Login = () => {
     if (branding?.theme?.color) {
       document.documentElement.style.setProperty('--theme-color', branding.theme.color);
     }
-  }, []);
+
+    const user = localStorage.getItem('user');
+    const insti = localStorage.getItem('institute');
+    if (user && insti) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -95,7 +101,7 @@ const Login = () => {
 
       document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
-      const storage = rememberMe ? localStorage : sessionStorage;
+      const storage = localStorage; // always persist login data
       storage.setItem('remember_me', 'true');
       storage.setItem('user', JSON.stringify(userObj));
       storage.setItem('institute', JSON.stringify(instituteObj));

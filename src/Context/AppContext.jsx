@@ -8,8 +8,7 @@ export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const remember = localStorage.getItem('remember_me') === 'true';
-    const storage = remember ? localStorage : sessionStorage;
+    const storage = localStorage; // always persist login
 
     try {
       // Read from JSON keys
@@ -44,8 +43,7 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     window.updateAppContext = ({ user, institute }) => {
-      const remember = localStorage.getItem('remember_me') === 'true';
-      const storage = remember ? localStorage : sessionStorage;
+      const storage = localStorage; // persist updates
 
       if (user) {
         setUser(user);
