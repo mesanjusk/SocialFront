@@ -115,7 +115,12 @@ const Admission = () => {
   };
 
   const handleEdit = (data) => {
-    setForm(data);
+    const emiDate = data.emiDate || (() => {
+      const d = new Date(data.admissionDate);
+      d.setMonth(d.getMonth() + 1);
+      return d.toISOString().substring(0, 10);
+    })();
+    setForm({ ...data, emiDate });
     setEditingId(data._id);
     setShowModal(true);
   };
