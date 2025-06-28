@@ -1,9 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-
 const logoutUser = () => {
-  // Clear localStorage
+  // Clear user object (most important for PrivateRoute)
   localStorage.removeItem('user');
-  localStorage.removeItem('institute');
+  sessionStorage.removeItem('user');
+
+  // Clear other related values
   localStorage.removeItem('user_id');
   localStorage.removeItem('user_name');
   localStorage.removeItem('user_type');
@@ -15,7 +15,16 @@ const logoutUser = () => {
   localStorage.removeItem('remember_me');
   localStorage.removeItem('last_password_change');
 
-  // Reset AppContext
+  sessionStorage.removeItem('user_id');
+  sessionStorage.removeItem('user_name');
+  sessionStorage.removeItem('user_type');
+  sessionStorage.removeItem('login_username');
+  sessionStorage.removeItem('institute_id');
+  sessionStorage.removeItem('institute_uuid');
+  sessionStorage.removeItem('institute_title');
+  sessionStorage.removeItem('theme_color');
+
+  // Reset AppContext if used
   if (window.updateAppContext) {
     window.updateAppContext({ user: null, institute: null });
   }
