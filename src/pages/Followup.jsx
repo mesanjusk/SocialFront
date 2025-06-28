@@ -10,6 +10,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 import BASE_URL from '../config';
+import { fetchMetadata } from '../utils/api';
 
 const Followup = () => {
   const initialForm = {
@@ -71,48 +72,16 @@ const Followup = () => {
     }
   };
 
-  const fetchCourses = async () => {
+  const fetchMeta = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/courses?institute_uuid=${institute_uuid}`);
-      setCourses(res.data || []);
+      const data = await fetchMetadata(institute_uuid);
+      setCourses(Array.isArray(data.courses) ? data.courses : []);
+      setEducations(Array.isArray(data.educations) ? data.educations : []);
+      setExams(Array.isArray(data.exams) ? data.exams : []);
+      setBatches(Array.isArray(data.batches) ? data.batches : []);
+      setPaymentModes(Array.isArray(data.paymentModes) ? data.paymentModes : []);
     } catch {
-      toast.error('Failed to load courses');
-    }
-  };
-
-  const fetchEducations = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/education`);
-      setEducations(res.data || []);
-    } catch {
-      toast.error('Failed to load education options');
-    }
-  };
-
-  const fetchExams = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/exams`);
-      setExams(res.data || []);
-    } catch {
-      toast.error('Failed to load exam events');
-    }
-  };
-
-  const fetchBatches = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/batches`);
-      setBatches(res.data || []);
-    } catch {
-      toast.error('Failed to load batches');
-    }
-  };
-
-  const fetchPaymentModes = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/paymentmode`);
-      setPaymentModes(res.data || []);
-    } catch {
-      toast.error('Failed to load payment modes');
+      toast.error('Failed to load form metadata');
     }
   };
 
@@ -233,11 +202,7 @@ const Followup = () => {
 
   useEffect(() => {
     fetchEnquiries();
-    fetchCourses();
-    fetchEducations();
-    fetchExams();
-    fetchBatches();
-    fetchPaymentModes();
+    fetchMeta();
   }, []);
 
   const filtered = enquiries.filter(e =>

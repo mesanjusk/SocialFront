@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
+import { fetchMetadata } from '../utils/api';
 
 const AddEnquiry = () => {
    const initialForm = {
@@ -51,48 +52,16 @@ istMidnight.setHours(0, 0, 0, 0); // set to 00:00 IST
     }
   };
 
-  const fetchCourses = async () => {
+  const fetchMeta = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/courses?institute_uuid=${institute_uuid}`);
-      setCourses(res.data || []);
+      const data = await fetchMetadata(institute_uuid);
+      setCourses(Array.isArray(data.courses) ? data.courses : []);
+      setEducations(Array.isArray(data.educations) ? data.educations : []);
+      setExams(Array.isArray(data.exams) ? data.exams : []);
+      setBatches(Array.isArray(data.batches) ? data.batches : []);
+      setPaymentModes(Array.isArray(data.paymentModes) ? data.paymentModes : []);
     } catch {
-      toast.error('Failed to load courses');
-    }
-  };
-
-  const fetchEducations = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/education`);
-      setEducations(res.data || []);
-    } catch {
-      toast.error('Failed to load education options');
-    }
-  };
-
-  const fetchExams = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/exams`);
-      setExams(res.data || []);
-    } catch {
-      toast.error('Failed to load exam events');
-    }
-  };
-
-  const fetchBatches = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/batches`);
-      setBatches(res.data || []);
-    } catch {
-      toast.error('Failed to load batches');
-    }
-  };
-
-  const fetchPaymentModes = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/paymentmode`);
-      setPaymentModes(res.data || []);
-    } catch {
-      toast.error('Failed to load payment modes');
+      toast.error('Failed to load form metadata');
     }
   };
 
@@ -129,11 +98,7 @@ istMidnight.setHours(0, 0, 0, 0); // set to 00:00 IST
   
   useEffect(() => {
     fetchEnquiries();
-    fetchCourses();
-    fetchEducations();
-    fetchExams();
-    fetchBatches();
-    fetchPaymentModes();
+    fetchMeta();
   }, []);
 
   
