@@ -50,6 +50,12 @@ const CourseFeeFields = ({ form, onChange, courses, batches, exams }) => (
       onChange={onChange('installment')}
       className="border p-2"
     />
+    <input
+      type="date"
+      value={form.emiDate}
+      onChange={onChange('emiDate')}
+      className="border p-2"
+    />
     <input placeholder="Fees" value={form.fees} type="number" className="border p-2" readOnly />
     <input
       placeholder="Discount"

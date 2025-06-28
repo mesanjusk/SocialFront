@@ -14,6 +14,7 @@ const Admission = () => {
   const initialForm = {
     branchCode: '',
     admissionDate: new Date().toISOString().substring(0, 10),
+    emiDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().substring(0,10),
     firstName: '', middleName: '', lastName: '',
     dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
     mobileParent: '', mobileParentWhatsapp: false, address: '',
