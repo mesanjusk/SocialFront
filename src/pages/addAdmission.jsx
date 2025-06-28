@@ -49,7 +49,7 @@ const AddAdmission = () => {
   const [search, setSearch] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(true);
   const [courses, setCourses] = useState([]);
   const [educations, setEducations] = useState([]);
   const [exams, setExams] = useState([]);
@@ -443,17 +443,8 @@ useEffect(() => {
         {/* TAB 3: Payment & Installments */}
         {tab === 2 && (
           <>
-            <input placeholder="Installments" value={form.installment} onChange={handleChange('installment')} type="number" min="1" className="border p-2" />
-           
-
-            <input
-              type="date"
-              placeholder="EMI Start Date"
-              value={form.emiDate}
-              onChange={handleChange('emiDate')}
-              className="border p-2"
-            />
-            <input placeholder="EMI" value={form.emi} type="number" className="border p-2" readOnly />
+            
+            
             <input placeholder="Fees" value={form.fees} type="number" className="border p-2" readOnly />
             <input placeholder="Discount" value={form.discount} type="number" onChange={handleChange('discount')} className="border p-2" />
             <input placeholder="Total" value={form.total} type="number" className="border p-2" readOnly />
@@ -464,7 +455,17 @@ useEffect(() => {
               <option value="">-- Select Payment Mode --</option>
               {paymentModes.map(p => <option key={p._id} value={p.mode}>{p.mode}</option>)}
             </select>
+<input placeholder="Installments" value={form.installment} onChange={handleChange('installment')} type="number" min="1" className="border p-2" />
+           
 
+            <input
+              type="date"
+              placeholder="EMI Start Date"
+              value={form.emiDate}
+              onChange={handleChange('emiDate')}
+              className="border p-2"
+            />
+            <input placeholder="EMI" value={form.emi} type="number" className="border p-2" readOnly />
             {installmentPlan.length > 0 && (
               <table className="w-full border mt-2 text-sm">
                 <thead>
