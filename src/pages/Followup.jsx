@@ -9,11 +9,25 @@ import * as XLSX from 'xlsx';
 import BASE_URL from '../config';
 
 const Followup = () => {
-   const initialForm = {
-    enquiryDate: '', firstName: '', middleName: '',
-    lastName: '', dob: '', gender: '', mobileSelf: '', mobileSelfWhatsapp: false,
-    mobileParent: '', mobileParentWhatsapp: false, address: '', education: '',
-    schoolName: '', referredBy: '', followUpDate: '', remarks: '', course: ''
+  const today = new Date().toISOString().substring(0, 10);
+  const initialForm = {
+    enquiryDate: today,
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    dob: '',
+    gender: '',
+    mobileSelf: '',
+    mobileSelfWhatsapp: false,
+    mobileParent: '',
+    mobileParentWhatsapp: false,
+    address: '',
+    education: '',
+    schoolName: '',
+    referredBy: '',
+    followUpDate: today,
+    remarks: '',
+    course: ''
   };
 
   const admissionTemplate = {
