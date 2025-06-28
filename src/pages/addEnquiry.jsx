@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
-import { fetchMetadata } from '../utils/api';
+import { useMetadata } from '../Context/MetadataContext';
 
 const AddEnquiry = () => {
    const initialForm = {
@@ -22,11 +22,7 @@ const AddEnquiry = () => {
   const [form, setForm] = useState(initialForm);
   const [enquiries, setEnquiries] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [educations, setEducations] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [batches, setBatches] = useState([]);
-  const [paymentModes, setPaymentModes] = useState([]);
+  const { courses, educations, exams, batches, paymentModes, refresh: refreshMeta } = useMetadata();
   const [search, setSearch] = useState('');
   const institute_uuid = localStorage.getItem('institute_uuid');
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
@@ -52,18 +48,6 @@ istMidnight.setHours(0, 0, 0, 0); // set to 00:00 IST
     }
   };
 
-  const fetchMeta = async () => {
-    try {
-      const data = await fetchMetadata(institute_uuid);
-      setCourses(Array.isArray(data.courses) ? data.courses : []);
-      setEducations(Array.isArray(data.educations) ? data.educations : []);
-      setExams(Array.isArray(data.exams) ? data.exams : []);
-      setBatches(Array.isArray(data.batches) ? data.batches : []);
-      setPaymentModes(Array.isArray(data.paymentModes) ? data.paymentModes : []);
-    } catch {
-      toast.error('Failed to load form metadata');
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +82,7 @@ istMidnight.setHours(0, 0, 0, 0); // set to 00:00 IST
   
   useEffect(() => {
     fetchEnquiries();
-    fetchMeta();
+    refreshMeta();
   }, []);
 
   

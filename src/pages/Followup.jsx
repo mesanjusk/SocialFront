@@ -10,7 +10,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 import BASE_URL from '../config';
-import { fetchMetadata } from '../utils/api';
+import { useMetadata } from '../Context/MetadataContext';
 
 const Followup = () => {
   const initialForm = {
@@ -34,11 +34,7 @@ const Followup = () => {
   const [showModal, setShowModal] = useState(false);
   const [showAdmission, setShowAdmission] = useState(false);
   const [enquiryToDeleteId, setEnquiryToDeleteId] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [educations, setEducations] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [batches, setBatches] = useState([]);
-  const [paymentModes, setPaymentModes] = useState([]);
+  const { courses, educations, exams, batches, paymentModes, refresh: refreshMeta } = useMetadata();
   const [search, setSearch] = useState('');
   const [actionModal, setActionModal] = useState(null);
   const institute_uuid = localStorage.getItem('institute_uuid');
@@ -72,18 +68,6 @@ const Followup = () => {
     }
   };
 
-  const fetchMeta = async () => {
-    try {
-      const data = await fetchMetadata(institute_uuid);
-      setCourses(Array.isArray(data.courses) ? data.courses : []);
-      setEducations(Array.isArray(data.educations) ? data.educations : []);
-      setExams(Array.isArray(data.exams) ? data.exams : []);
-      setBatches(Array.isArray(data.batches) ? data.batches : []);
-      setPaymentModes(Array.isArray(data.paymentModes) ? data.paymentModes : []);
-    } catch {
-      toast.error('Failed to load form metadata');
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -202,7 +186,7 @@ const Followup = () => {
 
   useEffect(() => {
     fetchEnquiries();
-    fetchMeta();
+    refreshMeta();
   }, []);
 
   const filtered = enquiries.filter(e =>

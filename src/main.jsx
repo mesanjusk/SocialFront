@@ -3,8 +3,9 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
-import BrandingProvider from './Context/BrandingContext'; // ✅ Default export
-import { AppProvider } from './Context/AppContext'; // ✅ Named export
+import BrandingProvider from './Context/BrandingContext';
+import { AppProvider } from './Context/AppContext';
+import MetadataProvider from './Context/MetadataContext';
 
 import './index.css'; // Tailwind CSS
 
@@ -15,7 +16,9 @@ root.render(
     <BrowserRouter>
       <BrandingProvider>
         <AppProvider>
-          <App />
+          <MetadataProvider>
+            <App />
+          </MetadataProvider>
         </AppProvider>
       </BrandingProvider>
     </BrowserRouter>

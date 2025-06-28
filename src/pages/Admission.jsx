@@ -8,7 +8,7 @@ import BASE_URL from '../config';
 import AdmissionForm from '../components/admission/AdmissionForm';
 import AdmissionCard from '../components/admission/AdmissionCard';
 import Modal from '../components/common/Modal';
-import { fetchMetadata } from '../utils/api';
+import { useMetadata } from '../Context/MetadataContext';
 
 const Admission = () => {
   const initialForm = {
@@ -29,27 +29,11 @@ const Admission = () => {
   const [endDate, setEndDate] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [actionModal, setActionModal] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [educations, setEducations] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [batches, setBatches] = useState([]);
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
-  const [paymentModes, setPaymentModes] = useState([]);
+
+  const { courses, educations, exams, batches, paymentModes, refresh: refreshMeta, loading: metaLoading } = useMetadata();
 
   const institute_uuid = localStorage.getItem("institute_uuid");
-
-  const fetchMeta = async () => {
-    try {
-      const data = await fetchMetadata(institute_uuid);
-      setCourses(Array.isArray(data.courses) ? data.courses : []);
-      setEducations(Array.isArray(data.educations) ? data.educations : []);
-      setExams(Array.isArray(data.exams) ? data.exams : []);
-      setBatches(Array.isArray(data.batches) ? data.batches : []);
-      setPaymentModes(Array.isArray(data.paymentModes) ? data.paymentModes : []);
-    } catch {
-      toast.error('Failed to load form metadata');
-    }
-  };
 
   const fetchAdmissions = async () => {
     if (!institute_uuid) return;
@@ -155,7 +139,6 @@ const Admission = () => {
   };
 
   useEffect(() => {
-    fetchMeta();
     fetchAdmissions();
   }, []);
 
