@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
+import { Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -183,6 +184,12 @@ const AllAdmission = () => {
     XLSX.writeFile(workbook, 'admissions.xlsx');
   };
 
+  const handleAdd = () => {
+    setForm(initialForm);
+    setEditingId(null);
+    setShowModal(true);
+  };
+
   useEffect(() => {
     fetchCourses();
     fetchEducations();
@@ -207,11 +214,18 @@ const AllAdmission = () => {
         <div className="flex gap-2">
           <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="border p-2 rounded" />
           <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="border p-2 rounded" />
-          <input type="text" placeholder="Search by name or number" value={search} onChange={e => setSearch(e.target.value)} className="border p-2 rounded" />
+          <input type="text" placeholder="Search by name or number" value={search} onChange={e => setSearch(e.target.value)} className="border p-2 rounded w-full max-w-xs" />
         </div>
         <div className="flex gap-2">
-          <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded">Export PDF</button>
-          <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded">Export Excel</button>
+          <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded" title="Export PDF">
+            <PictureAsPdf fontSize="small" />
+          </button>
+          <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded" title="Export Excel">
+            <FileDownload fontSize="small" />
+          </button>
+          <button onClick={handleAdd} className="bg-blue-600 text-white px-4 py-2 rounded" title="Add Admission">
+            <Add fontSize="small" />
+          </button>
         </div>
       </div>
 
@@ -230,14 +244,14 @@ const AllAdmission = () => {
                 onClick={ev => ev.stopPropagation()}
                 className="hover:text-blue-600 flex items-center"
               >
-                <FaPhoneAlt className="mr-1" />{a.mobileSelf}
+                <FaPhoneAlt className="mr-1 text-xl" />{a.mobileSelf}
               </a>
               <a
                 href={`https://wa.me/${a.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
-                className="text-green-600 text-xl"
+                className="text-green-600 text-2xl"
               >
                 <FaWhatsapp />
               </a>

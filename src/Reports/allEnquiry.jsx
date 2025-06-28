@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
+import { Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import BASE_URL from '../config';
 
 const AllEnquiry = () => {
@@ -160,8 +164,35 @@ const AllEnquiry = () => {
       admissionDate: new Date().toISOString().split('T')[0]
     };
     setAdmissionForm(fill);
-    setEnquiryToDeleteId(e.uuid); 
+    setEnquiryToDeleteId(e.uuid);
     setShowAdmission(true);
+  };
+
+  const exportPDF = () => {
+    if (filtered.length === 0) return toast.error('No data to export');
+    const doc = new jsPDF();
+    autoTable(doc, {
+      head: [['Name', 'Mobile']],
+      body: filtered.map(e => [`${e.firstName} ${e.lastName}`, e.mobileSelf])
+    });
+    doc.save('enquiries.pdf');
+  };
+
+  const exportExcel = () => {
+    if (filtered.length === 0) return toast.error('No data to export');
+    const sheet = XLSX.utils.json_to_sheet(filtered.map(e => ({
+      Name: `${e.firstName} ${e.lastName}`,
+      Mobile: e.mobileSelf
+    })));
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, 'Enquiries');
+    XLSX.writeFile(book, 'enquiries.xlsx');
+  };
+
+  const handleAdd = () => {
+    setForm(initialForm);
+    setEditingId(null);
+    setShowModal(true);
   };
 
   const submitAdmission = async (e) => {
@@ -213,8 +244,24 @@ const AllEnquiry = () => {
   return (
     <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
-      <div className="flex gap-2 mb-4">
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search" className="border p-2" />
+      <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search"
+          className="border p-2 rounded w-full max-w-xs"
+        />
+        <div className="flex gap-2">
+          <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded" title="Export PDF">
+            <PictureAsPdf fontSize="small" />
+          </button>
+          <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded" title="Export Excel">
+            <FileDownload fontSize="small" />
+          </button>
+          <button onClick={handleAdd} className="bg-blue-600 text-white px-4 py-2 rounded" title="Add Enquiry">
+            <Add fontSize="small" />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -231,14 +278,14 @@ const AllEnquiry = () => {
                 onClick={ev => ev.stopPropagation()}
                 className="hover:text-blue-600 flex items-center"
               >
-                <FaPhoneAlt className="mr-1" />{e.mobileSelf}
+                <FaPhoneAlt className="mr-1 text-xl" />{e.mobileSelf}
               </a>
               <a
                 href={`https://wa.me/${e.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
-                className="text-green-600 text-xl"
+                className="text-green-600 text-2xl"
               >
                 <FaWhatsapp />
               </a>
