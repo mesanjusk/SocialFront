@@ -20,6 +20,7 @@ import ResetPassword from './components/ResetPassword';
 import InstituteProfile from './pages/instituteProfile';
 import Owner from './pages/Owner';
 import PrivateRoute from './components/PrivateRoute'; // ✅ Assuming this is implemented
+import PublicRoute from './components/PublicRoute';
 import CoursesCategory from './pages/CoursesCategory';
 import AllEnquiry from './Reports/allEnquiry';
 import AllAdmission from './Reports/allAdmission';
@@ -31,9 +32,32 @@ export default function App() {
   return (
     <Routes>
       {/* 🌐 Public Routes */}
-      <Route path="/" element={<Login />} />
-      {<Route path="/register" element={<Register />} />}
-      <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      {
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+      }
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <Signup />
+          </PublicRoute>
+        }
+      />
       <Route path="/upload" element={<ImageUploader />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id" element={<ResetPassword />} />
