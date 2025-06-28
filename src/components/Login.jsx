@@ -121,10 +121,12 @@ const Login = () => {
         window.updateAppContext({ user: userObj, institute: instituteObj });
       }
 
-      // Fetch branding after login for faster initial page load
-      fetchBranding(insti);
+    await fetchBranding(insti);
 
-      setTimeout(() => navigate('/dashboard'), 600);
+storage.setItem('institute_title', data.institute_name);
+navigate(`/${data.login_username}`);
+
+
 
     } catch (err) {
       console.error('Login error:', err);
