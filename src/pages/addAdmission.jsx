@@ -49,7 +49,8 @@ const AddAdmission = () => {
   const [search, setSearch] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  // show modal by default when this route is visited
+  const [showModal, setShowModal] = useState(true);
   const [courses, setCourses] = useState([]);
   const [educations, setEducations] = useState([]);
   const [exams, setExams] = useState([]);
@@ -108,8 +109,11 @@ const AddAdmission = () => {
   // Generate installment plan and EMI whenever related fields change
   useEffect(() => {
     const inst = parseInt(form.installment, 10);
-    const bal = Number(form.balance || 0);
-    if (!inst || inst <= 0 || !bal) {
+    const fees = Number(form.fees || 0);
+    const discount = Number(form.discount || 0);
+    const feePaid = Number(form.feePaid || 0);
+    const bal = fees - discount - feePaid;
+    if (!inst || inst <= 0 || bal <= 0) {
       setInstallmentPlan([]);
       if (form.emi !== '') {
         setForm(prev => ({ ...prev, emi: '' }));
@@ -141,7 +145,14 @@ const AddAdmission = () => {
     if (form.emi !== emi) {
       setForm(prev => ({ ...prev, emi }));
     }
-  }, [form.installment, form.balance, form.admissionDate, form.emiDate]);
+  }, [
+    form.installment,
+    form.fees,
+    form.discount,
+    form.feePaid,
+    form.admissionDate,
+    form.emiDate,
+  ]);
 
   const fetchAdmissions = async () => {
     if (!institute_uuid) return;
@@ -179,14 +190,29 @@ const AddAdmission = () => {
     e.preventDefault();
     if (!institute_uuid) return toast.error("Missing institute ID");
 
+    const mobileRegex = /^\d{10}$/;
+    if (form.mobileSelf && !mobileRegex.test(form.mobileSelf)) {
+      return toast.error('Enter valid self mobile number');
+    }
+    if (form.mobileParent && !mobileRegex.test(form.mobileParent)) {
+      return toast.error('Enter valid parent mobile number');
+    }
+
+    const fees = Number(form.fees || 0);
+    const discount = Number(form.discount || 0);
+    const feePaid = Number(form.feePaid || 0);
+    const total = fees - discount;
+    if (discount > fees) return toast.error('Discount cannot exceed fees');
+    if (feePaid > total) return toast.error('Fee paid cannot exceed total');
+
     const payload = {
       ...form,
       institute_uuid,
       type: 'admission',
-      fees: Number(form.fees || 0),
-      discount: Number(form.discount || 0),
-      total: Number(form.total || 0),
-      feePaid: Number(form.feePaid || 0),
+      fees,
+      discount,
+      total,
+      feePaid,
       balance: Number(form.balance || 0),
       emi: Number(form.emi || 0),
       installmentPlan
@@ -202,6 +228,8 @@ const AddAdmission = () => {
       }
       setForm(initialForm);
       setEditingId(null);
+      setTab(0);
+      setInstallmentPlan([]);
       setShowModal(false);
       fetchAdmissions();
     } catch {
@@ -231,19 +259,47 @@ const AddAdmission = () => {
     if (filteredAdmissions.length === 0) return toast.error("No data to export");
     const doc = new jsPDF();
     autoTable(doc, {
-      head: [['Name', 'Mobile']],
-      body: filteredAdmissions.map(e => [`${e.firstName} ${e.lastName}`, e.mobileSelf, e.course]),
+      head: [[
+        'Name',
+        'Course',
+        'Mobile',
+        'Fees',
+        'Discount',
+        'Total',
+        'Paid',
+        'Balance',
+        'Admission Date'
+      ]],
+      body: filteredAdmissions.map((e) => [
+        `${e.firstName} ${e.lastName}`,
+        e.course,
+        e.mobileSelf,
+        e.fees,
+        e.discount,
+        e.total,
+        e.feePaid,
+        e.balance,
+        e.admissionDate
+      ]),
     });
     doc.save('admissions.pdf');
   };
 
   const exportExcel = () => {
     if (filteredAdmissions.length === 0) return toast.error("No data to export");
-    const worksheet = XLSX.utils.json_to_sheet(filteredAdmissions.map(e => ({
-      Name: `${e.firstName} ${e.lastName}`,
-      Mobile: e.mobileSelf,
-      Course: e.course,
-    })));
+    const worksheet = XLSX.utils.json_to_sheet(
+      filteredAdmissions.map((e) => ({
+        Name: `${e.firstName} ${e.lastName}`,
+        Course: e.course,
+        Mobile: e.mobileSelf,
+        Fees: e.fees,
+        Discount: e.discount,
+        Total: e.total,
+        Paid: e.feePaid,
+        Balance: e.balance,
+        AdmissionDate: e.admissionDate,
+      }))
+    );
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Admissions');
     XLSX.writeFile(workbook, 'admissions.xlsx');
@@ -258,6 +314,9 @@ const AddAdmission = () => {
     fetchAdmissions();
   }, []);
 
+  // Don't render anything if the modal should be hidden
+  if (!showModal) return null;
+
   const filteredAdmissions = admissions.filter(e => {
     const matchSearch = e.firstName?.toLowerCase().includes(search.toLowerCase()) || e.mobileSelf?.includes(search);
     const admissionDate = new Date(e.admissionDate);
@@ -270,7 +329,7 @@ const AddAdmission = () => {
     <Toaster />
     <div className="bg-white rounded-lg shadow-lg w-full max-w-xl max-h-[90vh] overflow-y-auto">
       <div className="flex justify-between items-center p-4 border-b">
-        <h2 className="text-lg font-bold text-blue-700">
+        <h2 className="text-lg font-bold" style={{ color: themeColor }}>
           {editingId ? 'Edit Admission' : 'Add New Admission'}
         </h2>
         <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-black text-2xl">&times;</button>
@@ -282,7 +341,8 @@ const AddAdmission = () => {
           <button
             key={idx}
             onClick={() => setTab(idx)}
-            className={`flex-1 py-2 text-sm font-medium ${tab === idx ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600'}`}
+            className="flex-1 py-2 text-sm font-medium"
+            style={tab === idx ? { borderBottomWidth: '2px', borderColor: themeColor, color: themeColor } : { color: '#4b5563' }}
           >
             {tabName}
           </button>
@@ -402,8 +462,20 @@ const AddAdmission = () => {
         )}
 
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Submit'}</button>
+          <button
+            type="button"
+            onClick={() => setShowModal(false)}
+            className="bg-gray-500 text-white px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="text-white px-4 py-2 rounded"
+            style={{ backgroundColor: themeColor }}
+          >
+            {editingId ? 'Update' : 'Submit'}
+          </button>
         </div>
       </form>
     </div>
