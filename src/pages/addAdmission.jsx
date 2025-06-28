@@ -49,8 +49,7 @@ const AddAdmission = () => {
   const [search, setSearch] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  // show modal by default when this route is visited
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [courses, setCourses] = useState([]);
   const [educations, setEducations] = useState([]);
   const [exams, setExams] = useState([]);
