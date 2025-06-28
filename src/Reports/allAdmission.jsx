@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -227,18 +228,18 @@ const AllAdmission = () => {
               <a
                 href={`tel:${a.mobileSelf}`}
                 onClick={ev => ev.stopPropagation()}
-                className="hover:underline"
+                className="hover:text-blue-600 flex items-center"
               >
-                📞 {a.mobileSelf}
+                <FaPhoneAlt className="mr-1" />{a.mobileSelf}
               </a>
               <a
                 href={`https://wa.me/${a.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
-                className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+                className="text-green-600 text-xl"
               >
-                WhatsApp
+                <FaWhatsapp />
               </a>
             </div>
             <div className="text-gray-500 text-xs">{a.course || 'No course selected'}</div>
@@ -359,7 +360,7 @@ const AllAdmission = () => {
       {/* Action Modal */}
       {actionModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded max-w-sm w-full">
+          <div className="bg-white p-6 rounded shadow w-full h-full overflow-y-auto">
             <h2 className="text-lg font-bold mb-4">
               {actionModal.firstName} {actionModal.lastName}
             </h2>
