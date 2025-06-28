@@ -245,6 +245,7 @@ const Admission = () => {
       {actionModal && (
         <Modal
           title={`${actionModal.firstName} ${actionModal.lastName}`}
+          onClose={() => setActionModal(null)}
           actions={
             <>
               <button

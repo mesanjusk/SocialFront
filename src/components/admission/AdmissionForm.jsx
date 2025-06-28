@@ -35,7 +35,7 @@ const AdmissionForm = ({
   );
 
   return (
-    <Modal title={title} actions={actions}>
+    <Modal title={title} actions={actions} onClose={onCancel}>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <input
           placeholder="First Name"
