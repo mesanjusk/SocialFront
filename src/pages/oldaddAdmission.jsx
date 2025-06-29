@@ -391,17 +391,18 @@ useEffect(() => {
             <input placeholder="Mobile (Parent)" value={form.mobileParent} onChange={handleChange('mobileParent')} inputMode="numeric" pattern="[0-9]{10}" maxLength={10} className="border p-2" />
             <input placeholder="Address" value={form.address} onChange={handleChange('address')} className="border p-2" />
 
-            <select value={form.education} onChange={handleChange('education')} className="border p-2">
-              <option value="">-- Select Education --</option>
-              {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
-            </select>
+            
           </>
         )}
 
         {/* TAB 2: Course & Batch */}
         {tab === 1 && (
           <>
-            <select
+            <select value={form.education} onChange={handleChange('education')} className="border p-2">
+              <option value="">-- Select Education --</option>
+              {educations.map(e => <option key={e._id} value={e.education}>{e.education}</option>)}
+            </select>
+             <select
               value={form.course}
               onChange={(e) => {
                 const selectedCourse = courses.find(c => c.name === e.target.value);

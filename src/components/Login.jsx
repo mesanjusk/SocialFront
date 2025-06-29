@@ -10,7 +10,6 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true); // checkbox is now purely cosmetic
   const [branding, setBranding] = useState(JSON.parse(localStorage.getItem('branding')) || null);
   const inputRef = useRef(null);
 
@@ -39,26 +38,48 @@ const Login = () => {
       localStorage.setItem('logo', data.logo || '');
 
       setBranding(data);
-
       document.documentElement.style.setProperty('--theme-color', themeColor);
-      let link = document.querySelector("link[rel~='icon']");
-      if (!link) {
+
+      const updateFavicon = (iconUrl) => {
+        let link = document.querySelector("link[rel~='icon']");
+        if (link) document.head.removeChild(link);
         link = document.createElement('link');
         link.rel = 'icon';
+        link.href = iconUrl || '/favicon.ico';
         document.head.appendChild(link);
-      }
-      link.href = data.favicon || '/favicon.ico';
-      document.title = `${data.institute || 'Instify'} | Instify`;
+      };
+      updateFavicon(data.favicon);
 
+      document.title = `${data.institute || 'Welcome'} | Instify`;
     } catch (err) {
       console.error('Branding fetch error:', err);
       toast.error('⚠️ Failed to load branding');
     }
   };
 
+  const fetchAndStoreMasters = async () => {
+    try {
+      const [courses, educations, exams, paymentModes, batches] = await Promise.all([
+        axios.get(`${BASE_URL}/api/courses`),
+        axios.get(`${BASE_URL}/api/education`),
+        axios.get(`${BASE_URL}/api/exams`),
+        axios.get(`${BASE_URL}/api/paymentmode`),
+        axios.get(`${BASE_URL}/api/batches`),
+      ]);
+
+      localStorage.setItem('courses', JSON.stringify(courses.data || []));
+      localStorage.setItem('educations', JSON.stringify(educations.data || []));
+      localStorage.setItem('exams', JSON.stringify(exams.data || []));
+      localStorage.setItem('paymentModes', JSON.stringify(paymentModes.data || []));
+      localStorage.setItem('batches', JSON.stringify(batches.data || []));
+    } catch (error) {
+      console.error('Failed to fetch master data', error);
+      toast.error('⚠️ Failed to fetch master data');
+    }
+  };
+
   useEffect(() => {
     inputRef.current?.focus();
-    // Apply cached branding instantly
     if (branding?.theme?.color) {
       document.documentElement.style.setProperty('--theme-color', branding.theme.color);
     }
@@ -101,32 +122,28 @@ const Login = () => {
 
       document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
-      const storage = localStorage; // always persist login data
-      storage.setItem('remember_me', 'true');
-      storage.setItem('user', JSON.stringify(userObj));
-      storage.setItem('institute', JSON.stringify(instituteObj));
-      storage.setItem('name', data.user_name);
-      storage.setItem('institute_title', data.institute_name);
-      storage.setItem('institute_uuid', data.institute_uuid);
-      storage.setItem('center_code', data.login_username);
-      storage.setItem('user_type', data.user_role || 'admin');
-      storage.setItem('login_username', data.login_username);
-      storage.setItem('theme_color', data.theme_color || '#10B981');
-      storage.setItem('institute_id', data.institute_id || '');
+      localStorage.setItem('user', JSON.stringify(userObj));
+      localStorage.setItem('institute', JSON.stringify(instituteObj));
+      localStorage.setItem('name', data.user_name);
+      localStorage.setItem('institute_title', data.institute_name);
+      localStorage.setItem('institute_uuid', data.institute_uuid);
+      localStorage.setItem('center_code', data.login_username);
+      localStorage.setItem('user_type', data.user_role || 'admin');
+      localStorage.setItem('login_username', data.login_username);
+      localStorage.setItem('theme_color', data.theme_color || '#10B981');
+      localStorage.setItem('institute_id', data.institute_id || '');
       if (data.trialExpiresAt) {
-        storage.setItem('trialExpiresAt', data.trialExpiresAt);
+        localStorage.setItem('trialExpiresAt', data.trialExpiresAt);
       }
 
       if (window.updateAppContext) {
         window.updateAppContext({ user: userObj, institute: instituteObj });
       }
 
-    await fetchBranding(insti);
+      await fetchBranding(insti);
+      await fetchAndStoreMasters();
 
-storage.setItem('institute_title', data.institute_name);
-navigate(`/${data.login_username}`);
-
-
+      navigate(`/${data.login_username}`);
 
     } catch (err) {
       console.error('Login error:', err);
@@ -181,16 +198,6 @@ navigate(`/${data.login_username}`);
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              id="rememberMe"
-              className="mr-2"
-            />
-            <label htmlFor="rememberMe" className="text-sm text-gray-700">Keep me logged in</label>
           </div>
           <div className="text-right text-sm">
             <button

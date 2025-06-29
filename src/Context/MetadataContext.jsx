@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { fetchMetadata } from '../utils/api';
 
 const MetadataContext = createContext({
@@ -12,40 +12,49 @@ const MetadataContext = createContext({
 });
 
 export const MetadataProvider = ({ children }) => {
-  const [state, setState] = useState({
-    courses: [],
-    educations: [],
-    exams: [],
-    batches: [],
-    paymentModes: [],
-  });
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState([]);
+  const [educations, setEducations] = useState([]);
+  const [exams, setExams] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [paymentModes, setPaymentModes] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const uuid = localStorage.getItem('institute_uuid');
       const data = await fetchMetadata(uuid);
-      setState({
-        courses: Array.isArray(data.courses) ? data.courses : [],
-        educations: Array.isArray(data.educations) ? data.educations : [],
-        exams: Array.isArray(data.exams) ? data.exams : [],
-        batches: Array.isArray(data.batches) ? data.batches : [],
-        paymentModes: Array.isArray(data.paymentModes) ? data.paymentModes : [],
-      });
+
+      setCourses(Array.isArray(data.courses) ? data.courses : []);
+      setEducations(Array.isArray(data.educations) ? data.educations : []);
+      setExams(Array.isArray(data.exams) ? data.exams : []);
+      setBatches(Array.isArray(data.batches) ? data.batches : []);
+      setPaymentModes(Array.isArray(data.paymentModes) ? data.paymentModes : []);
+
+      console.log("Metadata loaded:", data); // Debugging aid
     } catch (err) {
       console.warn('Failed to load metadata', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   return (
-    <MetadataContext.Provider value={{ ...state, refresh: load, loading }}>
+    <MetadataContext.Provider
+      value={{
+        courses,
+        educations,
+        exams,
+        batches,
+        paymentModes,
+        refresh: load,
+        loading,
+      }}
+    >
       {children}
     </MetadataContext.Provider>
   );

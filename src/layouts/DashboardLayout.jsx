@@ -18,8 +18,8 @@ export default function DashboardLayout() {
   };
 
   const buttonsList = [
-      { onClick: ()=> navigate('/dashboard/addEnquiry'), src: enquiry },
-      { onClick: ()=> navigate('/dashboard/addAdmission'), src: admission },
+      { onClick: ()=> navigate('/admin/add-Enquiry'), src: enquiry },
+      { onClick: ()=> navigate('/admin/add-Admission'), src: admission },
     ];
 
   return (
