@@ -20,9 +20,9 @@ import InstituteProfile from './pages/instituteProfile';
 import Owner from './pages/Owner';
 import PrivateRoute from './components/PrivateRoute';
 import CoursesCategory from './pages/CoursesCategory';
-import AllEnquiry from './Reports/allEnquiry';
+import Leads from './Reports/Leads';
 import AllAdmission from './Reports/allAdmission';
-import AddEnquiry from './pages/addEnquiry'; // Ensure correct casing here
+import AddLead from './pages/AddLead'; // Ensure correct casing here
 import Followup from './pages/Followup';
 import AddAdmission from './components/admissions/AddAdmission';
 
@@ -52,9 +52,10 @@ export default function App() {
         <Route path="instituteProfile" element={<InstituteProfile />} />
         <Route path="owner" element={<Owner />} />
         <Route path="coursesCategory" element={<CoursesCategory />} />
-        <Route path="allEnquiry" element={<AllEnquiry />} />
+        <Route path="leads" element={<Leads />} />
+
         <Route path="allAdmission" element={<AllAdmission />} />
-        <Route path="add-enquiry" element={<AddEnquiry />} /> {/* ✅ Updated to kebab-case */}
+        <Route path="add-lead" element={<AddLead />} /> {/* ✅ Updated to kebab-case */}
         <Route path="followup" element={<Followup />} />
         <Route path="add-admission" element={<AddAdmission />} /> {/* ✅ Protected Add Admission */}
       </Route>

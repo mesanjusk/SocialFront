@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { fetchMetadata } from '../utils/api';
+import axios from 'axios';
 
 const MetadataContext = createContext({
   courses: [],
@@ -22,18 +22,25 @@ export const MetadataProvider = ({ children }) => {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const uuid = localStorage.getItem('institute_uuid');
-      const data = await fetchMetadata(uuid);
+      const institute_uuid = localStorage.getItem('institute_uuid');
 
-      setCourses(Array.isArray(data.courses) ? data.courses : []);
-      setEducations(Array.isArray(data.educations) ? data.educations : []);
-      setExams(Array.isArray(data.exams) ? data.exams : []);
-      setBatches(Array.isArray(data.batches) ? data.batches : []);
-      setPaymentModes(Array.isArray(data.paymentModes) ? data.paymentModes : []);
+      const [coursesRes, educationsRes, examsRes, batchesRes, paymentModesRes] = await Promise.all([
+        axios.get('/api/courses', { params: { institute_uuid } }),
+        axios.get('/api/education', { params: { institute_uuid } }),
+        axios.get('/api/exams', { params: { institute_uuid } }),
+        axios.get('/api/batches', { params: { institute_uuid } }),
+        axios.get('/api/paymentmode', { params: { institute_uuid } }),
+      ]);
 
-      console.log("Metadata loaded:", data); // Debugging aid
+      setCourses(Array.isArray(coursesRes.data.data) ? coursesRes.data.data : []);
+      setEducations(Array.isArray(educationsRes.data.data) ? educationsRes.data.data : []);
+      setExams(Array.isArray(examsRes.data.data) ? examsRes.data.data : []);
+      setBatches(Array.isArray(batchesRes.data.data) ? batchesRes.data.data : []);
+      setPaymentModes(Array.isArray(paymentModesRes.data.data) ? paymentModesRes.data.data : []);
+
+      console.log("✅ Metadata loaded");
     } catch (err) {
-      console.warn('Failed to load metadata', err);
+      console.warn('❌ Failed to load metadata', err);
     } finally {
       setLoading(false);
     }
