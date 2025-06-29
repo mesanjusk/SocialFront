@@ -22,7 +22,7 @@ import PrivateRoute from './components/PrivateRoute';
 import CoursesCategory from './pages/CoursesCategory';
 import AllEnquiry from './Reports/allEnquiry';
 import AllAdmission from './Reports/allAdmission';
-import AddEnquiry from './pages/AddEnquiry'; // Ensure correct casing here
+import AddEnquiry from './pages/addEnquiry'; // Ensure correct casing here
 import Followup from './pages/Followup';
 import AddAdmission from './components/admissions/AddAdmission';
 
