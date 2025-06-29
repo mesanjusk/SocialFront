@@ -28,6 +28,9 @@ const AllEnquiry = () => {
   const [form, setForm] = useState(initialForm);
   const [admissionForm, setAdmissionForm] = useState(admissionTemplate);
   const [enquiries, setEnquiries] = useState([]);
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(20);
+  const [total, setTotal] = useState(0);
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAdmission, setShowAdmission] = useState(false);
@@ -63,8 +66,14 @@ const AllEnquiry = () => {
 
   const fetchEnquiries = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/org/${institute_uuid}?type=enquiry`);
-      setEnquiries(res.data || []);
+      const res = await axios.get(`${BASE_URL}/api/record/enquiry`, {
+        params: { institute_uuid, page, limit }
+      });
+      const { data, total: t, page: p, limit: l } = res.data;
+      setEnquiries(Array.isArray(data) ? data : []);
+      setTotal(t || 0);
+      setPage(p ?? page);
+      setLimit(l ?? limit);
     } catch {
       toast.error('Failed to fetch enquiries');
     }
@@ -237,7 +246,7 @@ const AllEnquiry = () => {
     fetchExams();
     fetchBatches();
     fetchPaymentModes();
-  }, []);
+  }, [page, limit]);
 
   const filtered = enquiries.filter(e =>
     e.firstName?.toLowerCase().includes(search.toLowerCase()) ||
@@ -298,6 +307,9 @@ const AllEnquiry = () => {
             <div className="text-gray-500 text-xs">{e.course || 'No course selected'}</div>
           </div>
         ))}
+      </div>
+      <div className="text-sm text-gray-800 mt-2">
+        Page {page + 1} - Showing {enquiries.length} of {total}
       </div>
 
       {showModal && (
