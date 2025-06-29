@@ -1,35 +1,27 @@
-const logoutUser = () => {
-  // Clear user object (most important for PrivateRoute)
-  localStorage.removeItem('user');
-  sessionStorage.removeItem('user');
+// src/utils/logoutUser.js
 
-  // Clear other related values
-  localStorage.removeItem('user_id');
-  localStorage.removeItem('user_name');
-  localStorage.removeItem('user_type');
-  localStorage.removeItem('login_username');
-  localStorage.removeItem('institute_id');
-  localStorage.removeItem('institute_uuid');
-  localStorage.removeItem('institute_title');
-  localStorage.removeItem('theme_color');
+import { clearUserAndInstituteData } from './storageUtils';
+
+/**
+ * Logs out the user safely by clearing all user/institute data,
+ * resetting AppContext if available, and redirecting to login.
+ */
+const logoutUser = () => {
+  // ✅ Clear user and institute data consistently
+  clearUserAndInstituteData();
+
+  // ✅ Clear additional related values if used
   localStorage.removeItem('remember_me');
   localStorage.removeItem('last_password_change');
+  sessionStorage.removeItem('remember_me');
+  sessionStorage.removeItem('last_password_change');
 
-  sessionStorage.removeItem('user_id');
-  sessionStorage.removeItem('user_name');
-  sessionStorage.removeItem('user_type');
-  sessionStorage.removeItem('login_username');
-  sessionStorage.removeItem('institute_id');
-  sessionStorage.removeItem('institute_uuid');
-  sessionStorage.removeItem('institute_title');
-  sessionStorage.removeItem('theme_color');
-
-  // Reset AppContext if used
+  // ✅ Reset AppContext if your app uses it
   if (window.updateAppContext) {
     window.updateAppContext({ user: null, institute: null });
   }
 
-  // Redirect to login
+  // ✅ Redirect to login page
   window.location.href = '/';
 };
 
