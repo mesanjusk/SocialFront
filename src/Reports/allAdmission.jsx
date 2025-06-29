@@ -87,8 +87,11 @@ const AllAdmission = () => {
   const fetchAdmissions = async () => {
     if (!institute_uuid) return;
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/org/${institute_uuid}?type=admission`);
-      setAdmissions(res.data || []);
+      const res = await axios.get(`${BASE_URL}/api/record/admission`, {
+        params: { institute_uuid }
+      });
+      const { data } = res.data;
+      setAdmissions(Array.isArray(data) ? data : []);
     } catch {
       toast.error('Failed to fetch admissions');
     }

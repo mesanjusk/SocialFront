@@ -61,8 +61,11 @@ const Followup = () => {
 
   const fetchEnquiries = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/${institute_uuid}?type=enquiry`);
-      setEnquiries(res.data || []);
+      const res = await axios.get(`${BASE_URL}/api/record/followup`, {
+        params: { institute_uuid }
+      });
+      const { data } = res.data;
+      setEnquiries(Array.isArray(data) ? data : []);
     } catch {
       toast.error('Failed to fetch enquiries');
     }
