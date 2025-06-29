@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const instituteName = localStorage.getItem('institute_title') || 'Your Institute';
-  const userType = localStorage.getItem('type') || 'User';
-  const expiryDateStr = localStorage.getItem('expiry_date');
+  const instituteName = JSON.parse(localStorage.getItem('institute'))?.institute_name || localStorage.getItem('institute_title') || 'Your Institute';
+  const instituteUUID = localStorage.getItem('institute_uuid') || 'N/A';
+  const userType = localStorage.getItem('user_type') || 'User';
+  const expiryDateStr = localStorage.getItem('expiry_date') || localStorage.getItem('trialExpiresAt');
   const planType = localStorage.getItem('plan_type');
 
   const [daysLeft, setDaysLeft] = useState(null);
@@ -34,8 +35,8 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold text-red-600">Trial Expired</h2>
           <p className="mt-2 text-gray-700">Your 14-day trial has ended. Please contact support to upgrade your plan.</p>
           <button
-            onClick={() => navigate('/')}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded hover:opacity-90"
+            onClick={() => navigate('/login')}
+            className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           >
             Back to Login
           </button>
@@ -46,8 +47,9 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen p-6 bg-gray-50">
-      <h1 className="text-3xl font-bold mb-4 text-primary">Welcome, {instituteName}</h1>
+      <h1 className="text-3xl font-bold mb-4 text-green-600">Welcome, {instituteName}</h1>
       <p className="text-lg text-gray-700">Role: {userType}</p>
+      <p className="text-lg text-gray-700">Institute UUID: {instituteUUID}</p>
 
       {planType === 'trial' && expiryDateStr && (
         <div className="mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded">
@@ -55,7 +57,6 @@ const Dashboard = () => {
           <p>{daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining</p>
         </div>
       )}
-      
     </div>
   );
 };

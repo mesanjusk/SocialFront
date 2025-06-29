@@ -5,6 +5,14 @@
  * Accepts an object with optional fields: institute_uuid, institute_name, institute_id, theme_color.
  */
 export const storeInstituteData = ({ institute_uuid, institute_name, institute_id, theme_color }) => {
+  const instituteObj = {
+    institute_uuid,
+    institute_name,
+    institute_id,
+    theme_color,
+  };
+  localStorage.setItem('institute', JSON.stringify(instituteObj)); // ✅ Now stores combined object for AppContext
+
   if (institute_uuid) localStorage.setItem('institute_uuid', institute_uuid);
   if (institute_name) localStorage.setItem('institute_title', institute_name);
   if (institute_id) localStorage.setItem('institute_id', institute_id);

@@ -1,16 +1,17 @@
 // src/utils/logoutUser.js
 
 import { clearUserAndInstituteData } from './storageUtils';
+import toast from 'react-hot-toast';
 
 /**
  * Logs out the user safely by clearing all user/institute data,
  * resetting AppContext if available, and redirecting to login.
  */
 const logoutUser = () => {
-  // ✅ Clear user and institute data consistently
+  // ✅ Clear user and institute data
   clearUserAndInstituteData();
 
-  // ✅ Clear additional related values if used
+  // ✅ Clear additional related values
   localStorage.removeItem('remember_me');
   localStorage.removeItem('last_password_change');
   sessionStorage.removeItem('remember_me');
@@ -21,8 +22,11 @@ const logoutUser = () => {
     window.updateAppContext({ user: null, institute: null });
   }
 
-  // ✅ Redirect to login page
-  window.location.href = '/';
+  // ✅ Notify and redirect
+  toast.success('Logged out successfully');
+  setTimeout(() => {
+    window.location.href = '/login'; // Update if your login route differs
+  }, 500);
 };
 
 export default logoutUser;
