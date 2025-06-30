@@ -85,17 +85,20 @@ const AllAdmission = () => {
   };
 
   const fetchAdmissions = async () => {
-    if (!institute_uuid) return;
-    try {
-      const res = await axios.get(`${BASE_URL}/api/record/admission`, {
-        params: { institute_uuid }
-      });
-      const { data } = res.data;
-      setAdmissions(Array.isArray(data) ? data : []);
-    } catch {
-      toast.error('Failed to fetch admissions');
-    }
-  };
+  if (!institute_uuid) return;
+  try {
+    const res = await axios.get(`http://localhost:5000/api/admissions`, {
+      params: { institute_uuid }
+    });
+    const { data } = res.data;
+    setAdmissions(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("❌ Admissions fetch error:", err);
+    toast.error('Failed to fetch admissions');
+  }
+};
+
+
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -206,11 +209,22 @@ const AllAdmission = () => {
   }, []);
 
   const filteredAdmissions = admissions.filter(e => {
-    const matchSearch = e.firstName?.toLowerCase().includes(search.toLowerCase()) || e.mobileSelf?.includes(search);
-    const admissionDate = new Date(e.admissionDate);
-    const inDateRange = (!startDate || admissionDate >= new Date(startDate)) && (!endDate || admissionDate <= new Date(endDate));
-    return matchSearch && inDateRange;
-  });
+  const matchSearch =
+    !search ||
+    e.firstName?.toLowerCase().includes(search.toLowerCase()) ||
+    e.mobileSelf?.includes(search);
+
+  const admissionDate = new Date(e.admissionDate);
+  const from = startDate ? new Date(startDate) : null;
+  const to = endDate ? new Date(endDate) : null;
+
+  const inDateRange =
+    (!from || admissionDate >= from) &&
+    (!to || admissionDate <= to);
+
+  return matchSearch && inDateRange;
+});
+
 
   return (
     <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
@@ -237,36 +251,37 @@ const AllAdmission = () => {
 
       {/* Card Grid */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-8 gap-3">
-        {filteredAdmissions.map((a) => (
-          <div
-            key={a._id}
-            className="bg-white p-4 rounded shadow cursor-pointer hover:ring hover:ring-blue-400"
-            onClick={() => setActionModal(a)}
-          >
-            <div className="font-semibold text-lg">{a.firstName} {a.lastName}</div>
-            <div className="flex items-center gap-2 text-gray-600 text-sm">
-              <a
-                href={`tel:${a.mobileSelf}`}
-                onClick={ev => ev.stopPropagation()}
-                className="hover:text-blue-600 flex items-center"
-              >
-                <FaPhoneAlt className="mr-1 text-xl" />
-                {a.mobileSelf}
-              </a>
-              <a
-                href={`https://wa.me/${a.mobileSelf}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={ev => ev.stopPropagation()}
-                className="text-green-600 text-2xl"
-              >
-                <FaWhatsapp />
-              </a>
+      {filteredAdmissions.map((a) => (
+  <div
+    key={a._id}
+    className="bg-white p-4 rounded shadow cursor-pointer hover:ring hover:ring-blue-400"
+    onClick={() => setActionModal(a)}
+  >
+    <div className="font-semibold text-lg">{a.student?.firstName} {a.student?.lastName}</div>
+    <div className="flex items-center gap-2 text-gray-600 text-sm">
+      <a
+        href={`tel:${a.student?.mobileSelf}`}
+        onClick={ev => ev.stopPropagation()}
+        className="hover:text-blue-600 flex items-center"
+      >
+        <FaPhoneAlt className="mr-1 text-xl" />
+        {a.student?.mobileSelf}
+      </a>
+      <a
+        href={`https://wa.me/${a.student?.mobileSelf}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={ev => ev.stopPropagation()}
+        className="text-green-600 text-2xl"
+      >
+        <FaWhatsapp />
+      </a>
+    </div>
+    <div className="text-gray-500 text-xs">{a.course || 'No course selected'}</div>
+    <div className="text-gray-700 text-sm">Fees Paid: ₹{a.fees?.feePaid} / Balance: ₹{a.fees?.balance}</div>
+  </div>
+))}
 
-            </div>
-            <div className="text-gray-500 text-xs">{a.course || 'No course selected'}</div>
-          </div>
-        ))}
       </div>
 
       
