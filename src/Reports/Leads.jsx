@@ -2,23 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import BASE_URL from '../config';
+import LeadStatusModal from "../components/leads/LeadStatusModal"; // ✅ keep as is if file exists
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedLead, setSelectedLead] = useState(null);
   const navigate = useNavigate();
   const { username } = useParams();
 
   const fetchLeads = async () => {
     try {
+      setLoading(true);
       const institute_uuid = localStorage.getItem('institute_uuid');
-      const { data } = await axios.get('/api/leads', {
-        params: { institute_uuid }
+      const { data } = await axios.get(`${BASE_URL}/api/leads`, {
+        params: { institute_uuid },
       });
-      setLeads(data?.data || []); // ✅ Defensive handling
+      setLeads(Array.isArray(data?.data) ? data.data : []);
+      console.log('✅ Leads fetched', data?.data);
     } catch (error) {
-      console.error(error);
+      console.error('❌ Error fetching leads:', error.response?.data || error.message);
       toast.error('Error fetching leads');
     } finally {
       setLoading(false);
@@ -38,6 +43,13 @@ const Leads = () => {
   return (
     <div className="p-4">
       <Toaster />
+      {selectedLead && (
+        <LeadStatusModal
+          lead={selectedLead}
+          onClose={() => setSelectedLead(null)}
+          refresh={fetchLeads}
+        />
+      )}
       <div className="flex justify-between items-center mb-4">
         <input
           type="text"
@@ -70,8 +82,14 @@ const Leads = () => {
             </thead>
             <tbody>
               {filteredLeads.map((lead) => (
-                <tr key={lead.uuid} className="hover:bg-gray-50">
-                  <td className="border p-2">{lead.studentData?.firstName} {lead.studentData?.lastName}</td>
+                <tr
+                  key={lead.uuid}
+                  className="hover:bg-gray-50 cursor-pointer"
+                  onClick={() => setSelectedLead(lead)}
+                >
+                  <td className="border p-2">
+                    {lead.studentData?.firstName} {lead.studentData?.lastName}
+                  </td>
                   <td className="border p-2">{lead.studentData?.mobileSelf}</td>
                   <td className="border p-2">{lead.branchCode || '-'}</td>
                   <td className="border p-2">
