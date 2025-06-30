@@ -58,7 +58,8 @@ const Leads = () => {
           refresh={fetchLeads}
         />
       )}
-      <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+      <div className="flex justify-between items-center mb-4 gap-2 flex-wrap sm:flex-nowrap">
+
         <input
           type="text"
           value={search}
@@ -77,6 +78,7 @@ const Leads = () => {
       {!loading && filteredLeads.length === 0 && <div>No leads found.</div>}
       {!loading && filteredLeads.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+
           {filteredLeads.map((lead) => (
             <div
               key={lead.uuid}
