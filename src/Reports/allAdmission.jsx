@@ -87,7 +87,7 @@ const AllAdmission = () => {
   const fetchAdmissions = async () => {
   if (!institute_uuid) return;
   try {
-    const res = await axios.get(`http://localhost:5000/api/admissions`, {
+    const res = await axios.get(`${BASE_URL}/api/admissions`, {
       params: { institute_uuid }
     });
     const { data } = res.data;
