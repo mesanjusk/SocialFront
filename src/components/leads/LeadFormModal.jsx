@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import BASE_URL from "../../config";
+
 
 const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   const [loading, setLoading] = useState(false);
@@ -13,29 +15,28 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
     branchCode: '',
     referredBy: '',
     leadStatus: 'open',
-    followups: [
-      {
-        date: new Date().toISOString().substring(0, 10),
-        status: 'open',
-        remark: '',
-        createdBy: 'System',
-      },
-    ],
+    followups: [{
+      date: new Date().toISOString().substring(0, 10),
+      status: 'open',
+      remark: '',
+      createdBy: 'System',
+    }],
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post('/api/leads', {
+      const response = await axios.post(`${BASE_URL}/api/leads`, {
         institute_uuid,
         studentData,
         leadData,
       });
-      toast.success('Lead created successfully');
+      toast.success('✅ Lead created successfully');
       onSuccess();
+      onClose(); // auto-close on success
     } catch (error) {
-      console.error(error);
+      console.error('❌ Error creating lead:', error.response?.data || error.message);
       toast.error('Error creating lead');
     } finally {
       setLoading(false);
@@ -47,9 +48,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
       <Toaster />
       <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg">
         <h2 className="text-lg font-semibold mb-4">Add New Lead</h2>
-
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Student Fields */}
           <div className="grid grid-cols-2 gap-2">
             <input
               type="text"
@@ -75,8 +74,6 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
             required
             className="border p-2 rounded w-full"
           />
-
-          {/* Lead Fields */}
           <input
             type="text"
             placeholder="Branch Code"
@@ -101,7 +98,6 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
             }}
             className="border p-2 rounded w-full"
           />
-
           <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"

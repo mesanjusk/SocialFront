@@ -9,7 +9,7 @@ const AddLead = () => {
 
   const handleClose = () => {
     setShowModal(false);
-    navigate(`/${username}/leads`); // ✅ Return to Leads page after adding
+    navigate(`/${username}/leads`); // navigate back to leads page
   };
 
   if (!showModal) return null;
@@ -18,8 +18,9 @@ const AddLead = () => {
     <LeadFormModal
       onClose={handleClose}
       onSuccess={() => {
-        // Optionally trigger toast here or refresh parent on success
+        // optional toast or refresh logic
       }}
+      institute_uuid={localStorage.getItem('institute_uuid')} // pass institute_uuid correctly
     />
   );
 };
