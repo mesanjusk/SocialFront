@@ -122,10 +122,10 @@ const useAdmissionForm = (onClose, setTab) => {
 
     try {
       if (editingId) {
-        await axios.put(`${BASE_URL}/api/record/${editingId}`, payload);
+        await axios.put(`${BASE_URL}/api/admissions/${editingId}`, payload);
         toast.success('Updated successfully');
       } else {
-        await axios.post(`${BASE_URL}/api/record`, payload);
+        await axios.post(`${BASE_URL}/api/admissions`, payload);
         toast.success('Admission added');
       }
       setForm(initialForm);
