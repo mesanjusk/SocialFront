@@ -7,7 +7,6 @@ import Login from './components/Login';
 import ImageUploader from './components/ImageUploader';
 import Enquiry from './pages/Enquiry';
 import Courses from './pages/Courses';
-// Removed: import Admission from './pages/Admission';
 import Batches from './pages/Batches';
 import Signup from './components/Signup';
 import OrgCategories from './pages/OrgCategories';
@@ -22,9 +21,10 @@ import PrivateRoute from './components/PrivateRoute';
 import CoursesCategory from './pages/CoursesCategory';
 import Leads from './Reports/Leads';
 import AllAdmission from './Reports/allAdmission';
-import AddLead from './pages/AddLead'; // Ensure correct casing here
+import AddLead from './pages/AddLead';
 import Followup from './pages/Followup';
 import AddAdmission from './components/admissions/AddAdmission';
+import WhatsAppAdminPage from './pages/WhatsAppAdminPage'; // ✅ Import added
 
 export default function App() {
   return (
@@ -43,7 +43,6 @@ export default function App() {
         <Route path="user" element={<User />} />
         <Route path="batches" element={<Batches />} />
         <Route path="enquiry" element={<Enquiry />} />
-        {/* Removed: <Route path="admission" element={<Admission />} /> */}
         <Route path="courses" element={<Courses />} />
         <Route path="orgcategories" element={<OrgCategories />} />
         <Route path="education" element={<Education />} />
@@ -53,11 +52,13 @@ export default function App() {
         <Route path="owner" element={<Owner />} />
         <Route path="coursesCategory" element={<CoursesCategory />} />
         <Route path="leads" element={<Leads />} />
-
         <Route path="allAdmission" element={<AllAdmission />} />
-        <Route path="add-lead" element={<AddLead />} /> {/* ✅ Updated to kebab-case */}
+        <Route path="add-lead" element={<AddLead />} />
         <Route path="followup" element={<Followup />} />
-        <Route path="add-admission" element={<AddAdmission />} /> {/* ✅ Protected Add Admission */}
+        <Route path="add-admission" element={<AddAdmission />} />
+
+        {/* ✅ WhatsApp Admin Page (protected) */}
+        <Route path="whatsapp" element={<WhatsAppAdminPage />} />
       </Route>
 
       {/* 🧭 Fallback */}
