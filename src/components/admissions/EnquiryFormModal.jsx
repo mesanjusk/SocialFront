@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import BASE_URL from '../../config';
@@ -23,7 +23,8 @@ const EnquiryFormModal = ({ onClose }) => {
     referredBy: '',
     followUpDate: '',
     remarks: '',
-    course: ''
+    course: '',
+    fees: '' // For auto-loading fees on course selection
   };
 
   const [form, setForm] = useState(initialForm);
@@ -34,8 +35,20 @@ const EnquiryFormModal = ({ onClose }) => {
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setForm({ ...form, [field]: value });
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Auto-load fees from course selection
+  useEffect(() => {
+    if (form.course && Array.isArray(courses)) {
+      const selectedCourse = courses.find(c => c.name === form.course);
+      if (selectedCourse && selectedCourse.fees) {
+        setForm((prev) => ({ ...prev, fees: selectedCourse.fees }));
+      } else {
+        setForm((prev) => ({ ...prev, fees: '' }));
+      }
+    }
+  }, [form.course, courses]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,14 +66,13 @@ const EnquiryFormModal = ({ onClose }) => {
     try {
       await axios.post(`${BASE_URL}/api/record`, payload);
       toast.success('Enquiry added successfully');
-      handleClose(); // Redirect after success
+      handleClose();
     } catch {
       toast.error('Failed to add enquiry');
     }
   };
 
   const handleClose = () => {
-    // Redirect to /:username/allEnquiry on close
     navigate(`/${username}/allEnquiry`);
   };
 
@@ -70,8 +82,8 @@ const EnquiryFormModal = ({ onClose }) => {
       <div className="bg-white rounded p-4 w-full max-w-lg shadow">
         <h2 className="text-lg font-bold mb-4">Add Enquiry</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input value={form.firstName} onChange={handleChange('firstName')} placeholder="First Name" className="border p-2" />
-          <input value={form.lastName} onChange={handleChange('lastName')} placeholder="Last Name" className="border p-2" />
+          <input value={form.firstName} onChange={handleChange('firstName')} placeholder="First Name" className="border p-2 rounded" />
+          <input value={form.lastName} onChange={handleChange('lastName')} placeholder="Last Name" className="border p-2 rounded" />
           <input
             value={form.mobileSelf}
             onChange={handleChange('mobileSelf')}
@@ -79,25 +91,33 @@ const EnquiryFormModal = ({ onClose }) => {
             inputMode="numeric"
             pattern="[0-9]{10}"
             maxLength={10}
-            className="border p-2"
+            className="border p-2 rounded"
           />
-          <select value={form.course} onChange={handleChange('course')} className="border p-2">
+          <select value={form.course} onChange={handleChange('course')} className="border p-2 rounded">
             <option value="">Select Course</option>
             {Array.isArray(courses) && courses.map(c => (
               <option key={c._id} value={c.name}>{c.name}</option>
             ))}
           </select>
+          {form.fees && (
+            <input
+              value={form.fees}
+              readOnly
+              placeholder="Course Fees"
+              className="border p-2 rounded bg-gray-100"
+            />
+          )}
           <input
             type="date"
             value={form.followUpDate}
             onChange={handleChange('followUpDate')}
-            className="border p-2"
+            className="border p-2 rounded"
           />
           <input
             value={form.remarks}
             onChange={handleChange('remarks')}
             placeholder="Remarks"
-            className="border p-2"
+            className="border p-2 rounded"
           />
           <div className="flex justify-end gap-2 mt-2">
             <button type="button" onClick={handleClose} className="bg-gray-500 text-white px-4 py-2 rounded">
