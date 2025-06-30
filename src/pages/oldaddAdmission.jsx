@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
@@ -59,6 +60,9 @@ const AddAdmission = () => {
   const [installmentPlan, setInstallmentPlan] = useState([]);
 
   const institute_uuid = localStorage.getItem("institute_uuid");
+  const [searchParams] = useSearchParams();
+  const lead_uuid = searchParams.get('lead_uuid');
+
 
   const fetchCourses = async () => {
     try {
@@ -68,6 +72,40 @@ const AddAdmission = () => {
       toast.error('Failed to load courses');
     }
   };
+  useEffect(() => {
+    const fetchLeadData = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/leads/${lead_uuid}`);
+        const lead = res.data;
+
+        setForm(prev => ({
+          ...prev,
+          firstName: lead.studentData?.firstName || '',
+          lastName: lead.studentData?.lastName || '',
+          mobileSelf: lead.studentData?.mobileSelf || '',
+          address: lead.studentData?.address || '',
+          course: lead.studentData?.course || '',
+        }));
+
+        // Auto-fill fees if course exists
+        const selectedCourse = courses.find(c => c.name === lead.studentData?.course);
+        if (selectedCourse) {
+          const courseFee = Number(selectedCourse.courseFees || 0);
+          setForm(prev => ({
+            ...prev,
+            fees: courseFee,
+            total: courseFee,
+            balance: courseFee,
+          }));
+        }
+      } catch (err) {
+        console.error('Error fetching lead data:', err);
+        toast.error('Failed to load lead data');
+      }
+    };
+
+    if (lead_uuid && courses.length > 0) fetchLeadData();
+  }, [lead_uuid, courses]);
 
   const fetchEducations = async () => {
     try {
@@ -204,119 +242,119 @@ const AddAdmission = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log("🚀 handleSubmit triggered");
+    e.preventDefault();
+    console.log("🚀 handleSubmit triggered");
 
-  if (!institute_uuid) return toast.error("Missing institute ID");
+    if (!institute_uuid) return toast.error("Missing institute ID");
 
-  const mobileRegex = /^\d{10}$/;
-  if (form.mobileSelf && !mobileRegex.test(form.mobileSelf)) return toast.error('Enter valid self mobile number');
-  if (form.mobileParent && !mobileRegex.test(form.mobileParent)) return toast.error('Enter valid parent mobile number');
+    const mobileRegex = /^\d{10}$/;
+    if (form.mobileSelf && !mobileRegex.test(form.mobileSelf)) return toast.error('Enter valid self mobile number');
+    if (form.mobileParent && !mobileRegex.test(form.mobileParent)) return toast.error('Enter valid parent mobile number');
 
-  const fees = Number(form.fees || 0);
-  const discount = Number(form.discount || 0);
-  const feePaid = Number(form.feePaid || 0);
-  const total = fees - discount;
-  const balance = total - feePaid;
+    const fees = Number(form.fees || 0);
+    const discount = Number(form.discount || 0);
+    const feePaid = Number(form.feePaid || 0);
+    const total = fees - discount;
+    const balance = total - feePaid;
 
-  if (discount > fees) return toast.error('Discount cannot exceed fees');
-  if (feePaid > total) return toast.error('Fee paid cannot exceed total');
+    if (discount > fees) return toast.error('Discount cannot exceed fees');
+    if (feePaid > total) return toast.error('Fee paid cannot exceed total');
 
-  try {
-    // Step 1: Create/Update student
-    const studentPayload = {
-      institute_uuid,
-      firstName: form.firstName,
-      middleName: form.middleName,
-      lastName: form.lastName,
-      dob: form.dob,
-      gender: form.gender,
-      mobileSelf: form.mobileSelf,
-      mobileParent: form.mobileParent,
-      address: form.address,
-    };
+    try {
+      // Step 1: Create/Update student
+      const studentPayload = {
+        institute_uuid,
+        firstName: form.firstName,
+        middleName: form.middleName,
+        lastName: form.lastName,
+        dob: form.dob,
+        gender: form.gender,
+        mobileSelf: form.mobileSelf,
+        mobileParent: form.mobileParent,
+        address: form.address,
+      };
 
-    let studentResponse;
-    if (editingId && form.student_uuid) {
-      studentResponse = await axios.put(`${BASE_URL}/api/students/${form.student_uuid}`, studentPayload);
-    } else {
-      studentResponse = await axios.post(`${BASE_URL}/api/students`, studentPayload);
+      let studentResponse;
+      if (editingId && form.student_uuid) {
+        studentResponse = await axios.put(`${BASE_URL}/api/students/${form.student_uuid}`, studentPayload);
+      } else {
+        studentResponse = await axios.post(`${BASE_URL}/api/students`, studentPayload);
+      }
+
+      const studentData = studentResponse.data.data;
+      const student_uuid = studentData.uuid || studentData._id;
+      console.log("✅ Student saved:", student_uuid);
+
+      // Step 2: Create/Update admission
+      const admissionPayload = {
+        institute_uuid,
+        student_uuid,
+        admissionDate: form.admissionDate,
+        course: form.course,
+        batchTime: form.batchTime,
+        examEvent: form.examEvent,
+        installment: form.installment,
+        fees,
+        discount,
+        total,
+        feePaid,
+        paidBy: form.paidBy,
+        balance,
+        createdBy: 'System',
+      };
+
+      let admissionResponse;
+      if (editingId) {
+        admissionResponse = await axios.put(`${BASE_URL}/api/admissions/${editingId}`, admissionPayload);
+        toast.success('Admission updated successfully');
+      } else {
+        admissionResponse = await axios.post(`${BASE_URL}/api/admissions`, admissionPayload);
+        toast.success('Admission added successfully');
+      }
+
+      const admissionData = admissionResponse.data.data;
+      const admission_uuid = admissionData.uuid;
+      console.log("✅ Admission saved:", admission_uuid);
+
+      // Step 3: Create/Update fees/emi record
+      const feesPayload = {
+        institute_uuid,
+        student_uuid,
+        admission_uuid,
+        fees,
+        discount,
+        total,
+        feePaid,
+        balance,
+        emi: Number(form.emi || 0),
+        installment: form.installment,
+        installmentPlan,
+        paidBy: form.paidBy,
+      };
+
+      const feesResponse = await axios.post(`${BASE_URL}/api/fees`, feesPayload);
+      console.log("✅ Fees saved:", feesResponse.data.data);
+
+      toast.success('All records saved successfully');
+
+      // Reset state
+      setForm(initialForm);
+      setEditingId(null);
+      setTab(0);
+      setInstallmentPlan([]);
+      // setShowModal(false);
+
+      fetchAdmissions();
+    } catch (err) {
+      console.error("🔥 Error in handleSubmit:", err);
+      if (err.response) {
+        console.error("📡 Backend Response:", err.response.data);
+        toast.error(`Server Error: ${err.response.data.message || err.response.statusText}`);
+      } else {
+        toast.error('Error saving admission');
+      }
     }
-
-    const studentData = studentResponse.data.data;
-    const student_uuid = studentData.uuid || studentData._id;
-    console.log("✅ Student saved:", student_uuid);
-
-    // Step 2: Create/Update admission
-    const admissionPayload = {
-      institute_uuid,
-      student_uuid,
-      admissionDate: form.admissionDate,
-      course: form.course,
-      batchTime: form.batchTime,
-      examEvent: form.examEvent,
-      installment: form.installment,
-      fees,
-      discount,
-      total,
-      feePaid,
-      paidBy: form.paidBy,
-      balance,
-      createdBy: 'System',
-    };
-
-    let admissionResponse;
-    if (editingId) {
-      admissionResponse = await axios.put(`${BASE_URL}/api/admissions/${editingId}`, admissionPayload);
-      toast.success('Admission updated successfully');
-    } else {
-      admissionResponse = await axios.post(`${BASE_URL}/api/admissions`, admissionPayload);
-      toast.success('Admission added successfully');
-    }
-
-    const admissionData = admissionResponse.data.data;
-    const admission_uuid = admissionData.uuid;
-    console.log("✅ Admission saved:", admission_uuid);
-
-    // Step 3: Create/Update fees/emi record
-    const feesPayload = {
-      institute_uuid,
-      student_uuid,
-      admission_uuid,
-      fees,
-      discount,
-      total,
-      feePaid,
-      balance,
-      emi: Number(form.emi || 0),
-      installment: form.installment,
-      installmentPlan,
-      paidBy: form.paidBy,
-    };
-
-    const feesResponse = await axios.post(`${BASE_URL}/api/fees`, feesPayload);
-    console.log("✅ Fees saved:", feesResponse.data.data);
-
-    toast.success('All records saved successfully');
-
-    // Reset state
-    setForm(initialForm);
-    setEditingId(null);
-    setTab(0);
-    setInstallmentPlan([]);
-    // setShowModal(false);
-
-    fetchAdmissions();
-  } catch (err) {
-    console.error("🔥 Error in handleSubmit:", err);
-    if (err.response) {
-      console.error("📡 Backend Response:", err.response.data);
-      toast.error(`Server Error: ${err.response.data.message || err.response.statusText}`);
-    } else {
-      toast.error('Error saving admission');
-    }
-  }
-};
+  };
 
 
 

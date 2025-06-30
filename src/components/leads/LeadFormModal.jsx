@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import BASE_URL from "../../config";
-
+import BASE_URL from '../../config';
 
 const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   const [loading, setLoading] = useState(false);
+  const [courses, setCourses] = useState([]);
   const [studentData, setStudentData] = useState({
     firstName: '',
     lastName: '',
     mobileSelf: '',
+    course: '',
   });
   const [leadData, setLeadData] = useState({
-    branchCode: '',
     referredBy: '',
     leadStatus: 'open',
     followups: [{
@@ -23,20 +23,45 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
     }],
   });
 
+ useEffect(() => {
+  const fetchCourses = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/courses`, {
+        params: { institute_uuid },
+      });
+      console.log("Courses API response:", res.data); // Debug
+      setCourses(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Error fetching courses:', err);
+      toast.error('Failed to load courses');
+    }
+  };
+  if (institute_uuid) fetchCourses();
+}, [institute_uuid]);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!/^\d{10}$/.test(studentData.mobileSelf)) {
+      toast.error('Mobile number must be exactly 10 digits');
+      return;
+    }
+    if (!studentData.course) {
+      toast.error('Please select a course');
+      return;
+    }
     setLoading(true);
     try {
-      const response = await axios.post(`${BASE_URL}/api/leads`, {
+      await axios.post(`${BASE_URL}/api/leads`, {
         institute_uuid,
         studentData,
         leadData,
       });
-      toast.success('✅ Lead created successfully');
+      toast.success('Lead created successfully');
       onSuccess();
-      onClose(); // auto-close on success
-    } catch (error) {
-      console.error('❌ Error creating lead:', error.response?.data || error.message);
+      onClose();
+    } catch (err) {
+      console.error('Error creating lead:', err);
       toast.error('Error creating lead');
     } finally {
       setLoading(false);
@@ -67,20 +92,27 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
             />
           </div>
           <input
-            type="text"
-            placeholder="Mobile"
+            type="tel"
+            placeholder="Mobile (10 digits)"
             value={studentData.mobileSelf}
             onChange={(e) => setStudentData({ ...studentData, mobileSelf: e.target.value })}
             required
+            maxLength={10}
+            pattern="[0-9]{10}"
+
             className="border p-2 rounded w-full"
           />
-          <input
-            type="text"
-            placeholder="Branch Code"
-            value={leadData.branchCode}
-            onChange={(e) => setLeadData({ ...leadData, branchCode: e.target.value })}
+          <select
+            value={studentData.course}
+            onChange={(e) => setStudentData({ ...studentData, course: e.target.value })}
+            required
             className="border p-2 rounded w-full"
-          />
+          >
+            <option value="">-- Select Course --</option>
+            {courses.map((course) => (
+              <option key={course._id} value={course.name}>{course.name}</option>
+            ))}
+          </select>
           <input
             type="text"
             placeholder="Referred By"
@@ -102,14 +134,14 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
               {loading ? 'Saving...' : 'Save'}
             </button>

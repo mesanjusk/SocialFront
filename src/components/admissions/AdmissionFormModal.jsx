@@ -1,35 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { useNavigate, useParams } from 'react-router-dom';
+import useAdmissionForm from './useAdmissionForm';
 import AdmissionStudentInfoTab from './AdmissionStudentInfoTab';
 import AdmissionCourseBatchTab from './AdmissionCourseBatchTab';
 import AdmissionPaymentInstallmentTab from './AdmissionPaymentInstallmentTab';
-import useAdmissionForm from './useAdmissionForm';
 
 const AdmissionFormModal = ({ onClose }) => {
-  const [tab, setTab] = useState(0);
-  const navigate = useNavigate();
-  const { username } = useParams();
-
   const {
     form,
+    tab,
+    setTab,
     handleChange,
     handleSubmit,
     installmentPlan,
-    editingId,
-    themeColor,
-    paymentModes,
     courses,
     educations,
     exams,
     batches,
-  } = useAdmissionForm(() => handleCloseRedirect(), setTab);
-
-  const tabNames = ['Student Info', 'Course & Batch', 'Payment & Installments'];
-
-  const handleCloseRedirect = () => {
-    navigate(`/${username}/allAdmission`);
-  };
+    paymentModes,
+    editingId,
+    themeColor
+  } = useAdmissionForm(onClose);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -39,17 +30,16 @@ const AdmissionFormModal = ({ onClose }) => {
           <h2 className="text-lg font-bold" style={{ color: themeColor }}>
             {editingId ? 'Edit Admission' : 'Add New Admission'}
           </h2>
-          <button onClick={handleCloseRedirect} className="text-gray-500 hover:text-black text-2xl">&times;</button>
+          <button onClick={onClose} className="text-gray-500 hover:text-black text-2xl">&times;</button>
         </div>
 
-        {/* Tab Navigation */}
         <div className="flex justify-around border-b">
-          {tabNames.map((tabName, idx) => (
+          {['Student Info', 'Course & Batch', 'Payment & Installments'].map((tabName, idx) => (
             <button
               key={idx}
               onClick={() => setTab(idx)}
-              className={`flex-1 py-2 text-sm font-medium ${tab === idx ? 'border-b-2' : ''}`}
-              style={tab === idx ? { borderColor: themeColor, color: themeColor } : { color: '#4b5563' }}
+              className="flex-1 py-2 text-sm font-medium"
+              style={tab === idx ? { borderBottomWidth: '2px', borderColor: themeColor, color: themeColor } : { color: '#4b5563' }}
             >
               {tabName}
             </button>
@@ -66,31 +56,21 @@ const AdmissionFormModal = ({ onClose }) => {
               educations={educations}
               exams={exams}
               batches={batches}
-              setFormField={handleChange}
+              setForm={handleChange}
             />
           )}
           {tab === 2 && (
             <AdmissionPaymentInstallmentTab
               form={form}
               handleChange={handleChange}
-              paymentModes={paymentModes}
               installmentPlan={installmentPlan}
+              paymentModes={paymentModes}
             />
           )}
 
           <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={handleCloseRedirect}
-              className="bg-gray-500 text-white px-4 py-2 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="text-white px-4 py-2 rounded"
-              style={{ backgroundColor: themeColor }}
-            >
+            <button type="button" onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+            <button type="submit" className="text-white px-4 py-2 rounded" style={{ backgroundColor: themeColor }}>
               {editingId ? 'Update' : 'Submit'}
             </button>
           </div>

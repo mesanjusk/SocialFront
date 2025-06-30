@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
-import LeadStatusModal from "../components/leads/LeadStatusModal"; // ✅ keep as is if file exists
+import LeadStatusModal from "../components/leads/LeadStatusModal";
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
@@ -21,7 +21,6 @@ const Leads = () => {
         params: { institute_uuid },
       });
       setLeads(Array.isArray(data?.data) ? data.data : []);
-      console.log('✅ Leads fetched', data?.data);
     } catch (error) {
       console.error('❌ Error fetching leads:', error.response?.data || error.message);
       toast.error('Error fetching leads');
@@ -40,6 +39,15 @@ const Leads = () => {
     return name.includes(search.toLowerCase()) || mobile.includes(search);
   });
 
+  const handleWhatsApp = (mobile, name) => {
+    const message = `Hello ${name}, I am contacting you regarding your enquiry.`;
+    window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleCall = (mobile) => {
+    window.open(`tel:${mobile}`);
+  };
+
   return (
     <div className="p-4">
       <Toaster />
@@ -50,7 +58,7 @@ const Leads = () => {
           refresh={fetchLeads}
         />
       )}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
         <input
           type="text"
           value={search}
@@ -60,54 +68,51 @@ const Leads = () => {
         />
         <button
           onClick={() => navigate(`/${username}/add-lead`)}
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           + New Lead
         </button>
       </div>
-
       {loading && <div>Loading leads...</div>}
       {!loading && filteredLeads.length === 0 && <div>No leads found.</div>}
       {!loading && filteredLeads.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2 text-left">Name</th>
-                <th className="border p-2 text-left">Mobile</th>
-                <th className="border p-2 text-left">Branch</th>
-                <th className="border p-2 text-left">Status</th>
-                <th className="border p-2 text-left">Referred By</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLeads.map((lead) => (
-                <tr
-                  key={lead.uuid}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setSelectedLead(lead)}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+          {filteredLeads.map((lead) => (
+            <div
+              key={lead.uuid}
+              className="border rounded-lg p-4 shadow hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+              onClick={() => setSelectedLead(lead)}
+            >
+              <div>
+                <h2 className="font-semibold text-lg text-gray-800">
+                  {lead.studentData?.firstName} {lead.studentData?.lastName}
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {lead.course || 'Course N/A'}
+                </p>
+              </div>
+              <div className="flex justify-end items-center gap-3 mt-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleWhatsApp(lead.studentData?.mobileSelf, lead.studentData?.firstName);
+                  }}
+                  className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600"
                 >
-                  <td className="border p-2">
-                    {lead.studentData?.firstName} {lead.studentData?.lastName}
-                  </td>
-                  <td className="border p-2">{lead.studentData?.mobileSelf}</td>
-                  <td className="border p-2">{lead.branchCode || '-'}</td>
-                  <td className="border p-2">
-                    <span className={`px-2 py-1 rounded text-white text-xs ${
-                      lead.leadStatus === 'open' ? 'bg-blue-500' :
-                      lead.leadStatus === 'follow-up' ? 'bg-yellow-500' :
-                      lead.leadStatus === 'converted' ? 'bg-green-500' :
-                      lead.leadStatus === 'lost' ? 'bg-red-500' :
-                      'bg-gray-400'
-                    }`}>
-                      {lead.leadStatus || 'N/A'}
-                    </span>
-                  </td>
-                  <td className="border p-2">{lead.referredBy || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  📱
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCall(lead.studentData?.mobileSelf);
+                  }}
+                  className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600"
+                >
+                  📞
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
