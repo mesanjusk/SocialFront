@@ -22,9 +22,10 @@ import CoursesCategory from './pages/CoursesCategory';
 import Leads from './Reports/Leads';
 import AllAdmission from './Reports/allAdmission';
 import AddLead from './pages/AddLead';
+import AddOld from './pages/oldaddAdmission';
 import Followup from './pages/Followup';
 import AddAdmission from './components/admissions/AddAdmission';
-import WhatsAppAdminPage from './pages/WhatsAppAdminPage'; // ✅ Import added
+import WhatsAppAdminPage from './pages/WhatsAppAdminPage';
 
 export default function App() {
   return (
@@ -54,11 +55,10 @@ export default function App() {
         <Route path="leads" element={<Leads />} />
         <Route path="allAdmission" element={<AllAdmission />} />
         <Route path="add-lead" element={<AddLead />} />
+        <Route path="addadmission" element={<AddOld />} /> {/* ✅ Fixed */}
         <Route path="followup" element={<Followup />} />
         <Route path="add-admission" element={<AddAdmission />} />
-
-        {/* ✅ WhatsApp Admin Page (protected) */}
-        <Route path="whatsapp" element={<WhatsAppAdminPage />} />
+        <Route path="whatsapp" element={<WhatsAppAdminPage />} /> {/* ✅ WhatsApp Admin */}
       </Route>
 
       {/* 🧭 Fallback */}
