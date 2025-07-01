@@ -20,6 +20,9 @@ export default function DashboardLayout() {
   const buttonsList = [
       { onClick: ()=> navigate('/admin/add-Lead'), src: enquiry },
       { onClick: ()=> navigate('/admin/addAdmission'), src: admission },
+      { onClick: ()=> navigate('/admin/addReciept'), src: enquiry },
+      { onClick: ()=> navigate('/admin/addPayment'), src: admission },
+      { onClick: ()=> navigate('/admin/addAccountgroup'), src: admission },
     ];
 
   return (

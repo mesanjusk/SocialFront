@@ -42,26 +42,37 @@ const Signup = () => {
     setForm({ ...form, [field]: e.target.value });
   };
 
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    if (!/^[0-9]{10}$/.test(form.institute_call_number)) {
-      toast.error('Enter a valid 10-digit mobile number');
-      return;
+ const handleSendOtp = async (e) => {
+  e.preventDefault();
+  if (!/^[0-9]{10}$/.test(form.institute_call_number)) {
+    toast.error('Enter a valid 10-digit mobile number');
+    return;
+  }
+
+  try {
+    const res = await axios.post(`${BASE_URL}/api/send-otp`, {
+      mobile: form.institute_call_number,
+      center_code: form.center_code,
+    });
+
+    if (res.data.success) {
+      setOtpSent(true);
+      setServerOtp(res.data.otp); 
+      toast.success('OTP sent to your mobile');
+    } else {
+      toast.error(res.data.message || 'Failed to send OTP');
     }
-    try {
-      const res = await axios.post(`${BASE_URL}/api/send-otp`, { mobile: form.institute_call_number });
-      if (res.data.success) {
-        setOtpSent(true);
-        setServerOtp(res.data.otp); // dev only
-        toast.success('OTP sent to your mobile');
-      } else {
-        toast.error(res.data.message || 'Failed to send OTP');
-      }
-    } catch (err) {
-      console.error(err);
+  } catch (err) {
+    if (err.response?.status === 409) {
+      toast.error('Center code or mobile number already registered');
+    } else if (err.response?.data?.message) {
+      toast.error(err.response.data.message);
+    } else {
       toast.error('Server error while sending OTP');
     }
-  };
+    console.error('OTP Error:', err);
+  }
+};
 
   const handleSignup = async (e) => {
     e.preventDefault();

@@ -14,7 +14,6 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   });
   const [leadData, setLeadData] = useState({
     referredBy: '',
-    leadStatus: 'open',
     followups: [{
       date: new Date().toISOString().substring(0, 10),
       status: 'open',
@@ -29,7 +28,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
       const res = await axios.get(`${BASE_URL}/api/courses`, {
         params: { institute_uuid },
       });
-      console.log("Courses API response:", res.data); // Debug
+      console.log("Courses API response:", res.data);
       setCourses(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Error fetching courses:', err);
@@ -54,8 +53,10 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
     try {
       await axios.post(`${BASE_URL}/api/leads`, {
         institute_uuid,
+        course: studentData.course,
         studentData,
-        leadData,
+        referredBy: leadData.referredBy,
+        followups: leadData.followups,
       });
       toast.success('Lead created successfully');
       onSuccess();

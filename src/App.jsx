@@ -24,8 +24,10 @@ import AllAdmission from './Reports/allAdmission';
 import AddLead from './pages/AddLead';
 import AddOld from './pages/oldaddAdmission';
 import Followup from './pages/Followup';
-import AddAdmission from './components/admissions/AddAdmission';
 import WhatsAppAdminPage from './pages/WhatsAppAdminPage';
+import AddReciept from './pages/addReciept';
+import AddPayment from './pages/addPayment';
+import AddAccountGroup from './pages/AddAccountgroup';
 
 export default function App() {
   return (
@@ -56,8 +58,10 @@ export default function App() {
         <Route path="allAdmission" element={<AllAdmission />} />
         <Route path="add-lead" element={<AddLead />} />
         <Route path="addadmission" element={<AddOld />} /> {/* ✅ Fixed */}
+        <Route path="addReciept" element={<AddReciept />} />
+        <Route path="addPayment" element={<AddPayment />} />
+        <Route path="addAccountgroup" element={<AddAccountGroup />} />
         <Route path="followup" element={<Followup />} />
-        <Route path="add-admission" element={<AddAdmission />} />
         <Route path="whatsapp" element={<WhatsAppAdminPage />} /> {/* ✅ WhatsApp Admin */}
       </Route>
 

@@ -9,10 +9,23 @@ const AllAdmission = () => {
   const [admissions, setAdmissions] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState([]);
   const [selectedAdmission, setSelectedAdmission] = useState(null);
   const navigate = useNavigate();
   const { username } = useParams();
   const institute_uuid = localStorage.getItem('institute_uuid');
+
+  const fetchCourses = async () => {
+  try {
+    const { data } = await axios.get(`${BASE_URL}/api/courses`, {
+      params: { institute_uuid },
+    });
+    setCourses(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error('❌ Error fetching courses:', error);
+    toast.error('Failed to load courses');
+  }
+};
 
   const fetchAdmissions = async () => {
     try {
@@ -31,6 +44,7 @@ const AllAdmission = () => {
 
   useEffect(() => {
     fetchAdmissions();
+    fetchCourses();
   }, []);
 
   const filteredAdmissions = admissions.filter((a) => {
@@ -50,6 +64,11 @@ const AllAdmission = () => {
     window.open(`tel:${mobile}`);
   };
 
+  const getCourseName = (courseUuid) => {
+  const course = courses.find((c) => c.uuid === courseUuid);
+  return course ? course.name : 'Course N/A';
+};
+
   return (
     <div className="p-4">
       <Toaster />
@@ -61,7 +80,7 @@ const AllAdmission = () => {
               {selectedAdmission.student?.firstName} {selectedAdmission.student?.lastName}
             </h2>
             <p className="text-gray-700 mb-2">
-              Course: {selectedAdmission.course || 'N/A'}
+              Course: {getCourseName(selectedAdmission.course)}
             </p>
             <div className="flex gap-2">
               <button
@@ -113,7 +132,7 @@ const AllAdmission = () => {
                   {admission.student?.firstName} {admission.student?.lastName}
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  {admission.course || 'Course N/A'}
+                  {getCourseName(admission.course)}
                 </p>
               </div>
               <div className="flex justify-end items-center gap-3 mt-4">

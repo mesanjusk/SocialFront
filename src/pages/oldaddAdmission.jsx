@@ -335,6 +335,37 @@ const AddAdmission = () => {
       const feesResponse = await axios.post(`${BASE_URL}/api/fees`, feesPayload);
       console.log("✅ Fees saved:", feesResponse.data.data);
 
+       // Step 3: Create/Update lead record
+      const leadPayload = {
+        institute_uuid,
+        student_uuid,
+        admission_uuid,
+        enquiryDate: form.admissionDate,
+        course: form.course, 
+        referredBy:"Self",
+        createdBy: 'System',
+        followups: [{
+      date: new Date().toISOString().substring(0, 10),
+      status: 'open',
+      remark: '',
+      createdBy: 'System',
+    }],    
+      };
+
+      const leadResponse = await axios.post(`${BASE_URL}/api/leads`, leadPayload);
+      console.log("✅ Lead saved:", leadResponse.data.data);
+
+         // Step 3: Create/Update account record
+      const accountPayload = {
+        institute_uuid,
+        Account_name: `${form.firstName} ${form.lastName}`.trim(),
+        Account_group: 'ACCOUNT',
+        Mobile_number: form.mobileSelf    
+      };
+
+      const accountResponse = await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
+      console.log("✅ Account saved:", accountResponse.data.data);
+
       toast.success('All records saved successfully');
 
       // Reset state
@@ -512,7 +543,7 @@ const AddAdmission = () => {
               <select
                 value={form.course}
                 onChange={(e) => {
-                  const selectedCourse = courses.find(c => c.name === e.target.value);
+                  const selectedCourse = courses.find(c => c.uuid === e.target.value);
                   const courseFee = Number(selectedCourse?.courseFees || 0);
                   const discount = Number(form.discount || 0);
                   const feePaid = Number(form.feePaid || 0);
@@ -529,7 +560,7 @@ const AddAdmission = () => {
                 className="border p-2"
               >
                 <option value="">-- Select Course --</option>
-                {courses.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+                {courses.map(c => <option key={c._id} value={c.uuid}>{c.name}</option>)}
               </select>
 
               <select value={form.batchTime} onChange={handleChange('batchTime')} className="border p-2">
