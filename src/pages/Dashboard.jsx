@@ -127,7 +127,7 @@ const Dashboard = () => {
      
         {/* Dashboard Cards */}
         <main className="flex-1 p-8 bg-gray-50">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-6 mb-8">
             <div className="bg-white p-6 rounded-2xl shadow flex flex-col items-start">
               <div className="text-sm text-gray-400 mb-2">Total Students</div>
               <div className="text-3xl font-bold text-green-600">
