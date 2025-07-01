@@ -126,8 +126,8 @@ const Dashboard = () => {
       <div className="flex-1 flex flex-col">
      
         {/* Dashboard Cards */}
-        <main className="flex-1 p-8 bg-gray-50">
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-8">
+        <main className="flex-1 p-4 bg-gray-50">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
             <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
               <div className="text-sm text-gray-400 mb-2">Total Students</div>
               <div className="text-3xl font-bold text-green-600">
@@ -179,32 +179,11 @@ const Dashboard = () => {
                 View Followups
               </button>
             </div>
-            <div className="bg-white p-6 rounded-2xl shadow flex flex-col">
-              <div className="text-sm text-gray-400 mb-2">Quick Actions</div>
-              <button
-                onClick={() => navigate('/admissions')}
-                className="w-full mb-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-              >
-                New Admission
-              </button>
-              <button
-                onClick={() => navigate('/enquiry')}
-                className="w-full mb-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
-              >
-                New Enquiry
-              </button>
-              <button
-                onClick={() => navigate('/students')}
-                className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-              >
-                View Students
-              </button>
-            </div>
-          </div>
-
+            
+             
           {/* Attendance Board */}
           <div className="bg-white p-6 rounded-2xl shadow w-full md:w-2/3 mx-auto">
-            <h2 className="text-xl font-bold mb-2 text-gray-800">Office Attendance Board</h2>
+            <h2 className="text-xl font-bold mb-2 text-gray-800">Todays Attandace</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {(loading
                 ? fallbackStats.attendance
