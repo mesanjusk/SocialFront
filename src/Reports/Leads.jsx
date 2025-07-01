@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
 import BASE_URL from '../config';
 import LeadStatusModal from "../components/leads/LeadStatusModal";
 
@@ -93,6 +94,7 @@ const Leads = () => {
                   {lead.course || 'Course N/A'}
                 </p>
               </div>
+
               <div className="flex justify-end items-center gap-3 mt-4">
                 <button
                   onClick={(e) => {
@@ -100,8 +102,9 @@ const Leads = () => {
                     handleWhatsApp(lead.studentData?.mobileSelf, lead.studentData?.firstName);
                   }}
                   className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600"
+                  title="WhatsApp"
                 >
-                  📱
+                  <FaWhatsapp />
                 </button>
                 <button
                   onClick={(e) => {
@@ -109,10 +112,13 @@ const Leads = () => {
                     handleCall(lead.studentData?.mobileSelf);
                   }}
                   className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600"
+                  title="Call"
                 >
-                  📞
+                  <FaPhoneAlt />
                 </button>
               </div>
+
+
             </div>
           ))}
         </div>
