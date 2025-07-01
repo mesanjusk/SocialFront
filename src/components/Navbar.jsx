@@ -1,91 +1,87 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
-import BASE_URL from '../config';
-import logoutUser from '../utils/logout';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useApp } from '../Context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import logoutUser from '../utils/logout';
 
 export default function Navbar({ toggleSidebar }) {
-  const { user, institute } = useApp(); // ✅ Pull from Context
-  const [showModal, setShowModal] = useState(false);
+  const { user, institute, loading } = useApp();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const navigate = useNavigate();
 
-  const username = user?.name || institute?.institute_title || '';
+  // While loading, show nothing or a skeleton/loading UI
+  if (loading) {
+    return (
+      <header className="bg-white shadow-md px-4 py-3 flex justify-between items-center z-30">
+        <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+        <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
+      </header>
+    );
+  }
+
+  // Safely handle fallback for institute name
+  const instituteTitle =
+    institute?.institute_title ||
+    institute?.institute_name ||
+    'Your Institute';
+
+  const username = user?.name || 'User';
   const role = user?.role || '';
-
-  useEffect(() => {
-    const user_id = user?.id;
-    const lastStored = localStorage.getItem('last_password_change');
-
-    if (user_id && lastStored) {
-      fetch(`${BASE_URL}/api/auth/${user_id}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.result?.last_password_change) {
-            const dbDate = new Date(data.result.last_password_change);
-            const localDate = new Date(lastStored);
-            if (!isNaN(dbDate) && !isNaN(localDate)) {
-              if (dbDate.toISOString() !== localDate.toISOString()) {
-                alert('Your password was changed. Please login again.');
-                logoutUser();
-              }
-            }
-          }
-        })
-        .catch(err => {
-          console.error('Auto logout check failed:', err);
-        });
-    }
-  }, [user]);
 
   return (
     <>
       <header className="bg-white shadow-md px-4 py-3 flex justify-between items-center z-30 relative">
-        {/* Left side */}
+        {/* Left: Hamburger & Institute Name */}
         <div className="flex items-center gap-3">
           <button className="md:hidden" onClick={toggleSidebar}>
             <MenuIcon />
           </button>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Welcome{username ? `, ${username}` : ''}
-            </h2>
-            {role && (
-              <p className="text-sm text-gray-500 capitalize">{role}</p>
-            )}
-          </div>
+          {/* Institute Name - clickable */}
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="font-bold text-lg text-blue-600 hover:underline focus:outline-none"
+          >
+            {instituteTitle}
+          </button>
         </div>
 
-        {/* Right side - Logout */}
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
-        >
-          Logout
-        </button>
+        {/* Right: User Menu Icon */}
+        <div className="relative">
+          <button
+            className="flex items-center gap-2 focus:outline-none"
+            onClick={() => setShowUserMenu((v) => !v)}
+          >
+            <AccountCircleIcon className="text-3xl text-blue-500" />
+          </button>
+          {/* User Dropdown Menu */}
+          {showUserMenu && (
+            <>
+              {/* Overlay (click outside to close) */}
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setShowUserMenu(false)}
+                aria-label="Overlay"
+              ></div>
+              {/* Dropdown */}
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 p-4">
+                <div className="mb-2">
+                  <div className="font-semibold text-gray-800">{username}</div>
+                  {role && (
+                    <div className="text-xs text-gray-500 capitalize">{role}</div>
+                  )}
+                </div>
+                <button
+                  onClick={logoutUser}
+                  className="w-full text-left px-4 py-2 rounded bg-red-50 hover:bg-red-100 text-red-600 font-medium mt-2"
+                >
+                  Logout
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </header>
-
-      {/* 🔒 Logout Confirmation Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Confirm Logout</h2>
-            <p className="text-sm text-gray-600 mb-6">Are you sure you want to log out?</p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={logoutUser}
-                className="px-4 py-1 rounded bg-red-500 hover:bg-red-600 text-white text-sm"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
