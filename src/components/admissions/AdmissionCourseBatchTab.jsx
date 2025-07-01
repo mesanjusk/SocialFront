@@ -14,7 +14,7 @@ const AdmissionCourseBatchTab = ({ form, handleChange, courses, educations, exam
       className="border p-2"
     >
       <option value="">-- Select Course --</option>
-      {courses.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+      {courses.map(c => <option key={c._id} value={c.uuid}>{c.name}</option>)}
     </select>
 
     <select value={form.batchTime} onChange={handleChange('batchTime')} className="border p-2">

@@ -13,6 +13,19 @@ const Leads = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const navigate = useNavigate();
   const { username } = useParams();
+  const [courses, setCourses] = useState([]);
+
+const fetchCourses = async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}/api/courses`, {
+      params: { institute_uuid: localStorage.getItem('institute_uuid') }
+    });
+    setCourses(Array.isArray(res.data) ? res.data : []);
+  } catch (err) {
+    console.error('Error fetching courses:', err);
+  }
+};
+
 
   const fetchLeads = async () => {
     try {
@@ -32,6 +45,7 @@ const Leads = () => {
 
   useEffect(() => {
     fetchLeads();
+    fetchCourses();
   }, []);
 
   const filteredLeads = leads.filter((lead) => {
@@ -48,6 +62,12 @@ const Leads = () => {
   const handleCall = (mobile) => {
     window.open(`tel:${mobile}`);
   };
+
+  const getCourseName = (uuid) => {
+  const course = courses.find(c => c.uuid === uuid);
+  return course?.name || 'Course N/A';
+};
+
 
   return (
     <div className="p-4">
@@ -91,7 +111,7 @@ const Leads = () => {
                   {lead.studentData?.firstName} {lead.studentData?.lastName}
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  {lead.course || 'Course N/A'}
+                  {getCourseName(lead.course)}
                 </p>
               </div>
 

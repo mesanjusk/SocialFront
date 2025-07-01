@@ -110,7 +110,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
           >
             <option value="">-- Select Course --</option>
             {courses.map((course) => (
-              <option key={course._id} value={course.name}>{course.name}</option>
+              <option key={course._id} value={course.uuid}>{course.name}</option>
             ))}
           </select>
           <input
