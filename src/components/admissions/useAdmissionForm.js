@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import BASE_URL from '../../config';
 
-const useAdmissionForm = (onClose, setTab) => {
+const useAdmissionForm = () => {
   const nextMonthDate = (() => {
     const d = new Date();
-    d.setMonth(d.getMonth() + 1);
+    d.setMonth(d.getMonth()  +1);
     return d.toISOString().substring(0, 10);
   })();
 
@@ -39,123 +43,97 @@ const useAdmissionForm = (onClose, setTab) => {
   };
 
   const [form, setForm] = useState(initialForm);
+  const [tab, setTab] = useState(0);
+  const [admissions, setAdmissions] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [installmentPlan, setInstallmentPlan] = useState([]);
+  const [search, setSearch] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [courses, setCourses] = useState([]);
   const [educations, setEducations] = useState([]);
   const [exams, setExams] = useState([]);
   const [batches, setBatches] = useState([]);
   const [paymentModes, setPaymentModes] = useState([]);
+  const [installmentPlan, setInstallmentPlan] = useState([]);
 
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
   const institute_uuid = localStorage.getItem('institute_uuid');
+  const [searchParams] = useSearchParams();
+  const lead_uuid = searchParams.get('lead_uuid');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [c, e, ex, b, p] = await Promise.all([
-          axios.get(`${BASE_URL}/api/courses`),
-          axios.get(`${BASE_URL}/api/education`),
-          axios.get(`${BASE_URL}/api/exams`),
-          axios.get(`${BASE_URL}/api/batches`),
-          axios.get(`${BASE_URL}/api/paymentmode`)
-        ]);
-        setCourses(c.data || []);
-        setEducations(e.data || []);
-        setExams(ex.data || []);
-        setBatches(b.data || []);
-        setPaymentModes(p.data || []);
-      } catch {
-        toast.error('Failed to load master data');
-      }
-    };
-    fetchData();
-  }, []);
-
-  const handleChange = (field) => (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    let updatedForm = { ...form, [field]: value };
-
-    if (field === 'admissionDate') {
-      const d = new Date(value);
-      d.setMonth(d.getMonth() + 1);
-      const nextMonth = d.toISOString().substring(0, 10);
-      const prevDefault = (() => {
-        const pd = new Date(form.admissionDate);
-        pd.setMonth(pd.getMonth() + 1);
-        return pd.toISOString().substring(0, 10);
-      })();
-      if (form.emiDate === prevDefault || form.emiDate === '') {
-        updatedForm.emiDate = nextMonth;
-      }
+  const fetchCourses = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/courses`);
+      setCourses(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      toast.error('Failed to load courses');
     }
-
-    if (field === 'course') {
-      const selectedCourse = courses.find(c => c.name === value || c.uuid === value);
-      const courseFee = Number(selectedCourse?.courseFees || 0);
-      const discount = Number(form.discount || 0);
-      const feePaid = Number(form.feePaid || 0);
-      const total = courseFee - discount;
-      const balance = total - feePaid;
-      updatedForm = { ...updatedForm, fees: courseFee, total, balance };
-    }
-
-    const fees = Number(field === 'fees' ? value : form.fees || 0);
-    const discount = Number(field === 'discount' ? value : form.discount || 0);
-    const feePaid = Number(field === 'feePaid' ? value : form.feePaid || 0);
-
-    if (['fees', 'discount', 'feePaid'].includes(field)) {
-      const total = fees - discount;
-      const balance = total - feePaid;
-      updatedForm = { ...updatedForm, fees, discount, feePaid, total, balance };
-    }
-
-    setForm(updatedForm);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!institute_uuid) return toast.error('Missing institute ID');
-
-    const mobileRegex = /^\d{10}$/;
-    if (form.mobileSelf && !mobileRegex.test(form.mobileSelf)) return toast.error('Enter valid self mobile number');
-    if (form.mobileParent && !mobileRegex.test(form.mobileParent)) return toast.error('Enter valid parent mobile number');
-
-    const fees = Number(form.fees || 0);
-    const discount = Number(form.discount || 0);
-    const feePaid = Number(form.feePaid || 0);
-    const total = fees - discount;
-    if (discount > fees) return toast.error('Discount cannot exceed fees');
-    if (feePaid > total) return toast.error('Fee paid cannot exceed total');
-
-    const payload = {
-      ...form,
-      institute_uuid,
-      type: 'admission',
-      fees,
-      discount,
-      total,
-      feePaid,
-      balance: Number(form.balance || 0),
-      emi: Number(form.emi || 0),
-      installmentPlan,
-    };
-
-    try {
-      if (editingId) {
-        await axios.put(`${BASE_URL}/api/record/${editingId}`, payload);
-        toast.success('Updated successfully');
-      } else {
-        await axios.post(`${BASE_URL}/api/record`, payload);
-        toast.success('Admission added');
+  useEffect(() => {
+    const fetchLeadData = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/leads/${lead_uuid}`);
+        const lead = res.data;
+        setForm(prev => ({
+          ...prev,
+          firstName: lead.studentData?.firstName || '',
+          lastName: lead.studentData?.lastName || '',
+          mobileSelf: lead.studentData?.mobileSelf || '',
+          address: lead.studentData?.address || '',
+          course: lead.studentData?.course || '',
+        }));
+        const selectedCourse = courses.find(c => c.name === lead.studentData?.course);
+        if (selectedCourse) {
+          const courseFee = Number(selectedCourse.courseFees || 0);
+          setForm(prev => ({
+            ...prev,
+            fees: courseFee,
+            total: courseFee,
+            balance: courseFee,
+          }));
+        }
+      } catch (err) {
+        console.error('Error fetching lead data:', err);
+        toast.error('Failed to load lead data');
       }
-      setForm(initialForm);
-      setEditingId(null);
-      setInstallmentPlan([]);
-      setTab(0);
-      onClose();
+    };
+    if (lead_uuid && courses.length > 0) fetchLeadData();
+  }, [lead_uuid, courses]);
+
+  const fetchEducations = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/education`);
+      setEducations(Array.isArray(res.data) ? res.data : []);
     } catch {
-      toast.error('Error saving admission');
+      toast.error('Failed to load education options');
+    }
+  };
+
+  const fetchExams = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/exams`);
+      setExams(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      toast.error('Failed to load exam events');
+    }
+  };
+
+  const fetchBatches = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/batches`);
+      setBatches(res.data || []);
+    } catch {
+      toast.error('Failed to load batches');
+    }
+  };
+
+  const fetchPaymentModes = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/paymentmode`);
+      setPaymentModes(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      toast.error('Failed to load payment modes');
     }
   };
 
@@ -165,42 +143,368 @@ const useAdmissionForm = (onClose, setTab) => {
     const discount = Number(form.discount || 0);
     const feePaid = Number(form.feePaid || 0);
     const bal = fees - discount - feePaid;
-
     if (!inst || inst <= 0 || bal <= 0) {
       setInstallmentPlan([]);
-      if (form.emi !== '') setForm(prev => ({ ...prev, emi: '' }));
+      if (form.emi !== '') {
+        setForm(prev => ({ ...prev, emi: '' }));
+      }
       return;
     }
-
     const emi = parseFloat((bal / inst).toFixed(2));
     const plan = [];
     let remaining = bal;
-    const start = form.emiDate ? new Date(form.emiDate) : (() => { const d = new Date(form.admissionDate); d.setMonth(d.getMonth() + 1); return d; })();
-
+    const start = form.emiDate ? new Date(form.emiDate) : (() => {
+      const d = new Date(form.admissionDate);
+      d.setMonth(d.getMonth()  +1);
+      return d;
+    })();
     for (let i = 0; i < inst; i++) {
       const due = new Date(start);
-      due.setMonth(due.getMonth() + i);
-      const amount = i + 1 === inst ? parseFloat(remaining.toFixed(2)) : emi;
+      due.setMonth(due.getMonth()  +i);
+      const amount = i  +1 === inst ? parseFloat(remaining.toFixed(2)) : emi;
       remaining = parseFloat((remaining - amount).toFixed(2));
-      plan.push({ installmentNo: i + 1, dueDate: due.toISOString().split('T')[0], amount });
+      plan.push({
+        installmentNo: i  +1,
+        dueDate: due.toISOString().split('T')[0],
+        amount,
+      });
     }
-
     setInstallmentPlan(plan);
-    if (form.emi !== emi) setForm(prev => ({ ...prev, emi }));
-  }, [form.installment, form.fees, form.discount, form.feePaid, form.admissionDate, form.emiDate]);
+    if (form.emi !== emi) {
+      setForm(prev => ({ ...prev, emi }));
+    }
+  }, [
+    form.installment,
+    form.fees,
+    form.discount,
+    form.feePaid,
+    form.admissionDate,
+    form.emiDate,
+  ]);
+
+  const fetchAdmissions = async () => {
+    if (!institute_uuid) return;
+    try {
+      const res = await axios.get(`${BASE_URL}/api/admissions`, {
+        params: { institute_uuid },
+      });
+      const { data } = res.data;
+      setAdmissions(Array.isArray(data) ? data : []);
+    } catch {
+      toast.error('Failed to fetch admissions');
+    }
+  };
+
+  const handleChange = (field) => (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    let updatedForm = { ...form, [field]: value };
+    if (field === 'admissionDate') {
+      const d = new Date(value);
+      d.setMonth(d.getMonth()  +1);
+      const nextMonth = d.toISOString().substring(0, 10);
+      const prevDefault = (() => {
+        const pd = new Date(form.admissionDate);
+        pd.setMonth(pd.getMonth()  +1);
+        return pd.toISOString().substring(0, 10);
+      })();
+      if (form.emiDate === prevDefault || form.emiDate === '') {
+        updatedForm.emiDate = nextMonth;
+      }
+    }
+    const fees = Number(field === 'fees' ? value : form.fees || 0);
+    const discount = Number(field === 'discount' ? value : form.discount || 0);
+    const feePaid = Number(field === 'feePaid' ? value : form.feePaid || 0);
+    if (['fees', 'discount', 'feePaid'].includes(field)) {
+      const total = fees - discount;
+      const balance = total - feePaid;
+      updatedForm.fees = fees;
+      updatedForm.discount = discount;
+      updatedForm.feePaid = feePaid;
+      updatedForm.total = total;
+      updatedForm.balance = balance;
+    }
+    setForm(updatedForm);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!institute_uuid) return toast.error('Missing institute ID');
+    const mobileRegex = /^\d{10}$/;
+    if (form.mobileSelf && !mobileRegex.test(form.mobileSelf)) return toast.error('Enter valid self mobile number');
+    if (form.mobileParent && !mobileRegex.test(form.mobileParent)) return toast.error('Enter valid parent mobile number');
+    const fees = Number(form.fees || 0);
+    const discount = Number(form.discount || 0);
+    const feePaid = Number(form.feePaid || 0);
+    const total = fees - discount;
+    const balance = total - feePaid;
+    if (discount > fees) return toast.error('Discount cannot exceed fees');
+    if (feePaid > total) return toast.error('Fee paid cannot exceed total');
+    try {
+      const studentPayload = {
+        institute_uuid,
+        firstName: form.firstName,
+        middleName: form.middleName,
+        lastName: form.lastName,
+        dob: form.dob,
+        gender: form.gender,
+        mobileSelf: form.mobileSelf,
+        mobileParent: form.mobileParent,
+        address: form.address,
+      };
+      let studentResponse;
+      if (editingId && form.student_uuid) {
+        studentResponse = await axios.put(`${BASE_URL}/api/students/${form.student_uuid}`, studentPayload);
+      } else {
+        studentResponse = await axios.post(`${BASE_URL}/api/students`, studentPayload);
+      }
+      const studentData = studentResponse.data.data;
+      const student_uuid = studentData.uuid || studentData._id;
+      const admissionPayload = {
+        institute_uuid,
+        student_uuid,
+        admissionDate: form.admissionDate,
+        course: form.course,
+        batchTime: form.batchTime,
+        examEvent: form.examEvent,
+        installment: form.installment,
+        fees,
+        discount,
+        total,
+        feePaid,
+        paidBy: form.paidBy,
+        balance,
+        createdBy: 'System',
+      };
+      let admissionResponse;
+      if (editingId) {
+        admissionResponse = await axios.put(`${BASE_URL}/api/admissions/${editingId}`, admissionPayload);
+        toast.success('Admission updated successfully');
+      } else {
+        admissionResponse = await axios.post(`${BASE_URL}/api/admissions`, admissionPayload);
+        toast.success('Admission added successfully');
+      }
+      const admissionData = admissionResponse.data.data;
+      const admission_uuid = admissionData.uuid;
+      const feesPayload = {
+        institute_uuid,
+        student_uuid,
+        admission_uuid,
+        fees,
+        discount,
+        total,
+        feePaid,
+        balance,
+        emi: Number(form.emi || 0),
+        installment: form.installment,
+        installmentPlan,
+        paidBy: form.paidBy,
+      };
+      await axios.post(`${BASE_URL}/api/fees`, feesPayload);
+      const leadPayload = {
+        institute_uuid,
+        student_uuid,
+        admission_uuid,
+        enquiryDate: form.admissionDate,
+        course: form.course,
+        referredBy: 'Self',
+        createdBy: 'System',
+        followups: [{
+          date: new Date().toISOString().substring(0, 10),
+          status: 'open',
+          remark: '',
+          createdBy: 'System',
+        }],
+      };
+      await axios.post(`${BASE_URL}/api/leads`, leadPayload);
+      const accountPayload = {
+        institute_uuid,
+        Account_name: `${form.firstName} ${form.lastName}`.trim(),
+        Account_group: 'ACCOUNT',
+        Mobile_number: form.mobileSelf,
+      };
+      await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
+      // ... after await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
+
+// Now, if feePaid > 0, post a transaction like receipt logic
+if (feePaid > 0 && form.paidBy) {
+  try {
+    // 1. Fetch all accounts (latest list)
+    const accountRes = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
+    const accList = accountRes.data.result || [];
+
+    // 2. Find student account (by name and mobile)
+    const studentAccount = accList.find(a =>
+      a.Account_name && a.Account_name.trim().toLowerCase() === `${form.firstName} ${form.lastName}`.trim().toLowerCase()
+      && a.Mobile_number === form.mobileSelf
+    );
+
+    if (!studentAccount) {
+      toast.error('Could not find account for receipt entry');
+    } else {
+      // 3. Find payment mode account (Cash, Bank, etc.)
+      const paymentAcc = accList.find(a => a.Account_name === form.paidBy);
+      const paymentAccountUuid = paymentAcc ? paymentAcc.Account_uuid || paymentAcc.uuid : form.paidBy; // fallback
+
+      // 4. Prepare journal
+      const journal = [
+        {
+          Account_id: studentAccount.Account_uuid || studentAccount.uuid,
+          Type: 'Debit',
+          Amount: Number(feePaid),
+        },
+        {
+          Account_id: paymentAccountUuid,
+          Type: 'Credit',
+          Amount: Number(feePaid),
+        }
+      ];
+
+      // 5. Prepare transaction payload
+      const txPayload = {
+        Description: `Admission Fees Received for ${form.firstName} ${form.lastName}`,
+        Total_Credit: Number(feePaid),
+        Total_Debit: Number(feePaid),
+        Payment_mode: form.paidBy,
+        Created_by: 'System',
+        Transaction_date: form.admissionDate,
+        Journal_entry: journal,
+        institute_uuid,
+      };
+
+      // 6. Save transaction
+      await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayload);
+    }
+  } catch (e) {
+    toast.error('Failed to create transaction entry for fees paid');
+    console.error('Transaction error:', e);
+  }
+}
+
+      toast.success('All records saved successfully');
+      setForm(initialForm);
+      setEditingId(null);
+      setTab(0);
+      setInstallmentPlan([]);
+      fetchAdmissions();
+    } catch (err) {
+      console.error('Error in handleSubmit:', err);
+      if (err.response) {
+        toast.error(`Server Error: ${err.response.data.message || err.response.statusText}`);
+      } else {
+        toast.error('Error saving admission');
+      }
+    }
+  };
+
+  
+  const handleEdit = (data) => {
+    const emiDate = data.emiDate || (() => {
+      const d = new Date(data.admissionDate);
+      d.setMonth(d.getMonth()  +1);
+      return d.toISOString().substring(0, 10);
+    })();
+    setForm({ ...data, emiDate });
+    setInstallmentPlan(data.installmentPlan || []);
+    setEditingId(data._id);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this admission?')) return;
+    try {
+      await axios.delete(`${BASE_URL}/api/admission/${id}`);
+      toast.success('Deleted');
+      fetchAdmissions();
+    } catch {
+      toast.error('Failed to delete');
+    }
+  };
+
+  const exportPDF = () => {
+    if (filteredAdmissions.length === 0) return toast.error('No data to export');
+    const doc = new jsPDF();
+    autoTable(doc, {
+      head: [[
+        'Name',
+        'Course',
+        'Mobile',
+        'Fees',
+        'Discount',
+        'Total',
+        'Paid',
+        'Balance',
+        'Admission Date',
+      ]],
+      body: filteredAdmissions.map((e) => [
+        `${e.firstName} ${e.lastName}`,
+        e.course,
+        e.mobileSelf,
+        e.fees,
+        e.discount,
+        e.total,
+        e.feePaid,
+        e.balance,
+        e.admissionDate,
+      ]),
+    });
+    doc.save('admissions.pdf');
+  };
+
+  const exportExcel = () => {
+    if (filteredAdmissions.length === 0) return toast.error('No data to export');
+    const worksheet = XLSX.utils.json_to_sheet(
+      filteredAdmissions.map((e) => ({
+        Name: `${e.firstName} ${e.lastName}`,
+        Course: e.course,
+        Mobile: e.mobileSelf,
+        Fees: e.fees,
+        Discount: e.discount,
+        Total: e.total,
+        Paid: e.feePaid,
+        Balance: e.balance,
+        AdmissionDate: e.admissionDate,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Admissions');
+    XLSX.writeFile(workbook, 'admissions.xlsx');
+  };
+
+  useEffect(() => {
+    fetchCourses();
+    fetchEducations();
+    fetchExams();
+    fetchBatches();
+    fetchPaymentModes();
+    fetchAdmissions();
+  }, []);
+
+  const filteredAdmissions = admissions.filter((e) => {
+    const matchSearch = e.firstName?.toLowerCase().includes(search.toLowerCase()) || e.mobileSelf?.includes(search);
+    const admissionDate = new Date(e.admissionDate);
+    const inDateRange = (!startDate || admissionDate >= new Date(startDate)) && (!endDate || admissionDate <= new Date(endDate));
+    return matchSearch && inDateRange;
+  });
 
   return {
     form,
-    handleChange,
-    handleSubmit,
-    installmentPlan,
+    setForm,
+    tab,
+    setTab,
     courses,
     educations,
     exams,
     batches,
     paymentModes,
+    installmentPlan,
     editingId,
     themeColor,
+    handleChange,
+    handleSubmit,
+    handleEdit,
+    handleDelete,
+    exportPDF,
+    exportExcel,
+    filteredAdmissions,
   };
 };
 

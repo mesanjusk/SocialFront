@@ -48,11 +48,15 @@ const fetchCourses = async () => {
     fetchCourses();
   }, []);
 
-  const filteredLeads = leads.filter((lead) => {
+ const filteredLeads = leads
+  // Exclude if lead has admission_uuid (or admissionId/other property)
+  .filter(lead => !lead.admission_uuid)
+  .filter((lead) => {
     const name = `${lead.studentData?.firstName || ''} ${lead.studentData?.lastName || ''}`.toLowerCase();
     const mobile = lead.studentData?.mobileSelf || '';
     return name.includes(search.toLowerCase()) || mobile.includes(search);
   });
+
 
   const handleWhatsApp = (mobile, name) => {
     const message = `Hello ${name}, I am contacting you regarding your enquiry.`;

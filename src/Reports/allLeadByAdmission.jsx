@@ -112,7 +112,7 @@ setLeads(leadsWithAdmission);
           className="border p-2 rounded w-full max-w-xs"
         />
         <button
-          onClick={() => navigate(`/${username}/addadmission`)}
+          onClick={() => navigate(`/${username}/addNewAdd`)}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           + New Admission

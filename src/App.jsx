@@ -23,6 +23,7 @@ import Leads from './Reports/Leads';
 import AllAdmission from './Reports/allAdmission';
 import AddLead from './pages/AddLead';
 import AddOld from './pages/oldaddAdmission';
+import AddNew from './components/admissions/AddAdmission';
 import Followup from './pages/Followup';
 import WhatsAppAdminPage from './pages/WhatsAppAdminPage';
 import AddReciept from './pages/addReciept';
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="allLeadByAdmission" element={<AllLeadByAdmission />} />
         <Route path="add-lead" element={<AddLead />} />
         <Route path="addadmission" element={<AddOld />} /> {/* ✅ Fixed */}
+        <Route path="addNewAdd" element={<AddNew />} /> {/* ✅ Fixed */}
         <Route path="addReciept" element={<AddReciept />} />
         <Route path="addPayment" element={<AddPayment />} />
         <Route path="addAccountgroup" element={<AddAccountGroup />} />
