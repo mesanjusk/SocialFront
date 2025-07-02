@@ -49,13 +49,21 @@ const fetchCourses = async () => {
   }, []);
 
  const filteredLeads = leads
-  // Exclude if lead has admission_uuid (or admissionId/other property)
-  .filter(lead => !lead.admission_uuid)
+  .filter((lead) => {
+    if (!Array.isArray(lead.followups) || lead.followups.length === 0) return false;
+    const latestFollowup = [...lead.followups].sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    )[0];
+    return latestFollowup?.status === 'follow-up';
+  })
   .filter((lead) => {
     const name = `${lead.studentData?.firstName || ''} ${lead.studentData?.lastName || ''}`.toLowerCase();
     const mobile = lead.studentData?.mobileSelf || '';
     return name.includes(search.toLowerCase()) || mobile.includes(search);
   });
+
+
+
 
 
   const handleWhatsApp = (mobile, name) => {

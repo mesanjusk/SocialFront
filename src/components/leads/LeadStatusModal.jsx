@@ -5,13 +5,19 @@ import BASE_URL from '../../config';
 import { useNavigate } from 'react-router-dom';
 
 const LeadStatusModal = ({ lead, onClose, refresh }) => {
-  const [status, setStatus] = useState(lead.leadStatus || 'open');
+  // Set default to "" so user must actively choose
+  const [status, setStatus] = useState(lead.leadStatus || '');
   const [remark, setRemark] = useState('');
   const [followUpDate, setFollowUpDate] = useState(new Date().toISOString().substring(0, 10));
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const updateStatus = async () => {
+    // Validation: must pick a status
+    if (!status) {
+      toast.error('Please select a status');
+      return;
+    }
     if (status === 'lost' && remark.trim() === '') {
       toast.error('Please provide a remark for lost status');
       return;
@@ -36,7 +42,7 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
   };
 
   const handleConvertToAdmission = () => {
-    window.open(`/addadmission?lead_uuid=${lead.uuid}`, '_blank');
+    window.open(`/admin/addNewAdd?lead_uuid=${lead.uuid}`, '_blank');
     onClose();
   };
 
@@ -51,8 +57,9 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             className="w-full border p-2 rounded"
+            required
           >
-            <option value="open">Open</option>
+            <option value="">Select Status</option>
             <option value="follow-up">Follow Up</option>
             <option value="converted">Converted</option>
             <option value="lost">Lost</option>

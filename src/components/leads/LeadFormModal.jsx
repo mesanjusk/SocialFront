@@ -16,7 +16,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
     referredBy: '',
     followups: [{
       date: new Date().toISOString().substring(0, 10),
-      status: 'open',
+      status: 'follow-up',
       remark: '',
       createdBy: 'System',
     }],

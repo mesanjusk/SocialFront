@@ -54,6 +54,8 @@ const useAdmissionForm = () => {
   const [exams, setExams] = useState([]);
   const [batches, setBatches] = useState([]);
   const [paymentModes, setPaymentModes] = useState([]);
+  const [leadData, setLeadData] = useState(null);
+
   const [installmentPlan, setInstallmentPlan] = useState([]);
 
   const themeColor = localStorage.getItem('theme_color') || '#10B981';
@@ -70,36 +72,33 @@ const useAdmissionForm = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchLeadData = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/leads/${lead_uuid}`);
-        const lead = res.data;
-        setForm(prev => ({
-          ...prev,
-          firstName: lead.studentData?.firstName || '',
-          lastName: lead.studentData?.lastName || '',
-          mobileSelf: lead.studentData?.mobileSelf || '',
-          address: lead.studentData?.address || '',
-          course: lead.studentData?.course || '',
-        }));
-        const selectedCourse = courses.find(c => c.name === lead.studentData?.course);
-        if (selectedCourse) {
-          const courseFee = Number(selectedCourse.courseFees || 0);
-          setForm(prev => ({
-            ...prev,
-            fees: courseFee,
-            total: courseFee,
-            balance: courseFee,
-          }));
-        }
-      } catch (err) {
-        console.error('Error fetching lead data:', err);
-        toast.error('Failed to load lead data');
-      }
+  // Fetch lead data if lead_uuid is present in the URL
+useEffect(() => {
+  if (!lead_uuid) return;
+  axios.get(`${BASE_URL}/api/leads/${lead_uuid}`)
+    .then(res => setLeadData(res.data))
+    .catch(() => toast.error('Failed to load lead data'));
+}, [lead_uuid]);
+// When both leadData and courses are loaded, prefill the form
+useEffect(() => {
+  if (!leadData || !courses.length) return;
+  setForm(prev => {
+    const selectedCourse = courses.find(c => c.name === leadData.studentData?.course);
+    const courseFee = selectedCourse ? Number(selectedCourse.courseFees || 0) : '';
+    return {
+      ...prev,
+      firstName: leadData.studentData?.firstName || '',
+      lastName: leadData.studentData?.lastName || '',
+      mobileSelf: leadData.studentData?.mobileSelf || '',
+      address: leadData.studentData?.address || '',
+      course: leadData.studentData?.course || '',
+      fees: courseFee,
+      total: courseFee,
+      balance: courseFee,
     };
-    if (lead_uuid && courses.length > 0) fetchLeadData();
-  }, [lead_uuid, courses]);
+  });
+}, [leadData, courses]);
+
 
   const fetchEducations = async () => {
     try {
@@ -325,60 +324,120 @@ const useAdmissionForm = () => {
       await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
       // ... after await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
 
-// Now, if feePaid > 0, post a transaction like receipt logic
+// After admission/account saving...
 if (feePaid > 0 && form.paidBy) {
   try {
     // 1. Fetch all accounts (latest list)
     const accountRes = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
     const accList = accountRes.data.result || [];
 
-    // 2. Find student account (by name and mobile)
-    const studentAccount = accList.find(a =>
+    // 2. Find or create student account (by name and mobile)
+    let studentAccount = accList.find(a =>
       a.Account_name && a.Account_name.trim().toLowerCase() === `${form.firstName} ${form.lastName}`.trim().toLowerCase()
       && a.Mobile_number === form.mobileSelf
     );
-
     if (!studentAccount) {
-      toast.error('Could not find account for receipt entry');
-    } else {
-      // 3. Find payment mode account (Cash, Bank, etc.)
-      const paymentAcc = accList.find(a => a.Account_name === form.paidBy);
-      const paymentAccountUuid = paymentAcc ? paymentAcc.Account_uuid || paymentAcc.uuid : form.paidBy; // fallback
+      const studentAccPayload = {
+        institute_uuid,
+        Account_name: `${form.firstName} ${form.lastName}`.trim(),
+        Account_group: 'ACCOUNT',
+        Mobile_number: form.mobileSelf,
+      };
+      const studentAccRes = await axios.post(`${BASE_URL}/api/account/addAccount`, studentAccPayload);
+      studentAccount = studentAccRes.data.result || studentAccRes.data;
+    }
 
-      // 4. Prepare journal
-      const journal = [
+    // Always lookup human-friendly course name
+let courseName = form.course;
+const courseObj = courses.find(c => c.uuid === form.course);
+if (courseObj) {
+  courseName = courseObj.name;
+}
+
+// Then find/create the account using courseName
+let feesReceivableAcc = accList.find(a => a.Account_name === courseName);
+if (!feesReceivableAcc) {
+  const receivableAccPayload = {
+    institute_uuid,
+    Account_name: courseName || 'Fees Receivable',
+    Account_group: 'RECEIVABLE',
+  };
+  const receivableAccRes = await axios.post(`${BASE_URL}/api/account/addAccount`, receivableAccPayload);
+  feesReceivableAcc = receivableAccRes.data.result || receivableAccRes.data;
+}
+
+
+    // 4. Find or create payment mode account (Cash, Bank, etc.)
+    let paymentAcc = accList.find(a => a.Account_name === form.paidBy);
+    if (!paymentAcc) {
+      const paymentAccPayload = {
+        institute_uuid,
+        Account_name: form.paidBy,
+        Account_group: 'BANK', // Or use 'CASH' etc as needed
+      };
+      const paymentAccRes = await axios.post(`${BASE_URL}/api/account/addAccount`, paymentAccPayload);
+      paymentAcc = paymentAccRes.data.result || paymentAccRes.data;
+    }
+
+    // === Transaction 1: Receipt Entry ===
+    const journalReceipt = [
+      {
+        Account_id: studentAccount.Account_uuid || studentAccount.uuid,
+        Type: 'Debit',
+        Amount: Number(feePaid),
+      },
+      {
+        Account_id: paymentAcc.Account_uuid || paymentAcc.uuid,
+        Type: 'Credit',
+        Amount: Number(feePaid),
+      }
+    ];
+    const txPayloadReceipt = {
+      Description: `Admission Fees Received for ${form.firstName} ${form.lastName}`,
+      Total_Credit: Number(feePaid),
+      Total_Debit: Number(feePaid),
+      Payment_mode: form.paidBy,
+      Created_by: 'System',
+      Transaction_date: form.admissionDate,
+      Journal_entry: journalReceipt,
+      institute_uuid,
+    };
+    await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayloadReceipt);
+
+    // === Transaction 2: Fees Receivable Entry ===
+    const amountReceivable = Number(form.fees) - Number(form.discount); // Amount expected after discount
+    if (amountReceivable > 0) {
+      const journalReceivable = [
         {
           Account_id: studentAccount.Account_uuid || studentAccount.uuid,
           Type: 'Debit',
-          Amount: Number(feePaid),
+          Amount: amountReceivable,
         },
         {
-          Account_id: paymentAccountUuid,
+          Account_id: feesReceivableAcc.Account_uuid || feesReceivableAcc.uuid,
           Type: 'Credit',
-          Amount: Number(feePaid),
+          Amount: amountReceivable,
         }
       ];
-
-      // 5. Prepare transaction payload
-      const txPayload = {
-        Description: `Admission Fees Received for ${form.firstName} ${form.lastName}`,
-        Total_Credit: Number(feePaid),
-        Total_Debit: Number(feePaid),
-        Payment_mode: form.paidBy,
+      const txPayloadReceivable = {
+        Description: `Fees Receivable for course: ${form.course}`,
+        Total_Credit: amountReceivable,
+        Total_Debit: amountReceivable,
+        Payment_mode: 'Fees Receivable',
         Created_by: 'System',
         Transaction_date: form.admissionDate,
-        Journal_entry: journal,
+        Journal_entry: journalReceivable,
         institute_uuid,
       };
-
-      // 6. Save transaction
-      await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayload);
+      await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayloadReceivable);
     }
   } catch (e) {
-    toast.error('Failed to create transaction entry for fees paid');
+    toast.error('Failed to create transaction entries for fees/receivable');
     console.error('Transaction error:', e);
   }
 }
+
+
 
       toast.success('All records saved successfully');
       setForm(initialForm);
