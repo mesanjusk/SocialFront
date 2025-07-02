@@ -70,7 +70,7 @@ const fetchCourses = async () => {
 
 
   return (
-    <div className="p-4">
+    <div className="p-2">
       <Toaster />
       {selectedLead && (
         <LeadStatusModal
@@ -79,26 +79,27 @@ const fetchCourses = async () => {
           refresh={fetchLeads}
         />
       )}
-      <div className="flex justify-between items-center mb-4 gap-2 flex-wrap sm:flex-nowrap">
+      <div className="flex items-center gap-2 mb-4 w-full">
+  <input
+    type="text"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    placeholder="Search by name or mobile"
+    className="border p-2 rounded flex-1 min-w-0"
+  />
+  <button
+    onClick={() => navigate(`/${username}/add-lead`)}
+    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
+    aria-label="Add Lead"
+  >
+    +
+  </button>
+</div>
 
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or mobile"
-          className="border p-2 rounded w-full max-w-xs"
-        />
-        <button
-          onClick={() => navigate(`/${username}/add-lead`)}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          + New Lead
-        </button>
-      </div>
       {loading && <div>Loading leads...</div>}
       {!loading && filteredLeads.length === 0 && <div>No leads found.</div>}
       {!loading && filteredLeads.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3">
 
           {filteredLeads.map((lead) => (
             <div

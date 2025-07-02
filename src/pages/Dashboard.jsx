@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = '/api/dashboard-stats'; // <-- Change this to your actual API
+const API_URL = '/api/dashboard-stats'; // Update as per your backend
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const instituteName =
-    JSON.parse(localStorage.getItem('institute'))?.institute_name ||
+
+  // Safe JSON parse for institute
+  let instituteObj = {};
+  try { instituteObj = JSON.parse(localStorage.getItem('institute')) || {}; } catch {}
+  const instituteName = instituteObj.institute_name ||
     localStorage.getItem('institute_title') ||
     'Your Institute';
+
   const expiryDateStr =
     localStorage.getItem('expiry_date') ||
     localStorage.getItem('trialExpiresAt');
@@ -121,13 +125,32 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-     
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-     
+        {/* Attendance Board */}
+        <div className="bg-white p-4 rounded-2xl shadow w-full md:w-2/3 mx-auto mt-4 mb-6">
+          <h2 className="text-xl font-bold mb-2 text-gray-800">Today's Attendance</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+            {(loading
+              ? fallbackStats.attendance
+              : (stats.attendance?.length ? stats.attendance : fallbackStats.attendance)
+            ).map((entry, idx) => (
+              <div
+                key={idx}
+                className={`flex justify-between items-center py-2 px-4 rounded ${
+                  entry.status === "Present"
+                    ? "bg-green-50 text-green-700"
+                    : "bg-red-50 text-red-700"
+                }`}
+              >
+                <span>{entry.name}</span>
+                <span className="font-semibold">{entry.status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* Dashboard Cards */}
         <main className="flex-1 p-4 bg-gray-50">
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-8">
+          <div className="grid grid-cols-3 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
               <div className="text-sm text-gray-400 mb-2">Total Students</div>
               <div className="text-3xl font-bold text-green-600">
@@ -154,8 +177,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-2xl shadow flex flex-col">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
+            <div className="bg-white p-4 rounded-2xl shadow flex flex-col">
               <div className="text-sm text-gray-400 mb-2">Today's Fees Collection</div>
               <div className="text-3xl font-bold text-green-700 mb-4">
                 {display(stats.feesToday, fallbackStats.feesToday, true)}
@@ -167,7 +190,7 @@ const Dashboard = () => {
                 View Details
               </button>
             </div>
-            <div className="bg-white p-6 rounded-2xl shadow flex flex-col">
+            <div className="bg-white p-4 rounded-2xl shadow flex flex-col">
               <div className="text-sm text-gray-400 mb-2">Today's Follow-up</div>
               <div className="text-3xl font-bold text-blue-700 mb-4">
                 {display(stats.followupToday, fallbackStats.followupToday)}
@@ -178,50 +201,6 @@ const Dashboard = () => {
               >
                 View Followups
               </button>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow flex flex-col">
-              <div className="text-sm text-gray-400 mb-2">Quick Actions</div>
-              <button
-                onClick={() => navigate('/admissions')}
-                className="w-full mb-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-              >
-                New Admission
-              </button>
-              <button
-                onClick={() => navigate('/enquiry')}
-                className="w-full mb-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
-              >
-                New Enquiry
-              </button>
-              <button
-                onClick={() => navigate('/students')}
-                className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-              >
-                View Students
-              </button>
-            </div>
-          </div>
-
-          {/* Attendance Board */}
-          <div className="bg-white p-6 rounded-2xl shadow w-full md:w-2/3 mx-auto">
-            <h2 className="text-xl font-bold mb-2 text-gray-800">Office Attendance Board</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {(loading
-                ? fallbackStats.attendance
-                : (stats.attendance?.length ? stats.attendance : fallbackStats.attendance)
-              ).map((entry, idx) => (
-                <div
-                  key={idx}
-                  className={`flex justify-between items-center py-2 px-4 rounded ${
-                    entry.status === "Present"
-                      ? "bg-green-50 text-green-700"
-                      : "bg-red-50 text-red-700"
-                  }`}
-                >
-                  <span>{entry.name}</span>
-                  <span className="font-semibold">{entry.status}</span>
-                </div>
-              ))}
             </div>
           </div>
         </main>
