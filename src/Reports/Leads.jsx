@@ -104,7 +104,7 @@ const fetchCourses = async () => {
           {filteredLeads.map((lead) => (
             <div
               key={lead.uuid}
-              className="border rounded-lg p-4 shadow hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+              className="border rounded-lg p-3 shadow hover:shadow-md transition cursor-pointer flex flex-col justify-between"
               onClick={() => setSelectedLead(lead)}
             >
               <div>
@@ -116,7 +116,7 @@ const fetchCourses = async () => {
                 </p>
               </div>
 
-              <div className="flex justify-end items-center gap-3 mt-4">
+              <div className="flex justify-end items-center gap-2 mt-2">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
