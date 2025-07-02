@@ -22,7 +22,7 @@ export default function DashboardLayout() {
       { onClick: ()=> navigate('/admin/addAdmission'), src: admission },
       { onClick: ()=> navigate('/admin/addReciept'), src: enquiry },
       { onClick: ()=> navigate('/admin/addPayment'), src: admission },
-      { onClick: ()=> navigate('/admin/addAccountgroup'), src: admission },
+      { onClick: ()=> navigate('/admin/addAttendance'), src: admission },
     ];
 
   return (

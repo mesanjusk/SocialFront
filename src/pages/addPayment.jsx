@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import BASE_URL from '../config';
 
 export default function AddPayment() {
     const navigate = useNavigate();
@@ -21,45 +22,38 @@ export default function AddPayment() {
     const [Customer_name, setCustomer_Name] = useState('');
     const [isDateChecked, setIsDateChecked] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+     const [paymentOptions, setPaymentOptions] = useState([]);
+     const institute_uuid = localStorage.getItem("institute_uuid");
 
-    useEffect(() => {
-        const userNameFromState = location.state?.id;
-        const logInUser = userNameFromState || localStorage.getItem('User_name');
+     useEffect(() => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user && user.name) setLoggedInUser(user.name);
+        }, []);
 
-        if (logInUser) {
-            setLoggedInUser(logInUser);
-        } else {
-            navigate("/login");
-        }
-    }, [location.state, navigate]);
-
-      useEffect(() => {
-            const group = localStorage.getItem("User_group");
-            setUserGroup(group);
-          }, []);
-    
-const handleFileChange = (e) => {
-  setSelectedImage(e.target.files[0]);
-};
-
-    useEffect(() => {
-        axios.get("/customer/GetCustomersList")
+         useEffect(() => {
+        axios.get(`${BASE_URL}/api/account/GetAccountList`)
             .then(res => {
                 if (res.data.success) {
                     setAllCustomerOptions(res.data.result);
-
-                    const accountOptions = res.data.result.filter(item => item.Customer_group === "Bank and Account");
-                    setAccountCustomerOptions(accountOptions);
+                    const options = res.data.result.filter(item => item.Account_group === "ACCOUNT");
+                    setAccountCustomerOptions(options);
                 }
-            })
-            .catch(err => {
-                console.error("Error fetching customer options:", err);
+            }).catch(err => {
+                alert("Error fetching accounts");
+                console.error(err);
             });
     }, []);
 
-    function addCustomer() {
-        navigate("/addCustomer");
-    }
+
+     useEffect(() => {
+            axios.get(`${BASE_URL}/api/paymentmode`)
+                .then(res => setPaymentOptions(res.data))
+                .catch(err => {
+                    alert("Error fetching payment modes");
+                    console.error(err);
+                });
+        }, []);
+
     const handleWhatsAppClick = async (e) => {
         e.preventDefault(); 
     
@@ -88,78 +82,74 @@ const handleFileChange = (e) => {
         }
     };
     async function submit(e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        if (!Amount || isNaN(Amount) || Amount <= 0) {
-            alert("Please enter a valid amount.");
+    if (!Amount || isNaN(Amount) || Amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    if (!CreditCustomer || !DebitCustomer) {
+        alert("Please select both a Credit and Debit customer.");
+        return;
+    }
+
+    try {
+        const creditCustomer = allCustomerOptions.find(option => option.Account_uuid === CreditCustomer);
+        const debitCustomer = paymentOptions.find(option => option.mode === DebitCustomer);
+        const todayDate = new Date().toISOString().split("T")[0];
+
+        if (!creditCustomer || !debitCustomer) {
+            alert("Please select valid customers.");
             return;
         }
 
-        if (!CreditCustomer || !DebitCustomer) {
-            alert("Please select both a Credit and Debit customer.");
-            return;
+        const journal = [
+            {
+                Account_id: debitCustomer.mode,  
+                Type: 'Debit',
+                Amount: Number(Amount),
+            },
+            {
+                Account_id: creditCustomer.Account_uuid,  
+                Type: 'Credit',
+                Amount: Number(Amount),
+            }
+        ];
+
+        const payload = {
+            Description,
+            Total_Credit: Number(Amount),
+            Total_Debit: Number(Amount),
+            Payment_mode: debitCustomer.mode,
+            Created_by: loggedInUser,
+            Transaction_date: Transaction_date || todayDate,
+            Journal_entry: journal,
+            institute_uuid
+        };
+
+        const response = await axios.post(`${BASE_URL}/api/transaction/addTransaction`, payload);
+
+        if (response.data.success) {
+            alert(response.data.message);
+            navigate("/home");
+        } else {
+            alert("Failed to add Transaction");
         }
 
-        try {
-            const creditCustomer = allCustomerOptions.find(option => option.Customer_uuid === CreditCustomer);
-            const debitCustomer = accountCustomerOptions.find(option => option.Customer_uuid === DebitCustomer);
-            const todayDate = new Date().toISOString().split("T")[0];
-
-            if (!creditCustomer || !debitCustomer) {
-                alert("Please select valid customers.");
-                return;
-            }
-
-            const journal = [
-                {
-                    Account_id: debitCustomer.Customer_uuid,  
-                    Type: 'Debit',
-                    Amount: Number(Amount),
-                },
-                {
-                    Account_id: creditCustomer.Customer_uuid,  
-                    Type: 'Credit',
-                    Amount: Number(Amount),
-                }
-            ];
-
-            const formData = new FormData();
-    formData.append('Description', Description);
-    formData.append('Total_Credit', Number(Amount));
-    formData.append('Total_Debit', Number(Amount));
-    formData.append('Payment_mode', debitCustomer.Customer_name);
-    formData.append('Created_by', loggedInUser);
-    formData.append('Transaction_date', Transaction_date || todayDate);
-    formData.append('Journal_entry', JSON.stringify(journal));
-
-    if (selectedImage) {
-        formData.append('image', selectedImage);
+        return {
+            name: creditCustomer.Account_name,
+            phone: creditCustomer.Mobile_number,
+            amount: Amount,
+            date: Transaction_date,
+            mode: debitCustomer.mode
+        };
+    } catch (e) {
+        console.error("Error adding Transaction:", e);
+        alert("Error occurred while submitting the form.");
     }
+}
 
-             const response = await axios.post("/transaction/addTransaction", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-            if (response.data.success) {
-                alert(response.data.message);
-                navigate("/home");
-            } else {
-                alert("Failed to add Transaction");
-            }
-            return {
-                name: creditCustomer.Customer_name,
-                phone: creditCustomer.Mobile_number,
-                amount: Amount,
-                date: Transaction_date,
-                mode: debitCustomer.Customer_name
-            };
-        } catch (e) {
-            console.error("Error adding Transaction:", e);
-            alert("Error occurred while submitting the form.");
-        }
-    }
     const sendMessageToAPI = async (name, phone, message) => {
         const payload = {
             mobile: phone,
@@ -210,7 +200,7 @@ const handleFileChange = (e) => {
 
         if (value) {
             const filtered = allCustomerOptions.filter(option =>
-                option.Customer_name.toLowerCase().includes(value.toLowerCase())
+                option.Account_name.toLowerCase().includes(value.toLowerCase())
             );
             setFilteredOptions(filtered);
             setShowOptions(true);
@@ -220,8 +210,8 @@ const handleFileChange = (e) => {
     };
 
     const handleOptionClick = (option) => {
-        setCustomer_Name(option.Customer_name);
-        setCreditCustomer(option.Customer_uuid); 
+        setCustomer_Name(option.Account_name);
+        setCreditCustomer(option.Account_uuid); 
         setShowOptions(false);
     };
 
@@ -239,6 +229,17 @@ const handleFileChange = (e) => {
                 <h2>Add Payment</h2>
 
                 <form onSubmit={submit}>
+                     <div className="mb-3">
+                            <label htmlFor="date"><strong>Date</strong></label>
+                            <input
+                                type="date"
+                                id="date"
+                                autoComplete="off"
+                                onChange={(e) => setTransaction_date(e.target.value)}
+                                value={Transaction_date}
+                                className="form-control rounded-0"
+                            />
+                       </div>
                     <div className="mb-3 position-relative">
                         <input
                             type="text"
@@ -256,27 +257,11 @@ const handleFileChange = (e) => {
                                         className="list-group-item list-group-item-action"
                                         onClick={() => handleOptionClick(option)}
                                     >
-                                        {option.Customer_name}
+                                        {option.Account_name}
                                     </li>
                                 ))}
                             </ul>
                         )}
-                    </div>
-
-                    <button onClick={addCustomer} type="button" className="btn btn-primary mb-3">
-                        Add Customer
-                    </button>
-
-                    <div className="mb-3">
-                        <label htmlFor="remark"><strong>Description</strong></label>
-                        <input
-                            type="text"
-                            autoComplete="off"
-                            onChange={(e) => setDescription(e.target.value)}
-                            value={Description}
-                            placeholder="Description"
-                            className="form-control rounded-0"
-                        />
                     </div>
 
                     <div className="mb-3">
@@ -300,44 +285,26 @@ const handleFileChange = (e) => {
                             required
                         >
                             <option value="">Select Payment</option>
-                            {accountCustomerOptions.map((customer, index) => (
-                                <option key={index} value={customer.Customer_uuid}>
-                                    {customer.Customer_name}
+                            {paymentOptions.map((customer, index) => (
+                                <option key={index} value={customer.mode}>
+                                    {customer.mode}
                                 </option>
                             ))}
                         </select>
                     </div>
-                    <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="w-full p-2 border border-gray-300 rounded-md"
-        />
-                    <div className="mb-3 ">
+                   
+                 <div className="mb-3">
+                        <label htmlFor="remark"><strong>Description</strong></label>
                         <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id="dateCheckbox"
-                            checked={isDateChecked}
-                            onChange={handleDateCheckboxChange}
+                            type="text"
+                            autoComplete="off"
+                            onChange={(e) => setDescription(e.target.value)}
+                            value={Description}
+                            placeholder="Description"
+                            className="form-control rounded-0"
                         />
-                        <label className="form-check-label" htmlFor="dateCheckbox">
-                            Save Date 
-                        </label>
                     </div>
-                    {isDateChecked && (
-                        <div className="mb-3">
-                            <label htmlFor="date"><strong>Date</strong></label>
-                            <input
-                                type="date"
-                                id="date"
-                                autoComplete="off"
-                                onChange={(e) => setTransaction_date(e.target.value)}
-                                value={Transaction_date}
-                                className="form-control rounded-0"
-                            />
-                       </div>
-                    )}
+
                     <button type="submit" className="w-100 h-10 bg-green-500 text-white shadow-lg flex items-center justify-center">
                         Submit
                     </button><br />

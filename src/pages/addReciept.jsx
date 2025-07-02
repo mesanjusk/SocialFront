@@ -21,6 +21,8 @@ export default function AddReceipt() {
     const [filteredOptions, setFilteredOptions] = useState([]);
     const [customerName, setCustomerName] = useState('');
     const [isDateChecked, setIsDateChecked] = useState(false);
+    const institute_uuid = localStorage.getItem("institute_uuid");
+
 
     // --- Load user from localStorage ---
     useEffect(() => {
@@ -97,14 +99,7 @@ export default function AddReceipt() {
             const Group = paymentOptions.find(option => option.mode === group);
             const todayDate = new Date().toISOString().split("T")[0];
 
-            // Fetch admission by student uuid
-            const admissionRes = await axios.get(`${BASE_URL}/api/admissions/by-student/${student?.student_uuid}`);
-            const admissionData = admissionRes.data;
-            if (!admissionData.success || !admissionData.admission) {
-                alert("Admission not found for selected student.");
-                return;
-            }
-
+          
             // Journal entry
             const journal = [
                 {
@@ -128,7 +123,7 @@ export default function AddReceipt() {
                 Created_by: loggedInUser,
                 Transaction_date: transactionDate || todayDate,
                 Journal_entry: journal,
-                Admission_uuid: admissionData.admission.uuid,
+                institute_uuid,
             };
 
             // Save to backend
@@ -146,11 +141,7 @@ export default function AddReceipt() {
         }
     }
 
-    // --- Date Checkbox Change ---
-    const handleDateCheckboxChange = () => {
-        setIsDateChecked(prev => !prev);
-        setTransactionDate('');
-    };
+   
 
     // --- Amount Input Change ---
     const handleAmountChange = (e) => {
@@ -169,6 +160,16 @@ export default function AddReceipt() {
             <div className="bg-white p-3 rounded w-90">
                 <h2>Add Receipt</h2>
                 <form onSubmit={submit}>
+                    <div className="mb-3">
+                            <label><strong>Date</strong></label>
+                            <input
+                                type="date"
+                                autoComplete="off"
+                                onChange={e => setTransactionDate(e.target.value)}
+                                value={transactionDate}
+                                className="form-control rounded-0"
+                            />
+                        </div>
                     <div className="mb-3 position-relative">
                         <input
                             type="text"
@@ -193,17 +194,7 @@ export default function AddReceipt() {
                         )}
                     </div>
                     {/* --- REMOVED: Add Account Button --- */}
-                    <div className="mb-3">
-                        <label><strong>Description</strong></label>
-                        <input
-                            type="text"
-                            autoComplete="off"
-                            onChange={e => setDescription(e.target.value)}
-                            value={description}
-                            placeholder="Description"
-                            className="form-control rounded-0"
-                        />
-                    </div>
+                    
                     <div className="mb-3">
                         <label><strong>Amount</strong></label>
                         <input
@@ -231,30 +222,17 @@ export default function AddReceipt() {
                             ))}
                         </select>
                     </div>
-                    <div className="mb-3">
+                  <div className="mb-3">
+                        <label><strong>Description</strong></label>
                         <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id="dateCheckbox"
-                            checked={isDateChecked}
-                            onChange={handleDateCheckboxChange}
+                            type="text"
+                            autoComplete="off"
+                            onChange={e => setDescription(e.target.value)}
+                            value={description}
+                            placeholder="Description"
+                            className="form-control rounded-0"
                         />
-                        <label className="form-check-label" htmlFor="dateCheckbox">
-                            Save Date
-                        </label>
                     </div>
-                    {isDateChecked && (
-                        <div className="mb-3">
-                            <label><strong>Date</strong></label>
-                            <input
-                                type="date"
-                                autoComplete="off"
-                                onChange={e => setTransactionDate(e.target.value)}
-                                value={transactionDate}
-                                className="form-control rounded-0"
-                            />
-                        </div>
-                    )}
                     <button type="submit" className="btn btn-success w-100">
                         Submit
                     </button>
