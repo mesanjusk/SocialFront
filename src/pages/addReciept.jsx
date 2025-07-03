@@ -74,7 +74,7 @@ export default function AddReceipt() {
     // --- Account Option Select ---
     const handleOptionClick = (option) => {
         setCustomerName(option.Account_name);
-        setAccounts(option.Account_uuid);
+        setAccounts(option.uuid);
         setStudent(option);
         setShowOptions(false);
         setFilteredOptions([]); // Clear dropdown after select
@@ -88,6 +88,7 @@ export default function AddReceipt() {
             alert("Please enter a valid amount.");
             return;
         }
+        
         if (!accounts || !group) {
             alert("Select both account and payment mode.");
             return;
@@ -149,32 +150,50 @@ export default function AddReceipt() {
         setAmount(value);
     };
 
-    // --- Close Modal/Go Back ---
-    const closeModal = () => {
-        navigate("/home");
-    };
+   async function handleWhatsAppClick(e) {
+    e.preventDefault();
+    const info = await handleSubmit(e, { forWhatsApp: true });
+    if (!info) return;
+    const { name, phone, amount, date, mode } = info;
+    if (!phone) return alert("No customer phone number.");
+
+    const message = `Hello ${name}, we have received your payment of ₹${amount} on ${date} via ${mode}. Thank you!`;
+    if (!window.confirm(`Send WhatsApp message?\n\n${message}`)) return;
+
+    try {
+      await fetch('https://misbackend-e078.onrender.com/usertask/send-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: phone, userName: name, type: 'customer', message }),
+      });
+      alert("Message sent!");
+      navigate("/home");
+    } catch {
+      alert("Failed to send WhatsApp message.");
+    }
+  }
+
 
     // --- Render ---
     return (
-        <div className="d-flex justify-content-center align-items-center bg-secondary vh-100">
-            <div className="bg-white p-3 rounded w-90">
-                <h2>Add Receipt</h2>
+        <div className="flex justify-center items-center bg-secondary min-h-screen">
+            <div className="bg-white p-6 rounded shadow w-full max-w-md">
+                <h2 className="text-xl font-semibold mb-4">Add Receipt</h2>
                 <form onSubmit={submit}>
-                    <div className="mb-3">
-                            <label><strong>Date</strong></label>
+                    
+                            <label className="block mb-2">Date</label>
                             <input
                                 type="date"
-                                autoComplete="off"
                                 onChange={e => setTransactionDate(e.target.value)}
                                 value={transactionDate}
-                                className="form-control rounded-0"
+                                className="form-control mb-3"
                             />
-                        </div>
-                    <div className="mb-3 position-relative">
+                    
+                    <label className="block mb-2">Customer</label>
                         <input
                             type="text"
-                            placeholder="Search by Name"
-                            className="form-control mb-3"
+                            placeholder="Search customer"
+                            className="form-control mb-1"
                             value={customerName}
                             onChange={handleInputChange}
                             onFocus={() => setShowOptions(true)}
@@ -192,24 +211,24 @@ export default function AddReceipt() {
                                 ))}
                             </ul>
                         )}
-                    </div>
+                    
                     {/* --- REMOVED: Add Account Button --- */}
                     
-                    <div className="mb-3">
-                        <label><strong>Amount</strong></label>
+                    
+                       <label className="block mb-2">Amount</label>
                         <input
-                            type="text"
-                            autoComplete="off"
+                            type="number"
                             onChange={handleAmountChange}
                             value={amount}
                             placeholder="Amount"
-                            className="form-control rounded-0"
+                            className="form-control mb-3"
+                             min="0"
+                             required
                         />
-                    </div>
-                    <div className="mb-3 position-relative">
-                        <label><strong>Mode</strong></label>
+                                   
+                        <label className="block mb-2">Payment Mode</label>
                         <select
-                            className="form-control rounded-0"
+                            className="form-control mb-3"
                             onChange={e => setGroup(e.target.value)}
                             value={group}
                             required
@@ -221,24 +240,24 @@ export default function AddReceipt() {
                                 </option>
                             ))}
                         </select>
-                    </div>
-                  <div className="mb-3">
-                        <label><strong>Description</strong></label>
+                    
+                 <label className="block mb-2">Description</label>
                         <input
                             type="text"
-                            autoComplete="off"
                             onChange={e => setDescription(e.target.value)}
                             value={description}
                             placeholder="Description"
-                            className="form-control rounded-0"
+                            className="form-control mb-4"
                         />
-                    </div>
-                    <button type="submit" className="btn btn-success w-100">
+                   
+                    <button type="submit" className="w-full py-2 mb-2 bg-green-600 text-white rounded">
                         Submit
                     </button>
-                    <br />
+                    <button type="button" className="w-full py-2 mb-2 bg-green-500 text-white rounded" onClick={handleWhatsAppClick}>
+                        WhatsApp
+                    </button>
                     {/* --- REMOVED: WhatsApp Button --- */}
-                    <button type="button" className="btn btn-danger w-100 mt-2" onClick={closeModal}>
+                    <button type="button" className="w-full py-2 bg-red-500 text-white rounded" onClick={() => navigate("/home")}>
                         Close
                     </button>
                 </form>

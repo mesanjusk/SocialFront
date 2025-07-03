@@ -57,34 +57,61 @@ const User = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const orgId = institute?.institute_uuid;
-    if (!orgId) {
-      toast.error('Institute ID missing.');
-      return;
-    }
+  e.preventDefault();
+  const orgId = institute?.institute_uuid;
+  if (!orgId) {
+    toast.error('Institute ID missing.');
+    return;
+  }
 
-    const dataToSend = { ...form, institute_uuid: orgId };
+  const dataToSend = { ...form, institute_uuid: orgId };
 
-    try {
-      if (editingId) {
-        await axios.put(`${BASE_URL}/api/auth/${editingId}`, dataToSend);
-        toast.success('User updated');
+  try {
+    if (editingId) {
+      await axios.put(`${BASE_URL}/api/auth/${editingId}`, dataToSend);
+      toast.success('User updated');
+    } else {
+      // Step 1: Register user
+      const res = await axios.post(`${BASE_URL}/api/auth/register`, dataToSend);
+
+      if (res.data === 'exist') {
+        toast.error('User already exists');
+        return;
+      } else if (res.data === 'notexist') {
+        toast.success('User added');
+
+        // ✅ Step 2: Get "ACCOUNT" group UUID
+        const groupRes = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
+        const accountGroup = groupRes.data.result.find(g => g.Account_group === "ACCOUNT");
+
+        if (!accountGroup) {
+          toast.error('ACCOUNT group not found');
+          return;
+        }
+
+        // ✅ Step 3: Create account linked to this user
+        await axios.post(`${BASE_URL}/api/account/addAccount`, {
+          Account_name: form.name,
+          Mobile_number: form.mobile,
+          Account_group: accountGroup.Account_group_uuid,
+          institute_uuid: orgId
+        });
+
+        toast.success('Account also created');
       } else {
-        const res = await axios.post(`${BASE_URL}/api/auth/register`, dataToSend);
-        if (res.data === 'exist') toast.error('User already exists');
-        else if (res.data === 'notexist') toast.success('User added');
-        else toast.error('Unexpected error');
+        toast.error('Unexpected user registration response');
+        return;
       }
-
-      setShowModal(false);
-      resetForm();
-      fetchUsers();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to submit');
     }
-  };
+
+    setShowModal(false);
+    resetForm();
+    fetchUsers();
+  } catch (error) {
+    console.error(error);
+    toast.error('Failed to submit');
+  }
+};
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this User?')) return;

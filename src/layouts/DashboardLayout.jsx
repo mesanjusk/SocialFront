@@ -23,6 +23,7 @@ export default function DashboardLayout() {
       { onClick: ()=> navigate('/admin/addReciept'), src: enquiry },
       { onClick: ()=> navigate('/admin/addPayment'), src: admission },
       { onClick: ()=> navigate('/admin/addAttendance'), src: admission },
+      { onClick: ()=> navigate('/admin/addAccount'), src: enquiry },
     ];
 
   return (

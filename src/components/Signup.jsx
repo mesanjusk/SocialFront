@@ -109,6 +109,26 @@ const Signup = () => {
 
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#10B981');
 
+         try {
+    const groupRes = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
+    const accountGroup = groupRes.data.result.find(g => g.Account_group === "ACCOUNT");
+
+    if (accountGroup) {
+      await axios.post(`${BASE_URL}/api/account/addAccount`, {
+        Account_name: form.institute_title,
+        Mobile_number: form.institute_call_number,
+        Account_group: accountGroup.Account_group_uuid,
+        institute_uuid: data.institute_uuid
+      });
+      toast.success("Institute account created");
+    } else {
+      toast.error("ACCOUNT group not found");
+    }
+  } catch (err) {
+    console.error("Error creating institute account:", err);
+    toast.error("Failed to create institute account");
+  }
+
         if (window.updateAppContext) {
           window.updateAppContext({
             user: JSON.parse(localStorage.getItem('user')),

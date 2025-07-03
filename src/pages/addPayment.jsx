@@ -40,37 +40,34 @@ export default function AddPayment() {
   }, []);
 
   // Update customer options as user types (do not touch creditAccount here!)
-  useEffect(() => {
-    if (customerSearch) {
-      const opts = allAccounts.filter(a =>
-        a.Account_group === "ACCOUNT" &&
-        a.Account_name?.toLowerCase().includes(customerSearch.toLowerCase())
-      );
-      setCustomerOptions(opts);
-      setShowCustomerList(true);
+ useEffect(() => {
+  if (customerSearch) {
+    const opts = allAccounts.filter(a =>
+      a.Account_group === "ACCOUNT" &&
+      a.Account_name?.toLowerCase().includes(customerSearch.toLowerCase())
+    );
+    setCustomerOptions(opts);
+    setShowCustomerList(true);
+    // ❌ Don't reset creditAccount here!
+  } else {
+    setCustomerOptions([]);
+    setShowCustomerList(false);
+    setCreditAccount('');
+    lastSelectedCustomerName.current = '';
+  }
+}, [customerSearch, allAccounts]);
 
-      // If user types or edits, and it does not match last selected, clear selection
-      if (customerSearch !== lastSelectedCustomerName.current) {
-        setCreditAccount('');
-      }
-    } else {
-      setCustomerOptions([]);
-      setShowCustomerList(false);
-      setCreditAccount('');
-      lastSelectedCustomerName.current = '';
-    }
-  }, [customerSearch, allAccounts]);
 
-  // Is customer selection valid?
-  const selectedCustomer = allAccounts.find(a => a.Account_uuid === creditAccount);
-  const isValidCustomer = !!creditAccount;
+// ✅ Validate customer selection
+const selectedCustomer = allAccounts.find(a => a.uuid === creditAccount);
+const isValidCustomer = !!selectedCustomer;
 
   const isValidPaymentMode = !!debitAccount;
 
   // Mouse or Enter selects customer, stores name for validation
   function handleCustomerPick(account) {
     setCustomerSearch(account.Account_name);
-    setCreditAccount(account.Account_uuid);
+    setCreditAccount(account.uuid);
     setShowCustomerList(false);
     lastSelectedCustomerName.current = account.Account_name;
   }
@@ -174,25 +171,30 @@ export default function AddPayment() {
 
           <label className="block mb-2">Customer</label>
           <input
-            type="text"
-            className="form-control mb-1"
-            value={customerSearch}
-            placeholder="Search customer"
-            onChange={e => setCustomerSearch(e.target.value)}
-            onFocus={() => setShowCustomerList(true)}
-            onKeyDown={handleCustomerInputKeyDown}
-            autoComplete="off"
-          />
-          {showCustomerList && customerOptions.length > 0 &&
-            <ul className="list-group mb-2 max-h-40 overflow-y-auto z-10 position-absolute bg-white border w-full">
-              {customerOptions.map(opt =>
-                <li key={opt.Account_uuid} className="list-group-item cursor-pointer"
-                  onClick={() => handleCustomerPick(opt)}>
-                  {opt.Account_name}
-                </li>
-              )}
-            </ul>
-          }
+  type="text"
+  className="form-control mb-1"
+  value={customerSearch}
+  placeholder="Search customer"
+  onChange={e => setCustomerSearch(e.target.value)}
+  onFocus={() => {
+    if (!isValidCustomer) setShowCustomerList(true);
+  }}
+  onKeyDown={handleCustomerInputKeyDown}
+  autoComplete="off"
+  disabled={isValidCustomer}
+/>
+
+        {showCustomerList && !isValidCustomer && customerOptions.length > 0 && (
+  <ul className="list-group mb-2 max-h-40 overflow-y-auto z-10 position-absolute bg-white border w-full">
+    {customerOptions.map(opt =>
+      <li key={opt.uuid} className="list-group-item cursor-pointer"
+        onClick={() => handleCustomerPick(opt)}>
+        {opt.Account_name}
+      </li>
+    )}
+  </ul>
+)}
+
           {/* Only show if user has typed and not picked from list */}
           {customerSearch && !isValidCustomer && (
             <div className="text-red-600 text-sm mb-2">

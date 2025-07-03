@@ -32,6 +32,7 @@ import AllLeadByAdmission from './Reports/allLeadByAdmission';
 import AddAttendance from './pages/AddAttendance';
 import AllAttendance from './Reports/allAttendance';
 import AllBalance from './Reports/allBalance'; // <-- ✅ NEW PAGE
+import AddAccount from './pages/AddAccount';
 
 export default function App() {
   return (
@@ -65,7 +66,7 @@ export default function App() {
         <Route path="addNewAdd" element={<AddNew />} />
         <Route path="addReciept" element={<AddReciept />} />
         <Route path="addPayment" element={<AddPayment />} />
-        <Route path="addAccountgroup" element={<AddAccountGroup />} />
+        <Route path="addAccount" element={<AddAccount />} />
         <Route path="followup" element={<Followup />} />
         <Route path="addAttendance" element={<AddAttendance />} />
         <Route path="allAttendance" element={<AllAttendance />} />
