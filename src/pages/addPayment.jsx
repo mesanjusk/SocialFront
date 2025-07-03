@@ -1,319 +1,249 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import BASE_URL from '../config';
 
 export default function AddPayment() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState('');
+  const [transactionDate, setTransactionDate] = useState('');
+  const [creditAccount, setCreditAccount] = useState('');
+  const [debitAccount, setDebitAccount] = useState('');
+  const [allAccounts, setAllAccounts] = useState([]);
+  const [paymentModes, setPaymentModes] = useState([]);
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [customerOptions, setCustomerOptions] = useState([]);
+  const [showCustomerList, setShowCustomerList] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState('');
+  const institute_uuid = localStorage.getItem("institute_uuid");
+  const [loading, setLoading] = useState(false);
 
-    const [Description, setDescription] = useState('');
-    const [Amount, setAmount] = useState('');
-    const [Total_Debit, setTotal_Debit] = useState('');
-     const [Transaction_date, setTransaction_date] = useState('');
-    const [userGroup, setUserGroup] = useState("");
-    const [Total_Credit, setTotal_Credit] = useState('');
-    const [CreditCustomer, setCreditCustomer] = useState(''); 
-    const [DebitCustomer, setDebitCustomer] = useState(''); 
-    const [allCustomerOptions, setAllCustomerOptions] = useState([]); 
-    const [accountCustomerOptions, setAccountCustomerOptions] = useState([]); 
-    const [loggedInUser, setLoggedInUser] = useState('');
-    const [showOptions, setShowOptions] = useState(false);
-    const [filteredOptions, setFilteredOptions] = useState([]);
-    const [Customer_name, setCustomer_Name] = useState('');
-    const [isDateChecked, setIsDateChecked] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-     const [paymentOptions, setPaymentOptions] = useState([]);
-     const institute_uuid = localStorage.getItem("institute_uuid");
+  // Keep track of last selected customer name for validation
+  const lastSelectedCustomerName = useRef('');
 
-     useEffect(() => {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (user && user.name) setLoggedInUser(user.name);
-        }, []);
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.name) setLoggedInUser(user.name);
+  }, []);
 
-         useEffect(() => {
-        axios.get(`${BASE_URL}/api/account/GetAccountList`)
-            .then(res => {
-                if (res.data.success) {
-                    setAllCustomerOptions(res.data.result);
-                    const options = res.data.result.filter(item => item.Account_group === "ACCOUNT");
-                    setAccountCustomerOptions(options);
-                }
-            }).catch(err => {
-                alert("Error fetching accounts");
-                console.error(err);
-            });
-    }, []);
+  useEffect(() => {
+    axios.get(`${BASE_URL}/api/account/GetAccountList`)
+      .then(res => {
+        if (res.data.success) setAllAccounts(res.data.result || []);
+      });
+  }, []);
 
+  useEffect(() => {
+    axios.get(`${BASE_URL}/api/paymentmode`)
+      .then(res => setPaymentModes(res.data));
+  }, []);
 
-     useEffect(() => {
-            axios.get(`${BASE_URL}/api/paymentmode`)
-                .then(res => setPaymentOptions(res.data))
-                .catch(err => {
-                    alert("Error fetching payment modes");
-                    console.error(err);
-                });
-        }, []);
+  // Update customer options as user types (do not touch creditAccount here!)
+  useEffect(() => {
+    if (customerSearch) {
+      const opts = allAccounts.filter(a =>
+        a.Account_group === "ACCOUNT" &&
+        a.Account_name?.toLowerCase().includes(customerSearch.toLowerCase())
+      );
+      setCustomerOptions(opts);
+      setShowCustomerList(true);
 
-    const handleWhatsAppClick = async (e) => {
-        e.preventDefault(); 
-    
-        try {
-            const whatsappInfo = await submit(e);  
-            if (!whatsappInfo) return;
-    
-            const { name, phone, amount, date, mode } = whatsappInfo;
-    
-            if (!phone) {
-                alert("Customer phone number is missing.");
-                return;
-            }
-    
-            const message = `Hello ${name}, we have received your payment of ₹${amount} on ${date} via ${mode}. Thank you!`;
-    
-            const confirmed = window.confirm(`Send WhatsApp message to ${name}?\n\n"${message}"`);
-            if (!confirmed) return;
-    
-            await sendMessageToAPI(name, phone, message);
-    
-            navigate("/home");
-    
-        } catch (error) {
-            console.error("Failed to process WhatsApp order flow:", error);
-        }
-    };
-    async function submit(e) {
+      // If user types or edits, and it does not match last selected, clear selection
+      if (customerSearch !== lastSelectedCustomerName.current) {
+        setCreditAccount('');
+      }
+    } else {
+      setCustomerOptions([]);
+      setShowCustomerList(false);
+      setCreditAccount('');
+      lastSelectedCustomerName.current = '';
+    }
+  }, [customerSearch, allAccounts]);
+
+  // Is customer selection valid?
+  const selectedCustomer = allAccounts.find(a => a.Account_uuid === creditAccount);
+  const isValidCustomer = !!creditAccount;
+
+  const isValidPaymentMode = !!debitAccount;
+
+  // Mouse or Enter selects customer, stores name for validation
+  function handleCustomerPick(account) {
+    setCustomerSearch(account.Account_name);
+    setCreditAccount(account.Account_uuid);
+    setShowCustomerList(false);
+    lastSelectedCustomerName.current = account.Account_name;
+  }
+
+  // Allow Enter key to select first customer if list visible
+  function handleCustomerInputKeyDown(e) {
+    if (e.key === "Enter" && customerOptions.length === 1) {
+      e.preventDefault();
+      handleCustomerPick(customerOptions[0]);
+    }
+  }
+
+  async function handleSubmit(e, { forWhatsApp = false } = {}) {
     e.preventDefault();
 
-    if (!Amount || isNaN(Amount) || Amount <= 0) {
-        alert("Please enter a valid amount.");
-        return;
-    }
+    if (!amount || isNaN(amount) || Number(amount) <= 0) return alert("Enter valid amount");
+    if (!isValidCustomer) return alert("Please select a customer from the list.");
+    if (!isValidPaymentMode) return alert("Select payment mode.");
 
-    if (!CreditCustomer || !DebitCustomer) {
-        alert("Please select both a Credit and Debit customer.");
-        return;
+    const customer = selectedCustomer;
+    const paymentMode = paymentModes.find(m => m.mode === debitAccount);
+    if (!customer || !paymentMode) return alert("Invalid customer or payment mode");
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    const journal = [
+      { Account_id: debitAccount, Type: 'Debit', Amount: Number(amount) },
+      { Account_id: creditAccount, Type: 'Credit', Amount: Number(amount) }
+    ];
+
+    const payload = {
+      Description: description,
+      Total_Credit: Number(amount),
+      Total_Debit: Number(amount),
+      Payment_mode: debitAccount,
+      Created_by: loggedInUser,
+      Transaction_date: transactionDate || today,
+      Journal_entry: journal,
+      institute_uuid
+    };
+
+    setLoading(true);
+    try {
+      const res = await axios.post(`${BASE_URL}/api/transaction/addTransaction`, payload);
+      if (!forWhatsApp) {
+        if (res.data.success) {
+          alert("Payment added!");
+          navigate("/home");
+        } else {
+          alert("Failed to add Transaction");
+        }
+      }
+      setLoading(false);
+      return {
+        name: customer.Account_name,
+        phone: customer.Mobile_number,
+        amount,
+        date: transactionDate || today,
+        mode: paymentMode.mode
+      };
+    } catch (e) {
+      setLoading(false);
+      alert("Error submitting form.");
+      return null;
     }
+  }
+
+  async function handleWhatsAppClick(e) {
+    e.preventDefault();
+    const info = await handleSubmit(e, { forWhatsApp: true });
+    if (!info) return;
+    const { name, phone, amount, date, mode } = info;
+    if (!phone) return alert("No customer phone number.");
+
+    const message = `Hello ${name}, we have received your payment of ₹${amount} on ${date} via ${mode}. Thank you!`;
+    if (!window.confirm(`Send WhatsApp message?\n\n${message}`)) return;
 
     try {
-        const creditCustomer = allCustomerOptions.find(option => option.Account_uuid === CreditCustomer);
-        const debitCustomer = paymentOptions.find(option => option.mode === DebitCustomer);
-        const todayDate = new Date().toISOString().split("T")[0];
-
-        if (!creditCustomer || !debitCustomer) {
-            alert("Please select valid customers.");
-            return;
-        }
-
-        const journal = [
-            {
-                Account_id: debitCustomer.mode,  
-                Type: 'Debit',
-                Amount: Number(Amount),
-            },
-            {
-                Account_id: creditCustomer.Account_uuid,  
-                Type: 'Credit',
-                Amount: Number(Amount),
-            }
-        ];
-
-        const payload = {
-            Description,
-            Total_Credit: Number(Amount),
-            Total_Debit: Number(Amount),
-            Payment_mode: debitCustomer.mode,
-            Created_by: loggedInUser,
-            Transaction_date: Transaction_date || todayDate,
-            Journal_entry: journal,
-            institute_uuid
-        };
-
-        const response = await axios.post(`${BASE_URL}/api/transaction/addTransaction`, payload);
-
-        if (response.data.success) {
-            alert(response.data.message);
-            navigate("/home");
-        } else {
-            alert("Failed to add Transaction");
-        }
-
-        return {
-            name: creditCustomer.Account_name,
-            phone: creditCustomer.Mobile_number,
-            amount: Amount,
-            date: Transaction_date,
-            mode: debitCustomer.mode
-        };
-    } catch (e) {
-        console.error("Error adding Transaction:", e);
-        alert("Error occurred while submitting the form.");
+      await fetch('https://misbackend-e078.onrender.com/usertask/send-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: phone, userName: name, type: 'customer', message }),
+      });
+      alert("Message sent!");
+      navigate("/home");
+    } catch {
+      alert("Failed to send WhatsApp message.");
     }
-}
+  }
 
-    const sendMessageToAPI = async (name, phone, message) => {
-        const payload = {
-            mobile: phone,
-            userName: name,
-            type: 'customer',
-            message: message,
-        };
-    
-        try {
-            const res = await fetch('https://misbackend-e078.onrender.com/usertask/send-message', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-    
-            if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error(`Failed to send message: ${errorText}`);
-            }
-    
-            const result = await res.json();
-            if (result.error) {
-                alert("Failed to send: " + result.error);
-            } else {
-                alert("Message sent successfully.");
-            }
-        } catch (error) {
-            console.error("Request failed:", error);
-            alert("Failed to send message: " + error.message);
-        }
-    };
-    
-    const handleDateCheckboxChange = () => {
-        setIsDateChecked(prev => !prev); 
-        setTransaction_date(''); 
-    };
+  return (
+    <div className="flex justify-center items-center bg-secondary min-h-screen">
+      <div className="bg-white p-6 rounded shadow w-full max-w-md">
+        <h2 className="text-xl font-semibold mb-4">Add Payment</h2>
+        <form onSubmit={handleSubmit}>
+          <label className="block mb-2">Date</label>
+          <input type="date" className="form-control mb-3"
+            value={transactionDate}
+            onChange={e => setTransactionDate(e.target.value)}
+          />
 
-    const handleAmountChange = (e) => {
-        const value = e.target.value;
-        setAmount(value);
-        setTotal_Debit(value);
-        setTotal_Credit(value);
-    };
-
-    const handleInputChange = (e) => {
-        const value = e.target.value;
-        setCustomer_Name(value);
-
-        if (value) {
-            const filtered = allCustomerOptions.filter(option =>
-                option.Account_name.toLowerCase().includes(value.toLowerCase())
-            );
-            setFilteredOptions(filtered);
-            setShowOptions(true);
-        } else {
-            setShowOptions(false);
-        }
-    };
-
-    const handleOptionClick = (option) => {
-        setCustomer_Name(option.Account_name);
-        setCreditCustomer(option.Account_uuid); 
-        setShowOptions(false);
-    };
-
-    const closeModal = () => {
-        if (userGroup === "Office User") {
-            navigate("/home");
-        } else if (userGroup === "Admin User") {
-            navigate("/home");
-        }
-    };   
-
-    return (
-        <div className="d-flex justify-content-center align-items-center bg-secondary vh-100">
-            <div className="bg-white p-3 rounded w-90">
-                <h2>Add Payment</h2>
-
-                <form onSubmit={submit}>
-                     <div className="mb-3">
-                            <label htmlFor="date"><strong>Date</strong></label>
-                            <input
-                                type="date"
-                                id="date"
-                                autoComplete="off"
-                                onChange={(e) => setTransaction_date(e.target.value)}
-                                value={Transaction_date}
-                                className="form-control rounded-0"
-                            />
-                       </div>
-                    <div className="mb-3 position-relative">
-                        <input
-                            type="text"
-                            placeholder="Search by Customer Name"
-                            className="form-control mb-3"
-                            value={Customer_name}
-                            onChange={handleInputChange}
-                            onFocus={() => setShowOptions(true)}
-                        />
-                        {showOptions && filteredOptions.length > 0 && (
-                            <ul className="list-group position-absolute w-100">
-                                {filteredOptions.map((option, index) => (
-                                    <li 
-                                        key={index} 
-                                        className="list-group-item list-group-item-action"
-                                        onClick={() => handleOptionClick(option)}
-                                    >
-                                        {option.Account_name}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="amount"><strong>Amount</strong></label>
-                        <input
-                            type="text"
-                            autoComplete="off"
-                            onChange={handleAmountChange}
-                            value={Amount}
-                            placeholder="Amount"
-                            className="form-control rounded-0"
-                        />
-                    </div>
-
-                    <div className="mb-3 position-relative">
-                        <label htmlFor="debit-customer"><strong>Mode</strong></label>
-                        <select
-                            className="form-control rounded-0"
-                            onChange={(e) => setDebitCustomer(e.target.value)}  
-                            value={DebitCustomer}
-                            required
-                        >
-                            <option value="">Select Payment</option>
-                            {paymentOptions.map((customer, index) => (
-                                <option key={index} value={customer.mode}>
-                                    {customer.mode}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                   
-                 <div className="mb-3">
-                        <label htmlFor="remark"><strong>Description</strong></label>
-                        <input
-                            type="text"
-                            autoComplete="off"
-                            onChange={(e) => setDescription(e.target.value)}
-                            value={Description}
-                            placeholder="Description"
-                            className="form-control rounded-0"
-                        />
-                    </div>
-
-                    <button type="submit" className="w-100 h-10 bg-green-500 text-white shadow-lg flex items-center justify-center">
-                        Submit
-                    </button><br />
-                    <button type="button" onClick={handleWhatsAppClick} className="w-100 h-10 bg-green-500 text-white shadow-lg flex items-center justify-center">
-                     WhatsApp
-                  </button><br />
-                    <button type="button" className="w-100 h-10 bg-red-500 text-white shadow-lg flex items-center justify-center" onClick={closeModal}>Close</button>
-                </form>
+          <label className="block mb-2">Customer</label>
+          <input
+            type="text"
+            className="form-control mb-1"
+            value={customerSearch}
+            placeholder="Search customer"
+            onChange={e => setCustomerSearch(e.target.value)}
+            onFocus={() => setShowCustomerList(true)}
+            onKeyDown={handleCustomerInputKeyDown}
+            autoComplete="off"
+          />
+          {showCustomerList && customerOptions.length > 0 &&
+            <ul className="list-group mb-2 max-h-40 overflow-y-auto z-10 position-absolute bg-white border w-full">
+              {customerOptions.map(opt =>
+                <li key={opt.Account_uuid} className="list-group-item cursor-pointer"
+                  onClick={() => handleCustomerPick(opt)}>
+                  {opt.Account_name}
+                </li>
+              )}
+            </ul>
+          }
+          {/* Only show if user has typed and not picked from list */}
+          {customerSearch && !isValidCustomer && (
+            <div className="text-red-600 text-sm mb-2">
+              Please select a customer from the list.
             </div>
-        </div>
-    );
+          )}
+
+          <label className="block mb-2">Amount</label>
+          <input type="number" className="form-control mb-3"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            min="0"
+            required
+          />
+
+          <label className="block mb-2">Payment Mode</label>
+          <select className="form-control mb-3"
+            value={debitAccount}
+            onChange={e => setDebitAccount(e.target.value)}
+            required
+          >
+            <option value="">Select Payment</option>
+            {paymentModes.map(pm =>
+              <option key={pm.mode} value={pm.mode}>{pm.mode}</option>
+            )}
+          </select>
+
+          <label className="block mb-2">Description</label>
+          <input type="text" className="form-control mb-4"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            placeholder="Description"
+          />
+
+          <button type="submit"
+            className="w-full py-2 mb-2 bg-green-600 text-white rounded"
+            disabled={loading || !isValidCustomer || !isValidPaymentMode || !amount}>
+            {loading ? 'Processing...' : 'Submit'}
+          </button>
+          <button type="button"
+            className="w-full py-2 mb-2 bg-green-500 text-white rounded"
+            onClick={handleWhatsAppClick}
+            disabled={loading || !isValidCustomer || !isValidPaymentMode || !amount}>
+            WhatsApp
+          </button>
+          <button type="button" className="w-full py-2 bg-red-500 text-white rounded"
+            onClick={() => navigate("/home")}>
+            Close
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }

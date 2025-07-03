@@ -22,7 +22,6 @@ import CoursesCategory from './pages/CoursesCategory';
 import Leads from './Reports/Leads';
 import AllAdmission from './Reports/allAdmission';
 import AddLead from './pages/AddLead';
-
 import AddNew from './components/admissions/AddAdmission';
 import Followup from './pages/Followup';
 import WhatsAppAdminPage from './pages/WhatsAppAdminPage';
@@ -32,6 +31,7 @@ import AddAccountGroup from './pages/AddAccountgroup';
 import AllLeadByAdmission from './Reports/allLeadByAdmission';
 import AddAttendance from './pages/AddAttendance';
 import AllAttendance from './Reports/allAttendance';
+import AllBalance from './Reports/allBalance'; // <-- ✅ NEW PAGE
 
 export default function App() {
   return (
@@ -62,15 +62,15 @@ export default function App() {
         <Route path="allAdmission" element={<AllAdmission />} />
         <Route path="allLeadByAdmission" element={<AllLeadByAdmission />} />
         <Route path="add-lead" element={<AddLead />} />
-        
-        <Route path="addNewAdd" element={<AddNew />} /> {/* ✅ Fixed */}
+        <Route path="addNewAdd" element={<AddNew />} />
         <Route path="addReciept" element={<AddReciept />} />
         <Route path="addPayment" element={<AddPayment />} />
         <Route path="addAccountgroup" element={<AddAccountGroup />} />
         <Route path="followup" element={<Followup />} />
         <Route path="addAttendance" element={<AddAttendance />} />
         <Route path="allAttendance" element={<AllAttendance />} />
-        <Route path="whatsapp" element={<WhatsAppAdminPage />} /> {/* ✅ WhatsApp Admin */}
+        <Route path="allBalance" element={<AllBalance />} /> {/* ✅ Added Route */}
+        <Route path="whatsapp" element={<WhatsAppAdminPage />} />
       </Route>
 
       {/* 🧭 Fallback */}

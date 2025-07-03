@@ -309,7 +309,7 @@ useEffect(() => {
         createdBy: 'System',
         followups: [{
           date: new Date().toISOString().substring(0, 10),
-          status: 'open',
+          status: 'converted',
           remark: '',
           createdBy: 'System',
         }],
@@ -324,118 +324,132 @@ useEffect(() => {
       await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
       // ... after await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
 
-// After admission/account saving...
+// ... after await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
+
+// Now, if feePaid > 0, post a transaction like receipt logic
 if (feePaid > 0 && form.paidBy) {
   try {
     // 1. Fetch all accounts (latest list)
     const accountRes = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
     const accList = accountRes.data.result || [];
 
-    // 2. Find or create student account (by name and mobile)
-    let studentAccount = accList.find(a =>
+    // 2. Find student account (by name and mobile)
+    const studentAccount = accList.find(a =>
       a.Account_name && a.Account_name.trim().toLowerCase() === `${form.firstName} ${form.lastName}`.trim().toLowerCase()
       && a.Mobile_number === form.mobileSelf
     );
+
     if (!studentAccount) {
-      const studentAccPayload = {
-        institute_uuid,
-        Account_name: `${form.firstName} ${form.lastName}`.trim(),
-        Account_group: 'ACCOUNT',
-        Mobile_number: form.mobileSelf,
-      };
-      const studentAccRes = await axios.post(`${BASE_URL}/api/account/addAccount`, studentAccPayload);
-      studentAccount = studentAccRes.data.result || studentAccRes.data;
-    }
+      toast.error('Could not find account for receipt entry');
+    } else {
+      // 3. Find payment mode account (Cash, Bank, etc.)
+      const paymentAcc = accList.find(a => a.Account_name === form.paidBy);
+      const paymentAccountUuid = paymentAcc ? paymentAcc.Account_uuid || paymentAcc.uuid : form.paidBy; // fallback
 
-    // Always lookup human-friendly course name
-let courseName = form.course;
-const courseObj = courses.find(c => c.uuid === form.course);
-if (courseObj) {
-  courseName = courseObj.name;
-}
-
-// Then find/create the account using courseName
-let feesReceivableAcc = accList.find(a => a.Account_name === courseName);
-if (!feesReceivableAcc) {
-  const receivableAccPayload = {
-    institute_uuid,
-    Account_name: courseName || 'Fees Receivable',
-    Account_group: 'RECEIVABLE',
-  };
-  const receivableAccRes = await axios.post(`${BASE_URL}/api/account/addAccount`, receivableAccPayload);
-  feesReceivableAcc = receivableAccRes.data.result || receivableAccRes.data;
-}
-
-
-    // 4. Find or create payment mode account (Cash, Bank, etc.)
-    let paymentAcc = accList.find(a => a.Account_name === form.paidBy);
-    if (!paymentAcc) {
-      const paymentAccPayload = {
-        institute_uuid,
-        Account_name: form.paidBy,
-        Account_group: 'BANK', // Or use 'CASH' etc as needed
-      };
-      const paymentAccRes = await axios.post(`${BASE_URL}/api/account/addAccount`, paymentAccPayload);
-      paymentAcc = paymentAccRes.data.result || paymentAccRes.data;
-    }
-
-    // === Transaction 1: Receipt Entry ===
-    const journalReceipt = [
-      {
-        Account_id: studentAccount.Account_uuid || studentAccount.uuid,
-        Type: 'Debit',
-        Amount: Number(feePaid),
-      },
-      {
-        Account_id: paymentAcc.Account_uuid || paymentAcc.uuid,
-        Type: 'Credit',
-        Amount: Number(feePaid),
-      }
-    ];
-    const txPayloadReceipt = {
-      Description: `Admission Fees Received for ${form.firstName} ${form.lastName}`,
-      Total_Credit: Number(feePaid),
-      Total_Debit: Number(feePaid),
-      Payment_mode: form.paidBy,
-      Created_by: 'System',
-      Transaction_date: form.admissionDate,
-      Journal_entry: journalReceipt,
-      institute_uuid,
-    };
-    await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayloadReceipt);
-
-    // === Transaction 2: Fees Receivable Entry ===
-    const amountReceivable = Number(form.fees) - Number(form.discount); // Amount expected after discount
-    if (amountReceivable > 0) {
-      const journalReceivable = [
+      // 4. Prepare journal
+      const journal = [
         {
           Account_id: studentAccount.Account_uuid || studentAccount.uuid,
           Type: 'Debit',
-          Amount: amountReceivable,
+          Amount: Number(feePaid),
         },
         {
-          Account_id: feesReceivableAcc.Account_uuid || feesReceivableAcc.uuid,
+          Account_id: paymentAccountUuid,
           Type: 'Credit',
-          Amount: amountReceivable,
+          Amount: Number(feePaid),
         }
       ];
-      const txPayloadReceivable = {
-        Description: `Fees Receivable for course: ${form.course}`,
-        Total_Credit: amountReceivable,
-        Total_Debit: amountReceivable,
-        Payment_mode: 'Fees Receivable',
+
+      // 5. Prepare transaction payload
+      const txPayload = {
+        Description: `Admission Fees Received for ${form.firstName} ${form.lastName}`,
+        Total_Credit: Number(feePaid),
+        Total_Debit: Number(feePaid),
+        Payment_mode: form.paidBy,
         Created_by: 'System',
         Transaction_date: form.admissionDate,
-        Journal_entry: journalReceivable,
+        Journal_entry: journal,
         institute_uuid,
       };
-      await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayloadReceivable);
+
+      // 6. Save transaction
+      await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayload);
     }
   } catch (e) {
-    toast.error('Failed to create transaction entries for fees/receivable');
+    toast.error('Failed to create transaction entry for fees paid');
     console.error('Transaction error:', e);
   }
 }
+
+// 1. Record payment actually received (already present, as before)
+if (feePaid > 0 && form.paidBy) {
+  try {
+    // ... all your existing payment code ...
+  } catch (e) {
+    toast.error('Failed to create transaction entry for fees paid');
+    console.error('Transaction error:', e);
+  }
+}
+
+// 2. Record FULL FEES RECEIVABLE (Fees minus Discount)
+const receivableAmount = Number(form.fees || 0) - Number(form.discount || 0);
+if (receivableAmount > 0) {
+  try {
+    // 1. Fetch all accounts (if not already fetched, reuse accList if possible)
+    let accList;
+    if (!accList) {
+      const accountRes = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
+      accList = accountRes.data.result || [];
+    }
+    // 2. Find student account (by name and mobile)
+    const studentAccount = accList.find(a =>
+      a.Account_name && a.Account_name.trim().toLowerCase() === `${form.firstName} ${form.lastName}`.trim().toLowerCase()
+      && a.Mobile_number === form.mobileSelf
+    );
+
+    // 3. Find Fees Receivable account (or use a fixed Account_name, e.g. "Fees Receivable")
+    // If you have an account for fees receivable, set the name below (adjust as per your accounts setup)
+    const receivableAcc = accList.find(a => a.Account_name === "Fees Receivable");
+    const receivableAccountUuid = receivableAcc ? receivableAcc.Account_uuid || receivableAcc.uuid : null;
+
+    if (!studentAccount || !receivableAccountUuid) {
+      toast.error('Could not find account for fees receivable entry');
+    } else {
+      // Prepare journal
+      const receivableJournal = [
+        {
+          Account_id: studentAccount.Account_uuid || studentAccount.uuid,
+          Type: 'Debit',
+          Amount: receivableAmount,
+        },
+        {
+          Account_id: receivableAccountUuid,
+          Type: 'Credit',
+          Amount: receivableAmount,
+        }
+      ];
+
+      // Prepare transaction payload
+      const receivableTxPayload = {
+        Description: `Total Admission Fees Receivable for ${form.firstName} ${form.lastName}`,
+        Total_Credit: receivableAmount,
+        Total_Debit: receivableAmount,
+        Payment_mode: 'Fees Receivable',
+        Created_by: 'System',
+        Transaction_date: form.admissionDate,
+        Journal_entry: receivableJournal,
+        institute_uuid,
+      };
+
+      // Save transaction
+      await axios.post(`${BASE_URL}/api/transaction/addTransaction`, receivableTxPayload);
+    }
+  } catch (e) {
+    toast.error('Failed to create transaction entry for total fees receivable');
+    console.error('Transaction error:', e);
+  }
+}
+	
 
 
 
