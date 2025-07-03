@@ -5,10 +5,10 @@ import BASE_URL from '../config';
 
 export default function AddAccount() {
     const navigate = useNavigate();
-    const [Account_name,setAccount_name]=useState('')
-    const [Mobile_number,setMobile_number]=useState('')
-    const [Account_group,setAccount_group]=useState('')
-    const [selectedGroup,setSelectedGroup]=useState('')
+    const [Account_name,setAccount_name]=useState('');
+    const [Mobile_number,setMobile_number]=useState('');
+    const [Account_group,setAccount_group]=useState([]);
+    const [selectedGroup,setSelectedGroup]=useState('');
 const institute_uuid = localStorage.getItem("institute_uuid");
 
  useEffect(() => {
@@ -30,7 +30,7 @@ const institute_uuid = localStorage.getItem("institute_uuid");
             await axios.post(`${BASE_URL}/api/account/addAccount`,{
                 Account_name,
                 Mobile_number,
-                Account_group,
+                Account_group: selectedGroup,
                 institute_uuid: institute_uuid
             })
             .then(res=>{
