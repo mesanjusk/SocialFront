@@ -75,32 +75,31 @@ const useAdmissionForm = () => {
   };
 
   // Fetch lead data if lead_uuid is present in the URL
-useEffect(() => {
-  if (!lead_uuid) return;
-  axios.get(`${BASE_URL}/api/leads/${lead_uuid}`)
-    .then(res => setLeadData(res.data))
-    .catch(() => toast.error('Failed to load lead data'));
-}, [lead_uuid]);
-// When both leadData and courses are loaded, prefill the form
-useEffect(() => {
-  if (!leadData || !courses.length) return;
-  setForm(prev => {
-    const selectedCourse = courses.find(c => c.name === leadData.studentData?.course);
-    const courseFee = selectedCourse ? Number(selectedCourse.courseFees || 0) : '';
-    return {
-      ...prev,
-      firstName: leadData.studentData?.firstName || '',
-      lastName: leadData.studentData?.lastName || '',
-      mobileSelf: leadData.studentData?.mobileSelf || '',
-      address: leadData.studentData?.address || '',
-      course: leadData.studentData?.course || '',
-      fees: courseFee,
-      total: courseFee,
-      balance: courseFee,
-    };
-  });
-}, [leadData, courses]);
-
+  useEffect(() => {
+    if (!lead_uuid) return;
+    axios.get(`${BASE_URL}/api/leads/${lead_uuid}`)
+      .then(res => setLeadData(res.data))
+      .catch(() => toast.error('Failed to load lead data'));
+  }, [lead_uuid]);
+  // When both leadData and courses are loaded, prefill the form
+  useEffect(() => {
+    if (!leadData || !courses.length) return;
+    setForm(prev => {
+      const selectedCourse = courses.find(c => c.name === leadData.studentData?.course);
+      const courseFee = selectedCourse ? Number(selectedCourse.courseFees || 0) : '';
+      return {
+        ...prev,
+        firstName: leadData.studentData?.firstName || '',
+        lastName: leadData.studentData?.lastName || '',
+        mobileSelf: leadData.studentData?.mobileSelf || '',
+        address: leadData.studentData?.address || '',
+        course: leadData.studentData?.course || '',
+        fees: courseFee,
+        total: courseFee,
+        balance: courseFee,
+      };
+    });
+  }, [leadData, courses]);
 
   const fetchEducations = async () => {
     try {
@@ -227,7 +226,8 @@ useEffect(() => {
     setForm(updatedForm);
   };
 
-  const handleSubmit = async (e) => {
+  // --- UPDATED handleSubmit ---
+  const handleSubmit = async (e, onSuccess) => {
     e.preventDefault();
     if (!institute_uuid) return toast.error('Missing institute ID');
     const mobileRegex = /^\d{10}$/;
@@ -324,11 +324,8 @@ useEffect(() => {
         Mobile_number: form.mobileSelf,
       };
       await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
-      // ... after await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
 
-// ... after await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
-
-// Now, if feePaid > 0, post a transaction like receipt logic
+      // Now, if feePaid > 0, post a transaction like receipt logic
 if (feePaid > 0 && form.paidBy) {
   try {
     // 1. Fetch all accounts (latest list)
@@ -451,12 +448,11 @@ if (receivableAmount > 0) {
     console.error('Transaction error:', e);
   }
 }
-	
-
-
 
       toast.success('All records saved successfully');
-      navigate("/home")
+      // --- This is the ONLY change --- //
+      if (onSuccess) onSuccess(admissionData); // show receipt modal, do NOT navigate here
+      // --- End of change --- //
       setForm(initialForm);
       setEditingId(null);
       setTab(0);
@@ -471,8 +467,8 @@ if (receivableAmount > 0) {
       }
     }
   };
+  // --- END UPDATED handleSubmit ---
 
-  
   const handleEdit = (data) => {
     const emiDate = data.emiDate || (() => {
       const d = new Date(data.admissionDate);
@@ -585,3 +581,5 @@ if (receivableAmount > 0) {
 };
 
 export default useAdmissionForm;
+
+	
