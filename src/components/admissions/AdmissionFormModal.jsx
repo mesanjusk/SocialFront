@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
 import useAdmissionForm from './useAdmissionForm';
@@ -6,7 +5,7 @@ import AdmissionStudentInfoTab from './AdmissionStudentInfoTab';
 import AdmissionCourseBatchTab from './AdmissionCourseBatchTab';
 import AdmissionPaymentInstallmentTab from './AdmissionPaymentInstallmentTab';
 
-const AdmissionFormModal = ({ onClose }) => {
+const AdmissionFormModal = ({ onClose, onSuccess }) => {
   const {
     form,
     setForm,
@@ -23,6 +22,10 @@ const AdmissionFormModal = ({ onClose }) => {
     editingId,
     themeColor,
   } = useAdmissionForm();
+
+  // Handle tab navigation
+  const handleNext = () => setTab(tab + 1);
+  const handleBack = () => setTab(tab - 1);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -50,7 +53,8 @@ const AdmissionFormModal = ({ onClose }) => {
             </button>
           ))}
         </div>
-        <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-3">
+        {/* KEY CHANGE: Pass onSuccess to handleSubmit */}
+        <form onSubmit={e => handleSubmit(e, onSuccess)} className="p-4 flex flex-col gap-3">
           {tab === 0 && <AdmissionStudentInfoTab form={form} handleChange={handleChange} />}
           {tab === 1 && (
             <AdmissionCourseBatchTab
@@ -71,13 +75,45 @@ const AdmissionFormModal = ({ onClose }) => {
               paymentModes={paymentModes}
             />
           )}
+          {/* Button Row */}
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded">
-              Cancel
-            </button>
-            <button type="submit" className="text-white px-4 py-2 rounded" style={{ backgroundColor: themeColor }}>
-              {editingId ? 'Update' : 'Submit'}
-            </button>
+            {tab === 1 && (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="bg-gray-200 text-gray-700 px-4 py-2 rounded"
+              >
+                Back
+              </button>
+            )}
+            {tab === 2 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded"
+                >
+                  Back
+                </button>
+                <button
+                  type="submit"
+                  className="text-white px-4 py-2 rounded"
+                  style={{ backgroundColor: themeColor }}
+                >
+                  {editingId ? 'Update' : 'Submit'}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={handleNext}
+                className="text-white px-4 py-2 rounded"
+                style={{ backgroundColor: themeColor }}
+                disabled={tab === 2}
+              >
+                Next
+              </button>
+            )}
           </div>
         </form>
       </div>
