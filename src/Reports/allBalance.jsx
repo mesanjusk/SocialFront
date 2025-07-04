@@ -5,8 +5,9 @@ import axios from 'axios';
 import { FaSortUp, FaSortDown } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import { jsPDF } from "jspdf";
+import BASE_URL from '../config';
 
-const AllTransaction = () => {
+const AllBalance = () => {
     const [transactions, setTransactions] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [outstandingReport, setOutstandingReport] = useState([]);
@@ -16,8 +17,8 @@ const AllTransaction = () => {
     const navigate = useNavigate();
 
     // TODO: UPDATE these URLs to your actual endpoints!
-    const TRANSACTION_API = '/api/transaction';
-    const CUSTOMER_API = '/api/account';
+    const TRANSACTION_API = `${BASE_URL}/api/transaction/GetTransactionList`;
+    const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -32,6 +33,7 @@ const AllTransaction = () => {
             try {
                 const res = await axios.get(CUSTOMER_API);
                 setCustomers(res.data.result || []);
+
             } catch (err) {
                 console.error('Customer fetch error:', err);
             }
@@ -45,28 +47,33 @@ const AllTransaction = () => {
     }, [transactions, customers]);
 
     // Generates outstanding balance per customer
-    const generateOutstandingReport = () => {
-        const report = customers.map(customer => {
-            let debit = 0, credit = 0;
-            transactions.forEach(tx => {
-                (tx.Journal_entry || []).forEach(entry => {
-                    if (entry.Account_id === customer.Customer_uuid) {
-                        if (entry.Type === 'Debit') debit += entry.Amount || 0;
-                        if (entry.Type === 'Credit') credit += entry.Amount || 0;
-                    }
-                });
-            });
-            return {
-                uuid: customer.Customer_uuid,
-                name: customer.Customer_name,
-                mobile: customer.Mobile_number || 'No phone number',
-                debit,
-                credit,
-                balance: credit - debit
-            };
-        });
-        setOutstandingReport(report);
+   const generateOutstandingReport = () => {
+  const report = customers.map(customer => {
+    let debit = 0, credit = 0;
+
+    transactions.forEach(tx => {
+      (tx.Journal_entry || []).forEach(entry => {
+        if (entry.Account_id === customer.uuid) {
+
+          if (entry.Type === 'Debit') debit += Number(entry.Amount) || 0;
+          if (entry.Type === 'Credit') credit += Number(entry.Amount) || 0;
+        }
+      });
+    });
+
+    return {
+      uuid: customer.uuid,
+      name: customer.Account_name,
+      mobile: customer.Mobile_number || 'No phone number',
+      debit,
+      credit,
+      balance: credit - debit,
     };
+  });
+
+  setOutstandingReport(report);
+};
+
 
     const sortedReport = [...outstandingReport]
         .filter(item => {
@@ -75,7 +82,7 @@ const AllTransaction = () => {
             if (filterType === 'zero') return item.balance === 0 && (item.debit !== 0 || item.credit !== 0);
             return true;
         })
-        .filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+       .filter(item => (item.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
         .sort((a, b) => {
             if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
             if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
@@ -189,4 +196,4 @@ const AllTransaction = () => {
     );
 };
 
-export default AllTransaction;
+export default AllBalance;

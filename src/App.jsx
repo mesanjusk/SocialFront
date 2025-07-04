@@ -27,7 +27,6 @@ import Followup from './pages/Followup';
 import WhatsAppAdminPage from './pages/WhatsAppAdminPage';
 import AddReciept from './pages/addReciept';
 import AddPayment from './pages/addPayment';
-import AddAccountGroup from './pages/AddAccountgroup';
 import AllLeadByAdmission from './Reports/allLeadByAdmission';
 import AddAttendance from './pages/AddAttendance';
 import AllAttendance from './Reports/allAttendance';
