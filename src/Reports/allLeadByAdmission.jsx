@@ -68,7 +68,7 @@ setLeads(leadsWithAdmission);
   };
 
   const getCourseName = (courseUuid) => {
-  const course = courses.find((c) => c.uuid === courseUuid);
+  const course = courses.find((c) => c.Course_uuid === courseUuid);
   return course ? course.name : 'Course N/A';
 };
 

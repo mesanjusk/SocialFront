@@ -18,7 +18,6 @@ const Leads = () => {
 const fetchCourses = async () => {
   try {
     const res = await axios.get(`${BASE_URL}/api/courses`, {
-      params: { institute_uuid: localStorage.getItem('institute_uuid') }
     });
     setCourses(Array.isArray(res.data) ? res.data : []);
   } catch (err) {
@@ -76,7 +75,7 @@ const fetchCourses = async () => {
   };
 
   const getCourseName = (uuid) => {
-  const course = courses.find(c => c.uuid === uuid);
+  const course = courses.find(c => c.Course_uuid === uuid);
   return course?.name || 'Course N/A';
 };
 

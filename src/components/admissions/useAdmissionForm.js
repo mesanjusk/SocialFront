@@ -64,6 +64,31 @@ const useAdmissionForm = () => {
   const institute_uuid = localStorage.getItem('institute_uuid');
   const [searchParams] = useSearchParams();
   const lead_uuid = searchParams.get('lead_uuid');
+  const [accountGroups, setAccountGroups] = useState([]);
+
+const fetchAccountGroups = async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
+    const data = res.data?.result;
+    console.log('Fetched Account Groups:', data); // Debug log
+
+    if (Array.isArray(data)) {
+      setAccountGroups(data);
+    } else {
+      toast.error("Invalid account group data");
+      setAccountGroups([]);
+    }
+  } catch (err) {
+    toast.error('Failed to load account groups');
+    console.error('Error fetching account groups:', err);
+  }
+};
+
+
+useEffect(() => {
+  fetchAccountGroups(); 
+}, []);
+
 
   const fetchCourses = async () => {
     try {
@@ -227,246 +252,242 @@ const useAdmissionForm = () => {
   };
 
   // --- UPDATED handleSubmit ---
-  const handleSubmit = async (e, onSuccess) => {
-    e.preventDefault();
-    if (!institute_uuid) return toast.error('Missing institute ID');
-    const mobileRegex = /^\d{10}$/;
-    if (form.mobileSelf && !mobileRegex.test(form.mobileSelf)) return toast.error('Enter valid self mobile number');
-    if (form.mobileParent && !mobileRegex.test(form.mobileParent)) return toast.error('Enter valid parent mobile number');
-    const fees = Number(form.fees || 0);
-    const discount = Number(form.discount || 0);
-    const feePaid = Number(form.feePaid || 0);
-    const total = fees - discount;
-    const balance = total - feePaid;
-    if (discount > fees) return toast.error('Discount cannot exceed fees');
-    if (feePaid > total) return toast.error('Fee paid cannot exceed total');
-    try {
-      const studentPayload = {
-        institute_uuid,
-        firstName: form.firstName,
-        middleName: form.middleName,
-        lastName: form.lastName,
-        dob: form.dob,
-        gender: form.gender,
-        mobileSelf: form.mobileSelf,
-        mobileParent: form.mobileParent,
-        address: form.address,
-      };
-      let studentResponse;
-      if (editingId && form.student_uuid) {
-        studentResponse = await axios.put(`${BASE_URL}/api/students/${form.student_uuid}`, studentPayload);
-      } else {
-        studentResponse = await axios.post(`${BASE_URL}/api/students`, studentPayload);
-      }
-      const studentData = studentResponse.data.data;
-      const student_uuid = studentData.uuid || studentData._id;
-      const admissionPayload = {
-        institute_uuid,
-        student_uuid,
-        admissionDate: form.admissionDate,
-        course: form.course,
-        batchTime: form.batchTime,
-        examEvent: form.examEvent,
-        installment: form.installment,
-        fees,
-        discount,
-        total,
-        feePaid,
-        paidBy: form.paidBy,
-        balance,
-        createdBy: 'System',
-      };
-      let admissionResponse;
-      if (editingId) {
-        admissionResponse = await axios.put(`${BASE_URL}/api/admissions/${editingId}`, admissionPayload);
-        toast.success('Admission updated successfully');
-      } else {
-        admissionResponse = await axios.post(`${BASE_URL}/api/admissions`, admissionPayload);
-        toast.success('Admission added successfully');
-      }
-      const admissionData = admissionResponse.data.data;
-      const admission_uuid = admissionData.uuid;
-      const feesPayload = {
-        institute_uuid,
-        student_uuid,
-        admission_uuid,
-        fees,
-        discount,
-        total,
-        feePaid,
-        balance,
-        emi: Number(form.emi || 0),
-        installment: form.installment,
-        installmentPlan,
-        paidBy: form.paidBy,
-      };
-      await axios.post(`${BASE_URL}/api/fees`, feesPayload);
-      const leadPayload = {
-        institute_uuid,
-        student_uuid,
-        admission_uuid,
-        enquiryDate: form.admissionDate,
-        course: form.course,
-        referredBy: 'Self',
-        createdBy: 'System',
-        followups: [{
-          date: new Date().toISOString().substring(0, 10),
-          status: 'converted',
-          remark: '',
-          createdBy: 'System',
-        }],
-      };
-      await axios.post(`${BASE_URL}/api/leads`, leadPayload);
-      const accountPayload = {
-        institute_uuid,
-        Account_name: `${form.firstName} ${form.lastName}`.trim(),
-        Account_group: 'ACCOUNT',
-        Mobile_number: form.mobileSelf,
-      };
-      await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
+ const handleSubmit = async (e, onSuccess) => {
+  e.preventDefault();
+  if (!institute_uuid) return toast.error('Missing institute ID');
 
-      // Now, if feePaid > 0, post a transaction like receipt logic
-if (feePaid > 0 && form.paidBy) {
+  const mobileRegex = /^\d{10}$/;
+  if (form.mobileSelf && !mobileRegex.test(form.mobileSelf)) return toast.error('Enter valid self mobile number');
+  if (form.mobileParent && !mobileRegex.test(form.mobileParent)) return toast.error('Enter valid parent mobile number');
+
+  const fees = Number(form.fees || 0);
+  const discount = Number(form.discount || 0);
+  const feePaid = Number(form.feePaid || 0);
+  const total = fees - discount;
+  const balance = total - feePaid;
+
+  if (discount > fees) return toast.error('Discount cannot exceed fees');
+  if (feePaid > total) return toast.error('Fee paid cannot exceed total');
+
   try {
-    // 1. Fetch all accounts (latest list)
-    const accountRes = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
-    const accList = accountRes.data.result || [];
+    const studentPayload = {
+      institute_uuid,
+      firstName: form.firstName,
+      middleName: form.middleName,
+      lastName: form.lastName,
+      dob: form.dob,
+      gender: form.gender,
+      mobileSelf: form.mobileSelf,
+      mobileParent: form.mobileParent,
+      address: form.address,
+    };
 
-    // 2. Find student account (by name and mobile)
-    const studentAccount = accList.find(a =>
-      a.Account_name && a.Account_name.trim().toLowerCase() === `${form.firstName} ${form.lastName}`.trim().toLowerCase()
-      && a.Mobile_number === form.mobileSelf
-    );
-
-    if (!studentAccount) {
-      toast.error('Could not find account for receipt entry');
+    let studentResponse;
+    if (editingId && form.student_uuid) {
+      studentResponse = await axios.put(`${BASE_URL}/api/students/${form.student_uuid}`, studentPayload);
     } else {
-      // 3. Find payment mode account (Cash, Bank, etc.)
-      const paymentAcc = accList.find(a => a.Account_name === form.paidBy);
-      const paymentAccountUuid = paymentAcc ? paymentAcc.Account_uuid || paymentAcc.uuid : form.paidBy; // fallback
-
-      // 4. Prepare journal
-      const journal = [
-        {
-          Account_id: studentAccount.Account_uuid || studentAccount.uuid,
-          Type: 'Debit',
-          Amount: Number(feePaid),
-        },
-        {
-          Account_id: paymentAccountUuid,
-          Type: 'Credit',
-          Amount: Number(feePaid),
-        }
-      ];
-
-      // 5. Prepare transaction payload
-      const txPayload = {
-        Description: `Admission Fees Received for ${form.firstName} ${form.lastName}`,
-        Total_Credit: Number(feePaid),
-        Total_Debit: Number(feePaid),
-        Payment_mode: form.paidBy,
-        Created_by: 'System',
-        Transaction_date: form.admissionDate,
-        Journal_entry: journal,
-        institute_uuid,
-      };
-
-      // 6. Save transaction
-      await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayload);
+      studentResponse = await axios.post(`${BASE_URL}/api/students`, studentPayload);
     }
-  } catch (e) {
-    toast.error('Failed to create transaction entry for fees paid');
-    console.error('Transaction error:', e);
-  }
+
+    const studentData = studentResponse.data.data;
+    const student_uuid = studentData.uuid || studentData._id;
+
+    const admissionPayload = {
+      institute_uuid,
+      student_uuid,
+      admissionDate: form.admissionDate,
+      course: form.course,
+      batchTime: form.batchTime,
+      examEvent: form.examEvent,
+      installment: form.installment,
+      fees,
+      discount,
+      total,
+      feePaid,
+      paidBy: form.paidBy,
+      balance,
+      createdBy: 'System',
+    };
+
+    let admissionResponse;
+    if (editingId) {
+      admissionResponse = await axios.put(`${BASE_URL}/api/admissions/${editingId}`, admissionPayload);
+      toast.success('Admission updated successfully');
+    } else {
+      admissionResponse = await axios.post(`${BASE_URL}/api/admissions`, admissionPayload);
+      toast.success('Admission added successfully');
+    }
+
+    const admissionData = admissionResponse.data.data;
+    const admission_uuid = admissionData.uuid;
+
+    const feesPayload = {
+      institute_uuid,
+      student_uuid,
+      admission_uuid,
+      fees,
+      discount,
+      total,
+      feePaid,
+      balance,
+      emi: Number(form.emi || 0),
+      installment: form.installment,
+      installmentPlan,
+      paidBy: form.paidBy,
+    };
+    await axios.post(`${BASE_URL}/api/fees`, feesPayload);
+
+    const leadPayload = {
+      institute_uuid,
+      student_uuid,
+      admission_uuid,
+      enquiryDate: form.admissionDate,
+      course: form.course,
+      referredBy: 'Self',
+      createdBy: 'System',
+      followups: [{
+        date: new Date().toISOString().substring(0, 10),
+        status: 'converted',
+        remark: '',
+        createdBy: 'System',
+      }],
+    };
+    await axios.post(`${BASE_URL}/api/leads`, leadPayload);
+
+    const accountGroup = accountGroups.find(group => group.Account_group === 'ACCOUNT');
+    if (!accountGroup || !accountGroup.Account_group_uuid) {
+  toast.error('ACCOUNT group UUID not found. Cannot create account.');
+  return;
 }
 
-// 1. Record payment actually received (already present, as before)
-if (feePaid > 0 && form.paidBy) {
-  try {
-    // ... all your existing payment code ...
-  } catch (e) {
-    toast.error('Failed to create transaction entry for fees paid');
-    console.error('Transaction error:', e);
-  }
-}
+    const accountPayload = {
+      institute_uuid,
+      Account_name: `${form.firstName} ${form.lastName}`.trim(),
+      Account_group: accountGroup.Account_group_uuid,
+      Mobile_number: form.mobileSelf,
+    };
+    await axios.post(`${BASE_URL}/api/account/addAccount`, accountPayload);
 
-// 2. Record FULL FEES RECEIVABLE (Fees minus Discount)
-const receivableAmount = Number(form.fees || 0) - Number(form.discount || 0);
-if (receivableAmount > 0) {
-  try {
-    // 1. Fetch all accounts (if not already fetched, reuse accList if possible)
-    let accList;
-    if (!accList) {
+    // ✅ Fetch account list ONCE
+    let accList = [];
+    try {
       const accountRes = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
       accList = accountRes.data.result || [];
-    }
-    // 2. Find student account (by name and mobile)
-    const studentAccount = accList.find(a =>
-      a.Account_name && a.Account_name.trim().toLowerCase() === `${form.firstName} ${form.lastName}`.trim().toLowerCase()
-      && a.Mobile_number === form.mobileSelf
-    );
-
-    // 3. Find Fees Receivable account (or use a fixed Account_name, e.g. "Fees Receivable")
-    // If you have an account for fees receivable, set the name below (adjust as per your accounts setup)
-    const receivableAcc = accList.find(a => a.Account_name === "Fees Receivable");
-    const receivableAccountUuid = receivableAcc ? receivableAcc.Account_uuid || receivableAcc.uuid : null;
-
-    if (!studentAccount || !receivableAccountUuid) {
-      toast.error('Could not find account for fees receivable entry');
-    } else {
-      // Prepare journal
-      const receivableJournal = [
-        {
-          Account_id: receivableAccountUuid,
-          Type: 'Debit',
-          Amount: receivableAmount,
-        },
-        {
-          Account_id: studentAccount.Account_uuid || studentAccount.uuid,
-          Type: 'Credit',
-          Amount: receivableAmount,
-        }
-      ];
-
-      // Prepare transaction payload
-      const receivableTxPayload = {
-        Description: `Total Admission Fees Receivable for ${form.firstName} ${form.lastName}`,
-        Total_Credit: receivableAmount,
-        Total_Debit: receivableAmount,
-        Payment_mode: 'Fees Receivable',
-        Created_by: 'System',
-        Transaction_date: form.admissionDate,
-        Journal_entry: receivableJournal,
-        institute_uuid,
-      };
-
-      // Save transaction
-      await axios.post(`${BASE_URL}/api/transaction/addTransaction`, receivableTxPayload);
-    }
-  } catch (e) {
-    toast.error('Failed to create transaction entry for total fees receivable');
-    console.error('Transaction error:', e);
-  }
-}
-
-      toast.success('All records saved successfully');
-      // --- This is the ONLY change --- //
-      if (onSuccess) onSuccess(admissionData); // show receipt modal, do NOT navigate here
-      // --- End of change --- //
-      setForm(initialForm);
-      setEditingId(null);
-      setTab(0);
-      setInstallmentPlan([]);
-      fetchAdmissions();
     } catch (err) {
-      console.error('Error in handleSubmit:', err);
-      if (err.response) {
-        toast.error(`Server Error: ${err.response.data.message || err.response.statusText}`);
-      } else {
-        toast.error('Error saving admission');
+      toast.error("Failed to fetch account list for transactions");
+      console.error("Account fetch error:", err);
+    }
+
+    // ✅ Transaction 1: Receipt (feePaid)
+    if (feePaid > 0 && form.paidBy) {
+      try {
+        const studentAccount = accList.find(a =>
+          a.Account_name?.trim().toLowerCase() === `${form.firstName} ${form.lastName}`.trim().toLowerCase()
+          && a.Mobile_number === form.mobileSelf
+        );
+
+        const paymentAcc = accList.find(a => a.Account_name === form.paidBy);
+        const paymentAccountUuid = paymentAcc ? paymentAcc.Account_uuid || paymentAcc.uuid : form.paidBy;
+
+        if (!studentAccount) {
+          toast.error('Could not find account for receipt entry');
+        } else {
+          const journal = [
+            {
+              Account_id: studentAccount.Account_uuid || studentAccount.uuid,
+              Type: 'Debit',
+              Amount: Number(feePaid),
+            },
+            {
+              Account_id: paymentAccountUuid,
+              Type: 'Credit',
+              Amount: Number(feePaid),
+            }
+          ];
+
+          const txPayload = {
+            Description: `Admission Fees Received for ${form.firstName} ${form.lastName}`,
+            Total_Credit: Number(feePaid),
+            Total_Debit: Number(feePaid),
+            Payment_mode: form.paidBy,
+            Created_by: 'System',
+            Transaction_date: form.admissionDate,
+            Journal_entry: journal,
+            institute_uuid,
+          };
+
+          await axios.post(`${BASE_URL}/api/transaction/addTransaction`, txPayload);
+        }
+      } catch (e) {
+        toast.error('Failed to create transaction entry for fees paid');
+        console.error('Transaction error:', e);
       }
     }
-  };
+
+    // ✅ Transaction 2: Fees Receivable (total - discount)
+    const receivableAmount = fees - discount;
+    if (receivableAmount > 0) {
+      try {
+        const studentAccount = accList.find(a =>
+          a.Account_name?.trim().toLowerCase() === `${form.firstName} ${form.lastName}`.trim().toLowerCase()
+          && a.Mobile_number === form.mobileSelf
+        );
+
+        const receivableAcc = accList.find(a => a.Account_name === "Fees Receivable");
+        const receivableAccountUuid = receivableAcc ? receivableAcc.Account_uuid || receivableAcc.uuid : null;
+
+        if (!studentAccount || !receivableAccountUuid) {
+          toast.error('Could not find account for fees receivable entry');
+        } else {
+          const receivableJournal = [
+            {
+              Account_id: receivableAccountUuid,
+              Type: 'Debit',
+              Amount: receivableAmount,
+            },
+            {
+              Account_id: studentAccount.Account_uuid || studentAccount.uuid,
+              Type: 'Credit',
+              Amount: receivableAmount,
+            }
+          ];
+
+          const receivableTxPayload = {
+            Description: `Total Admission Fees Receivable for ${form.firstName} ${form.lastName}`,
+            Total_Credit: receivableAmount,
+            Total_Debit: receivableAmount,
+            Payment_mode: 'Fees Receivable',
+            Created_by: 'System',
+            Transaction_date: form.admissionDate,
+            Journal_entry: receivableJournal,
+            institute_uuid,
+          };
+
+          await axios.post(`${BASE_URL}/api/transaction/addTransaction`, receivableTxPayload);
+        }
+      } catch (e) {
+        toast.error('Failed to create transaction entry for total fees receivable');
+        console.error('Transaction error:', e);
+      }
+    }
+
+    toast.success('All records saved successfully');
+    if (onSuccess) onSuccess(admissionData);
+    setForm(initialForm);
+    setEditingId(null);
+    setTab(0);
+    setInstallmentPlan([]);
+    fetchAdmissions();
+  } catch (err) {
+    console.error('Error in handleSubmit:', err);
+    if (err.response) {
+      toast.error(`Server Error: ${err.response.data.message || err.response.statusText}`);
+    } else {
+      toast.error('Error saving admission');
+    }
+  }
+};
+
   // --- END UPDATED handleSubmit ---
 
   const handleEdit = (data) => {

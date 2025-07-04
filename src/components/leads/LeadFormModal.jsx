@@ -27,17 +27,15 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   const fetchCourses = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/courses`, {
-        params: { institute_uuid },
       });
-      console.log("Courses API response:", res.data);
       setCourses(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Error fetching courses:', err);
       toast.error('Failed to load courses');
     }
   };
-  if (institute_uuid) fetchCourses();
-}, [institute_uuid]);
+ fetchCourses();
+}, []);
 
 
   const handleSubmit = async (e) => {
@@ -113,7 +111,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
           >
             <option value="">-- Select Course --</option>
             {courses.map((course) => (
-              <option key={course._id} value={course.uuid}>{course.name}</option>
+              <option key={course._id} value={course.Course_uuid}>{course.name}</option>
             ))}
           </select>
            <label className="block mb-2">Follow up</label>

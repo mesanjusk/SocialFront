@@ -10,7 +10,7 @@ const AdmissionCourseBatchTab = ({ form, handleChange, courses, educations, exam
     <select
       value={form.course}
       onChange={(e) => {
-        const selectedCourse = courses.find(c => c.uuid === e.target.value);
+        const selectedCourse = courses.find(c => c.Course_uuid === e.target.value);
         const courseFee = Number(selectedCourse?.courseFees || 0);
         const discount = Number(form.discount || 0);
         const feePaid = Number(form.feePaid || 0);
@@ -28,7 +28,7 @@ const AdmissionCourseBatchTab = ({ form, handleChange, courses, educations, exam
     >
       <option value="">-- Select Course --</option>
       {courses.map(c => (
-        <option key={c._id} value={c.uuid}>{c.name}</option>
+        <option key={c._id} value={c.Course_uuid}>{c.name}</option>
       ))}
     </select>
     <select value={form.batchTime} onChange={handleChange('batchTime')} className="border p-2">

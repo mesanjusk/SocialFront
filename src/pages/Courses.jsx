@@ -38,9 +38,8 @@ const Courses = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!institute_id) return toast.error('Missing institute ID');
 
-    const payload = { ...form, institute_uuid: institute_id };
+    const payload = { ...form };
 
 
     try {
