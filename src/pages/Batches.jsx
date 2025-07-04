@@ -32,7 +32,7 @@ const Batches = () => {
     e.preventDefault();
     if (!institute_id) return toast.error('Missing institute ID');
 
-    const payload = { ...form, institute_id };
+    const payload = { ...form, institute_uuid: institute_id };
     setLoading(true);
     try {
       if (editingId) {

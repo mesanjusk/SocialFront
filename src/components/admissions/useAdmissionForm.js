@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom"
 import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -8,6 +9,7 @@ import * as XLSX from 'xlsx';
 import BASE_URL from '../../config';
 
 const useAdmissionForm = () => {
+  const navigate = useNavigate();
   const nextMonthDate = (() => {
     const d = new Date();
     d.setMonth(d.getMonth()  +1);
@@ -454,6 +456,7 @@ if (receivableAmount > 0) {
 
 
       toast.success('All records saved successfully');
+      navigate("/home")
       setForm(initialForm);
       setEditingId(null);
       setTab(0);

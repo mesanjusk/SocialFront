@@ -11,9 +11,9 @@ import GroupIcon from '@mui/icons-material/Group';
 export default function Navbar({ toggleSidebar }) {
   const { user, institute, loading } = useApp();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); // Controls full menu drawer
-  const [showAcademicItems, setShowAcademicItems] = useState(false); // Toggle Academic
-  const [showSettingsItems, setShowSettingsItems] = useState(false); // Toggle Settings
+  const [isOpen, setIsOpen] = useState(false); 
+  const [showMasterItems, setShowMasterItems] = useState(false); 
+  const [showSettingsItems, setShowSettingsItems] = useState(false); 
   const navigate = useNavigate();
 
   const instituteTitle =
@@ -87,15 +87,15 @@ export default function Navbar({ toggleSidebar }) {
       {isOpen && (
         <>
           <div className="fixed top-12 right-0 w-64 h-[90vh] bg-white z-50 shadow-lg overflow-y-auto p-4 space-y-4">
-            {/* Academic Section */}
+            {/* Master Section */}
             <div>
               <div
                 className="font-semibold text-gray-700 mb-2 cursor-pointer hover:underline"
-                onClick={() => setShowAcademicItems(!showAcademicItems)}
+                onClick={() => setShowMasterItems(!showMasterItems)}
               >
-                Academic {showAcademicItems}
+                Master {showMasterItems}
               </div>
-              {showAcademicItems && (
+              {showMasterItems && (
                 <div className="space-y-2 pl-2">
                   {[
                     { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },

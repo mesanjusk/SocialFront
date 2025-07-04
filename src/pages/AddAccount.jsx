@@ -79,6 +79,9 @@ const institute_uuid = localStorage.getItem("institute_uuid");
                             ))}
                         </select>
                 <button type="submit" className="w-full py-2 mb-2 bg-green-600 text-white rounded"> Submit </button>
+                <button type="button" className="w-full py-2 bg-red-500 text-white rounded" onClick={() => navigate("/home")}>
+                        Close
+                    </button>
 
             </form>
         </div>

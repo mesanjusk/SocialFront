@@ -6,6 +6,7 @@ import BASE_URL from '../../config';
 const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
+  const [ followupDate, setFollowupDate] = useState();
   const [studentData, setStudentData] = useState({
     firstName: '',
     lastName: '',
@@ -57,6 +58,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
         studentData,
         referredBy: leadData.referredBy,
         followups: leadData.followups,
+        followupDate: followupDate
       });
       toast.success('Lead created successfully');
       onSuccess();
@@ -114,6 +116,13 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
               <option key={course._id} value={course.uuid}>{course.name}</option>
             ))}
           </select>
+           <label className="block mb-2">Follow up</label>
+                            <input
+                                type="date"
+                                onChange={e => setFollowupDate(e.target.value)}
+                                value={followupDate}
+                                className="form-control mb-3"
+                            />
           <input
             type="text"
             placeholder="Referred By"
