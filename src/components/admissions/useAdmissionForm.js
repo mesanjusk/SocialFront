@@ -417,12 +417,12 @@ if (receivableAmount > 0) {
       // Prepare journal
       const receivableJournal = [
         {
-          Account_id: studentAccount.Account_uuid || studentAccount.uuid,
+          Account_id: receivableAccountUuid,
           Type: 'Debit',
           Amount: receivableAmount,
         },
         {
-          Account_id: receivableAccountUuid,
+          Account_id: studentAccount.Account_uuid || studentAccount.uuid,
           Type: 'Credit',
           Amount: receivableAmount,
         }
@@ -582,4 +582,4 @@ if (receivableAmount > 0) {
 
 export default useAdmissionForm;
 
-	
+
