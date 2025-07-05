@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
 import { FaSortUp, FaSortDown } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import { jsPDF } from "jspdf";
@@ -14,17 +13,24 @@ const AllBalance = () => {
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('all');
-    const navigate = useNavigate();
 
-    // TODO: UPDATE these URLs to your actual endpoints!
+    const navigate = useNavigate();
+    const institute_uuid = localStorage.getItem('institute_uuid');
+    // ... rest as before
+
     const TRANSACTION_API = `${BASE_URL}/api/transaction/GetTransactionList`;
-    const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
+const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
+
 
     useEffect(() => {
         const fetchTransactions = async () => {
             try {
                 const res = await axios.get(TRANSACTION_API);
-                setTransactions(res.data.result || []);
+                setTransactions(
+                  (res.data.result || []).filter(
+                    t => t.institute_uuid === institute_uuid
+                  )
+                );
             } catch (err) {
                 console.error('Transaction fetch error:', err);
             }
@@ -32,15 +38,18 @@ const AllBalance = () => {
         const fetchCustomers = async () => {
             try {
                 const res = await axios.get(CUSTOMER_API);
-                setCustomers(res.data.result || []);
-
+                setCustomers(
+                  (res.data.result || []).filter(
+                    c => c.institute_uuid === institute_uuid
+                  )
+                );
             } catch (err) {
                 console.error('Customer fetch error:', err);
             }
         };
         fetchTransactions();
         fetchCustomers();
-    }, []);
+    }, [institute_uuid]); // also add institute_uuid as dependency
 
     useEffect(() => {
         generateOutstandingReport();
@@ -76,18 +85,20 @@ const AllBalance = () => {
 
 
     const sortedReport = [...outstandingReport]
-        .filter(item => {
-            if (filterType === 'receivable') return item.balance > 0;
-            if (filterType === 'payable') return item.balance < 0;
-            if (filterType === 'zero') return item.balance === 0 && (item.debit !== 0 || item.credit !== 0);
-            return true;
-        })
-       .filter(item => (item.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
-        .sort((a, b) => {
-            if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
-            return 0;
-        });
+    .filter(item => {
+        // Show only non-zero balances (receivable or payable)
+        if (filterType === 'receivable') return item.balance > 0;
+        if (filterType === 'payable') return item.balance < 0;
+        if (filterType === 'zero') return false; // don't show zero balance even if filter is zero
+        // By default, skip zero balances
+        return item.balance !== 0;
+    })
+    .filter(item => (item.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
 
     const handleSort = (key) => {
         let direction = 'asc';
@@ -153,43 +164,44 @@ const AllBalance = () => {
 
                     {/* Table */}
                     <table className="w-full table-auto text-sm border">
-                        <thead className="bg-green-100 text-green-900">
-                            <tr>
-                                <th onClick={() => handleSort('name')} className="border px-3 py-2 cursor-pointer text-left">
-                                    Customer {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
-                                </th>
-                                <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left">
-                                    Mobile {sortConfig.key === 'mobile' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
-                                </th>
-                                <th onClick={() => handleSort('balance')} className="border px-3 py-2 cursor-pointer text-right">
-                                    Amount {sortConfig.key === 'balance' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
-                                </th>
-                                <th className="border px-3 py-2 text-center"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {sortedReport.length === 0 ? (
-                                <tr>
-                                    <td colSpan="4" className="text-center py-6 text-gray-500">No customers found.</td>
-                                </tr>
-                            ) : (
-                                sortedReport.map((item, index) => (
-                                    <tr key={index} className="border-t hover:bg-gray-50">
-                                        <td className="px-3 py-2 cursor-pointer text-green-600" onClick={() => viewTransactions(item)}>
-                                            {item.name}
-                                        </td>
-                                        <td className="px-3 py-2">{item.mobile}</td>
-                                        <td className={`px-3 py-2 text-right ${item.balance < 0 ? 'text-red-600' : 'text-green-700'}`}>
-                                            ₹{Math.abs(item.balance)}
-                                        </td>
-                                        <td className="px-3 py-2 text-center">
-                                            {/* WhatsApp actions removed */}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+    <thead className="bg-green-100 text-green-900">
+        <tr>
+            <th onClick={() => handleSort('name')} className="border px-3 py-2 cursor-pointer text-left">
+                Customer {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
+            </th>
+            <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left">
+                Mobile {sortConfig.key === 'mobile' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
+            </th>
+            <th className="border px-3 py-2 text-right">Receivable</th>
+            <th className="border px-3 py-2 text-right">Payable</th>
+            <th className="border px-3 py-2 text-center"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {sortedReport.length === 0 ? (
+            <tr>
+                <td colSpan="5" className="text-center py-6 text-gray-500">No customers found.</td>
+            </tr>
+        ) : (
+            sortedReport.map((item, index) => (
+                <tr key={index} className="border-t hover:bg-gray-50">
+                    <td className="px-3 py-2 cursor-pointer text-green-600" onClick={() => viewTransactions(item)}>
+                        {item.name}
+                    </td>
+                    <td className="px-3 py-2">{item.mobile}</td>
+                    <td className="px-3 py-2 text-right text-green-700">
+                        {item.balance > 0 ? `₹${item.balance}` : '-'}
+                    </td>
+                    <td className="px-3 py-2 text-right text-red-600">
+                        {item.balance < 0 ? `₹${Math.abs(item.balance)}` : '-'}
+                    </td>
+                    <td className="px-3 py-2 text-center"></td>
+                </tr>
+            ))
+        )}
+    </tbody>
+</table>
+
                 </div>
             </div>
         </>
