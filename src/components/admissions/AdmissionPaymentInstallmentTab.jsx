@@ -21,7 +21,7 @@ const AdmissionPaymentInstallmentTab = ({ form, handleChange, installmentPlan, p
       <select value={form.paidBy} onChange={handleChange('paidBy')} className="border p-2 flex-1">
         <option value="">-- Select Payment Mode --</option>
         {paymentModes.map(p => (
-          <option key={p._id} value={p.mode}>{p.mode}</option>
+          <option key={p._id} value={p.uuid}>{p.Account_name}</option>
         ))}
       </select>
     </div>

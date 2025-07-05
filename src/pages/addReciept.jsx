@@ -80,6 +80,34 @@ export default function AddReceipt() {
         setFilteredOptions([]); // Clear dropdown after select
     };
 
+     const handleWhatsAppClick = async (e) => {
+        e.preventDefault(); 
+    
+        try {
+            const whatsappInfo = await submit(e);  
+            if (!whatsappInfo) return;
+    
+            const { name, phone, amount, date, mode } = whatsappInfo;
+    
+            if (!phone) {
+                alert("Customer phone number is missing.");
+                return;
+            }
+    
+            const message = `Hello ${name}, we have received your payment of ₹${amount} on ${date} via ${mode}. Thank you!`;
+    
+            const confirmed = window.confirm(`Send WhatsApp message to ${name}?\n\n"${message}"`);
+            if (!confirmed) return;
+    
+            await sendMessageToAPI(name, phone, message);
+    
+            navigate("/home");
+    
+        } catch (error) {
+            console.error("Failed to process WhatsApp order flow:", error);
+        }
+    };
+
     // --- Form Submission (Save Receipt) ---
     async function submit(e) {
         e.preventDefault();
@@ -96,7 +124,7 @@ export default function AddReceipt() {
 
         try {
             // Find selected account/mode objects
-            const Account = allAccountOptions.find(option => option.Account_uuid === accounts);
+            const Account = allAccountOptions.find(option => option.uuid === accounts);
             const Group = paymentOptions.find(option => option.mode === group);
             const todayDate = new Date().toISOString().split("T")[0];
 
@@ -136,6 +164,13 @@ export default function AddReceipt() {
             } else {
                 alert("Failed to add Transaction");
             }
+             return {
+                name: Account.Account_name,
+                phone: Account.Mobile_number,
+                amount: amount,
+                date: transactionDate,
+                mode: Group.mode
+            };
         } catch (e) {
             console.error("Error adding Transaction:", e);
             alert("Error occurred while submitting the form.");
@@ -150,28 +185,38 @@ export default function AddReceipt() {
         setAmount(value);
     };
 
-   async function handleWhatsAppClick(e) {
-    e.preventDefault();
-    const info = await handleSubmit(e, { forWhatsApp: true });
-    if (!info) return;
-    const { name, phone, amount, date, mode } = info;
-    if (!phone) return alert("No customer phone number.");
-
-    const message = `Hello ${name}, we have received your payment of ₹${amount} on ${date} via ${mode}. Thank you!`;
-    if (!window.confirm(`Send WhatsApp message?\n\n${message}`)) return;
-
-    try {
-      await fetch('https://misbackend-e078.onrender.com/usertask/send-message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: phone, userName: name, type: 'customer', message }),
-      });
-      alert("Message sent!");
-      navigate("/home");
-    } catch {
-      alert("Failed to send WhatsApp message.");
-    }
-  }
+   const sendMessageToAPI = async (name, phone, message) => {
+        const payload = {
+            mobile: phone,
+            userName: name,
+            type: 'customer',
+            message: message,
+        };
+    
+        try {
+            const res = await fetch(`${BASE_URL}/api/institute/send-message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+    
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Failed to send message: ${errorText}`);
+            }
+    
+            const result = await res.json();
+            if (result.error) {
+                alert("Failed to send: " + result.error);
+            } else {
+                alert("Message sent successfully.");
+            }
+        } catch (error) {
+            console.error("Request failed:", error);
+            alert("Failed to send message: " + error.message);
+        }
+    
+  };
 
 
     // --- Render ---

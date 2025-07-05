@@ -44,35 +44,37 @@ const Signup = () => {
 
  const handleSendOtp = async (e) => {
   e.preventDefault();
+
   if (!/^[0-9]{10}$/.test(form.institute_call_number)) {
     toast.error('Enter a valid 10-digit mobile number');
     return;
   }
 
+  const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  setServerOtp(generatedOtp); // Save it for comparison later
+
+  const message = `Your OTP for Institute registration is ${generatedOtp}`;
+
   try {
-    const res = await axios.post(`${BASE_URL}/api/send-otp`, {
-      mobile: form.institute_call_number,
-      center_code: form.center_code,
+    const res = await axios.post(`${BASE_URL}/api/institute/send-message`, {
+      mobile: `91${form.institute_call_number}`,
+      message,
+      type: 'signup',
+      userName: form.center_head_name,
     });
 
     if (res.data.success) {
       setOtpSent(true);
-      setServerOtp(res.data.otp); 
       toast.success('OTP sent to your mobile');
     } else {
-      toast.error(res.data.message || 'Failed to send OTP');
+      toast.error('Failed to send OTP');
     }
   } catch (err) {
-    if (err.response?.status === 409) {
-      toast.error('Center code or mobile number already registered');
-    } else if (err.response?.data?.message) {
-      toast.error(err.response.data.message);
-    } else {
-      toast.error('Server error while sending OTP');
-    }
-    console.error('OTP Error:', err);
+    console.error('OTP Send Error:', err);
+    toast.error('Error sending OTP');
   }
 };
+
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -112,15 +114,50 @@ const Signup = () => {
          try {
     const groupRes = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
     const accountGroup = groupRes.data.result.find(g => g.Account_group === "ACCOUNT");
+    const accountBank = groupRes.data.result.find(g => g.Account_group == "Bank");
 
     if (accountGroup) {
       await axios.post(`${BASE_URL}/api/account/addAccount`, {
-        Account_name: form.institute_title,
+        Account_name: form.center_head_name,
         Mobile_number: form.institute_call_number,
         Account_group: accountGroup.Account_group_uuid,
         institute_uuid: data.institute_uuid
       });
       toast.success("Institute account created");
+    } else {
+      toast.error("ACCOUNT group not found");
+    }
+
+     if (accountGroup) {
+      await axios.post(`${BASE_URL}/api/account/addAccount`, {
+        Account_name: "Fees Receivable",
+        Mobile_number: form.institute_call_number,
+        Account_group: accountGroup.Account_group_uuid,
+        institute_uuid: data.institute_uuid
+      });
+      toast.success("Fees Receivable account created");
+    } else {
+      toast.error("ACCOUNT group not found");
+    }
+    if (accountBank) {
+      await axios.post(`${BASE_URL}/api/account/addAccount`, {
+        Account_name: "Bank",
+        Mobile_number: form.institute_call_number,
+        Account_group: accountBank.Account_group_uuid,
+        institute_uuid: data.institute_uuid
+      });
+      toast.success("Bank account created");
+    } else {
+      toast.error("ACCOUNT group not found");
+    }
+    if (accountBank) {
+      await axios.post(`${BASE_URL}/api/account/addAccount`, {
+        Account_name: "Cash",
+        Mobile_number: form.institute_call_number,
+        Account_group: accountBank.Account_group_uuid,
+        institute_uuid: data.institute_uuid
+      });
+      toast.success("Cash account created");
     } else {
       toast.error("ACCOUNT group not found");
     }

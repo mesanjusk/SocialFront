@@ -70,7 +70,6 @@ const fetchAccountGroups = async () => {
   try {
     const res = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
     const data = res.data?.result;
-    console.log('Fetched Account Groups:', data); // Debug log
 
     if (Array.isArray(data)) {
       setAccountGroups(data);
@@ -154,13 +153,17 @@ useEffect(() => {
   };
 
   const fetchPaymentModes = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/paymentmode`);
-      setPaymentModes(Array.isArray(res.data) ? res.data : []);
-    } catch {
-      toast.error('Failed to load payment modes');
-    }
-  };
+  try {
+    const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
+    const options = (res.data?.result || []).filter(
+      item => item.Account_name === "Bank" || item.Account_name === "Cash"
+    );
+    setPaymentModes(options);
+  } catch (err) {
+    toast.error('Failed to load payment modes');
+    console.error('Payment mode fetch error:', err);
+  }
+};
 
   useEffect(() => {
     const inst = parseInt(form.installment, 10);
