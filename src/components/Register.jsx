@@ -13,7 +13,7 @@ const Signup = () => {
     center_code: '',
     institute_call_number: '',
     center_head_name: '',
-    theme_color: '#6fa8dc'
+    theme_color: '#d0e0e3'
   });
 
   const [orgTypes, setOrgTypes] = useState([]);
@@ -99,7 +99,7 @@ const Signup = () => {
         localStorage.setItem('center_code', form.center_code);
         localStorage.setItem('user_type', 'admin'); // <-- Corrected key
         localStorage.setItem('login_username', form.center_code); // or generate one if required
-        localStorage.setItem('theme_color', data.theme_color || '#6fa8dc');
+        localStorage.setItem('theme_color', data.theme_color || '#d0e0e3');
         localStorage.setItem('institute_id', data.institute_id || '');
 
         if (data.trialExpiresAt) {
@@ -107,7 +107,7 @@ const Signup = () => {
         }
 
         // ✅ Apply theme color
-        document.documentElement.style.setProperty('--theme-color', data.theme_color || '#6fa8dc');
+        document.documentElement.style.setProperty('--theme-color', data.theme_color || '#d0e0e3');
 
         // ✅ Update Context globally
         if (window.updateAppContext) {
@@ -122,7 +122,7 @@ const Signup = () => {
               institute_id: data.institute_id,
               institute_uuid: data.institute_uuid,
               institute_title: data.institute_title,
-              theme_color: data.theme_color || '#6fa8dc'
+              theme_color: data.theme_color || '#d0e0e3'
             }
           });
         }

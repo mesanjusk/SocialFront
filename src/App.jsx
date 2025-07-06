@@ -12,7 +12,7 @@ import Signup from './components/Signup';
 import OrgCategories from './pages/OrgCategories';
 import Education from './pages/Education';
 import Exam from './pages/Exam';
-import PaymentMode from './pages/PaymentMode';
+import PaymentMode from './pages/remove1';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import InstituteProfile from './pages/instituteProfile';
@@ -23,7 +23,7 @@ import Leads from './Reports/Leads';
 import AllAdmission from './Reports/allAdmission';
 import AddLead from './pages/AddLead';
 import AddNew from './components/admissions/AddAdmission';
-import Followup from './pages/Followup';
+import Followup from './pages/remove';
 import WhatsAppAdminPage from './pages/WhatsAppAdminPage';
 import AddReciept from './pages/addReciept';
 import AddPayment from './pages/addPayment';
@@ -33,6 +33,7 @@ import AllAttendance from './Reports/allAttendance';
 import AllBatches from './Reports/allBatches';
 import AllBalance from './Reports/allBalance'; // <-- ✅ NEW PAGE
 import AddAccount from './pages/AddAccount';
+import AllExams from './Reports/allExams';
 
 export default function App() {
   return (
@@ -73,6 +74,7 @@ export default function App() {
         <Route path="allBalance" element={<AllBalance />} /> {/* ✅ Added Route */}
         <Route path="allBatches" element={<AllBatches />} /> {/* ✅ Added Route */}
         <Route path="whatsapp" element={<WhatsAppAdminPage />} />
+         <Route path="allExams" element={<AllExams />} />
       </Route>
 
       {/* 🧭 Fallback */}

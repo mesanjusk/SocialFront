@@ -100,7 +100,8 @@ export default function Navbar({ toggleSidebar }) {
                   {[
                     { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },
                     { path: '/dashboard/Batches', label: 'Batches', icon: <EventNoteIcon fontSize="small" /> },
-                    { path: '/dashboard/paymentmode', label: 'Payment Mode', icon: <EventNoteIcon fontSize="small" /> },
+                    { path: '/dashboard/allbatches', label: 'Manage Batches', icon: <EventNoteIcon fontSize="small" /> },
+                    { path: '/dashboard/allexams', label: 'Manage Exams', icon: <EventNoteIcon fontSize="small" /> },
                     { path: '/dashboard/education', label: 'Education', icon: <SchoolIcon fontSize="small" /> },
                     { path: '/dashboard/exam', label: 'Exam', icon: <EventNoteIcon fontSize="small" /> },
                   ].map((item) => (

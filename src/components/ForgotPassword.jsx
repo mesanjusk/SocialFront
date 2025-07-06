@@ -8,7 +8,7 @@ import { useApp } from '../Context/AppContext';
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const { institute } = useApp();
-  const themeColor = institute?.theme_color || '#6fa8dc';
+  const themeColor = institute?.theme_color || '#d0e0e3';
 
   const [centerCode, setCenterCode] = useState('');
   const [mobile, setMobile] = useState('');

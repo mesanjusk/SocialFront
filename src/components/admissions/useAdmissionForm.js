@@ -60,7 +60,7 @@ const useAdmissionForm = () => {
 
   const [installmentPlan, setInstallmentPlan] = useState([]);
 
-  const themeColor = localStorage.getItem('theme_color') || '#6fa8dc';
+  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
   const institute_uuid = localStorage.getItem('institute_uuid');
   const [searchParams] = useSearchParams();
   const lead_uuid = searchParams.get('lead_uuid');
@@ -153,17 +153,19 @@ useEffect(() => {
   };
 
   const fetchPaymentModes = async () => {
-  try {
-    const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
-    const options = (res.data?.result || []).filter(
-      item => item.Account_name === "Bank" || item.Account_name === "Cash"
-    );
-    setPaymentModes(options);
-  } catch (err) {
-    toast.error('Failed to load payment modes');
-    console.error('Payment mode fetch error:', err);
-  }
-};
+ try {
+      const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`, {
+        params: { institute_uuid },
+      });
+      const options = (res.data?.result || []).filter(
+        (item) => item.Account_name === 'Bank' || item.Account_name === 'Cash'
+      );
+      setPaymentModes(options);
+    } catch (err) {
+      toast.error('Failed to load payment modes');
+      console.error('Payment mode fetch error:', err);
+    }
+  };
 
   useEffect(() => {
     const inst = parseInt(form.installment, 10);
@@ -374,7 +376,10 @@ useEffect(() => {
     // ✅ Fetch account list ONCE
     let accList = [];
     try {
-      const accountRes = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
+      const accountRes = await axios.get(
+        `${BASE_URL}/api/account/GetAccountList`,
+        { params: { institute_uuid } }
+      );
       accList = accountRes.data.result || [];
     } catch (err) {
       toast.error("Failed to fetch account list for transactions");

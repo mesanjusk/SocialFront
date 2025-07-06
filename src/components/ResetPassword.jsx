@@ -7,7 +7,7 @@ import BASE_URL from '../config';
 const ResetPassword = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const themeColor = localStorage.getItem('theme_color') || '#6fa8dc';
+  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');

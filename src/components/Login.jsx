@@ -66,7 +66,7 @@ const Login = () => {
         localStorage.setItem('trialExpiresAt', data.trialExpiresAt);
       }
 
-      document.documentElement.style.setProperty('--theme-color', data.theme_color || '#6fa8dc');
+      document.documentElement.style.setProperty('--theme-color', data.theme_color || '#d0e0e3');
 
       if (window.updateAppContext) {
         window.updateAppContext({
@@ -96,7 +96,7 @@ const Login = () => {
           <img src={branding?.logo || '/logo.png'} alt="Logo" className="w-20 h-20 object-contain" />
         </div>
 
-        <h2 className="text-2xl font-bold text-center mb-6" style={{ color: branding?.theme?.color || '#6fa8dc' }}>
+        <h2 className="text-2xl font-bold text-center mb-6" style={{ color: branding?.theme?.color || '#d0e0e3' }}>
           {branding?.institute || 'Login'}
         </h2>
 
@@ -149,7 +149,7 @@ const Login = () => {
             type="submit"
             disabled={loading}
             className={`w-full py-2 rounded text-white ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
-            style={{ backgroundColor: branding?.theme?.color || '#6fa8dc' }}
+            style={{ backgroundColor: branding?.theme?.color || '#d0e0e3' }}
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>

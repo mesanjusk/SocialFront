@@ -8,7 +8,7 @@ export const fetchBranding = async (insti, setBranding) => {
   try {
     const res = await axios.get(`${BASE_URL}/api/branding?i=${insti || 'default'}`);
     const data = res.data;
-    const themeColor = data.theme?.color || '#6fa8dc';
+    const themeColor = data.theme?.color || '#d0e0e3';
 
     localStorage.setItem('branding', JSON.stringify(data));
     localStorage.setItem('institute_title', data.institute || '');

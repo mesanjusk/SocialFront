@@ -15,7 +15,7 @@ const CoursesCategory = () => {
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
-  const themeColor = localStorage.getItem('theme_color') || '#6fa8dc';
+  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
 
   const fetchCourses = async () => {
     try {

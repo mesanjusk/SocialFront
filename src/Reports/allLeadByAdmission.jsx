@@ -7,6 +7,7 @@ import BASE_URL from '../config';
 import AdmissionFormModal from '../components/admissions/AdmissionFormModal';
 import ConfirmAdmissionModal from '../components/admissions/ConfirmAdmissionModal';
 import ManageBatchModal from '../components/common/ManageBatchModal';
+import ReceiptModal from '../components/admissions/ReceiptModal';
 
 
 const AllLeadByAdmission = () => {
@@ -18,6 +19,8 @@ const AllLeadByAdmission = () => {
   const [editLead, setEditLead] = useState(null);
   const [confirmLead, setConfirmLead] = useState(null);
    const [batchAdmission, setBatchAdmission] = useState(null);
+   const [receiptData, setReceiptData] = useState(null);
+  const [institute, setInstitute] = useState({});
   const navigate = useNavigate();
   const { username } = useParams();
   const institute_uuid = localStorage.getItem('institute_uuid');
@@ -51,12 +54,27 @@ setLeads(leadsWithAdmission);
       setLoading(false);
     }
   };
+const fetchInstitute = async () => {
+    try {
+      const { data } = await axios.get(`${BASE_URL}/api/institute/${institute_uuid}`);
+      const inst = data?.result || data;
+      setInstitute({
+        name: inst.institute_title,
+        contact: inst.institute_call_number,
+        code: inst.gst,
+        logo: (inst.theme && inst.theme.logo) || inst.institute_logo,
+      });
+    } catch (err) {
+      console.error('Error fetching institute:', err);
+    }
+  };
 
   useEffect(() => {
     fetchLeads();
     fetchCourses();
+    fetchInstitute();
   }, []);
-
+  
   const filteredLeads = leads.filter((a) => {
     const name = `${a.student?.firstName || ''} ${a.student?.lastName || ''}`.toLowerCase();
     const mobile = a.student?.mobileSelf || '';
@@ -99,6 +117,22 @@ const handleEditClick = async (lead) => {
       toast.error('Failed to load admission');
     }
   };
+
+  
+  const handleReceiptClick = async (lead) => {
+    try {
+      const { data } = await axios.get(
+        `${BASE_URL}/api/admissions/${lead.admission_uuid}`
+      );
+      const admission = data?.data || data;
+      setReceiptData(admission);
+      setSelectedLead(null);
+    } catch (error) {
+      console.error('Error fetching admission for receipt:', error);
+      toast.error('Failed to load admission');
+    }
+  };
+
   const getCourseName = (courseUuid) => {
   const course = courses.find((c) => c.Course_uuid === courseUuid);
   return course ? course.name : 'Course N/A';
@@ -139,6 +173,12 @@ const handleEditClick = async (lead) => {
               >
                 Confirm
               </button>
+                 <button
+                onClick={() => handleReceiptClick(selectedLead)}
+                className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+              >
+                Download Receipt
+              </button>
               <button
                 onClick={() => setSelectedLead(null)}
                 className="bg-gray-400 text-white px-4 py-2 rounded text-sm ml-auto"
@@ -170,7 +210,7 @@ const handleEditClick = async (lead) => {
      {!loading && filteredLeads.length === 0 && <div>No leads with admissions found.</div>}
 
       {!loading && filteredLeads.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-10 gap-4">
           {filteredLeads.map((admission) => (
             <div
               key={admission._id}
@@ -196,16 +236,7 @@ const handleEditClick = async (lead) => {
                 >
                   <FaWhatsapp />
                 </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCall(admission.student?.mobileSelf);
-                  }}
-                  className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600"
-                  title="Call"
-                >
-                  <FaPhoneAlt />
-                </button>
+                
               </div>
             </div>
           ))}
@@ -230,8 +261,7 @@ const handleEditClick = async (lead) => {
             fetchLeads();
           }}
         />
-      )}
-   {batchAdmission && (
+      )}     {batchAdmission && (
         <ManageBatchModal
           admission={batchAdmission}
           onClose={() => setBatchAdmission(null)}
@@ -239,6 +269,13 @@ const handleEditClick = async (lead) => {
             setBatchAdmission(null);
             fetchLeads();
           }}
+        />
+      )}
+      {receiptData && (
+        <ReceiptModal
+          data={receiptData}
+          institute={institute}
+          onClose={() => setReceiptData(null)}
         />
       )}
     </div>

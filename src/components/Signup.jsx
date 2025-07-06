@@ -14,10 +14,10 @@ const Signup = () => {
     center_code: '',
     institute_call_number: '',
     center_head_name: '',
-    theme_color: '#6fa8dc'
+    theme_color: '#d0e0e3'
   });
 
-  const themeColor = form.theme_color || '#6fa8dc';
+  const themeColor = form.theme_color || '#d0e0e3';
 
   const [orgTypes, setOrgTypes] = useState([]);
   const [loadingTypes, setLoadingTypes] = useState(true);
@@ -102,14 +102,14 @@ const Signup = () => {
           institute_uuid: data.institute_uuid,
           institute_name: data.institute_title,
           institute_id: data.institute_id,
-          theme_color: data.theme_color || '#6fa8dc',
+          theme_color: data.theme_color || '#d0e0e3',
         });
 
         if (data.trialExpiresAt) {
           localStorage.setItem('trialExpiresAt', data.trialExpiresAt);
         }
 
-        document.documentElement.style.setProperty('--theme-color', data.theme_color || '#6fa8dc');
+        document.documentElement.style.setProperty('--theme-color', data.theme_color || '#d0e0e3');
 
          try {
     const groupRes = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);

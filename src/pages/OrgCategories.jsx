@@ -11,7 +11,7 @@ const OrgCategories = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const categoryInputRef = useRef();
-  const themeColor = localStorage.getItem('theme_color') || '#6fa8dc';
+  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
 
   const fetchCategories = async () => {
     try {
