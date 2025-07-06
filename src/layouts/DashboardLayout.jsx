@@ -18,12 +18,12 @@ export default function DashboardLayout() {
   };
 
   const buttonsList = [
-      { onClick: ()=> navigate('/admin/add-Lead'), src: enquiry },
-      { onClick: ()=> navigate('/admin/addNewAdd'), src: admission },
-      { onClick: ()=> navigate('/admin/addReciept'), src: enquiry },
-      { onClick: ()=> navigate('/admin/addPayment'), src: admission },
-      
-    ];
+  { onClick: () => navigate('/admin/add-Lead'), label: "Enquiry" },
+  { onClick: () => navigate('/admin/addNewAdd'), label: "Admission" },
+  { onClick: () => navigate('/admin/addReciept'), label: "Receipt" },
+  { onClick: () => navigate('/admin/addPayment'), label: "Payment" },
+];
+
 
   return (
     <>

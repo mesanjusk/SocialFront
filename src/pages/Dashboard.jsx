@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AllAttendance from '../Reports/allAttendance';
 
 const API_URL = '/api/dashboard-stats'; // Update as per your backend
 
@@ -118,34 +119,7 @@ const Dashboard = () => {
           </div>
         )}
         {/* Attendance Board */}
-        <div className="bg-white p-4 rounded-2xl shadow w-full md:w-2/3 mx-auto mt-4 mb-6">
-          <h2 className="text-xl font-bold mb-2 text-gray-800">Today's Attendance</h2>
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-              {[...Array(3)].map((_, idx) => (
-                <div key={idx} className="h-12 bg-gray-100 rounded animate-pulse"></div>
-              ))}
-            </div>
-          ) : stats.attendance.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-              {stats.attendance.map((entry, idx) => (
-                <div
-                  key={idx}
-                  className={`flex justify-between items-center py-2 px-4 rounded ${
-                    entry.status === "Present"
-                      ? "bg-green-50 text-green-700"
-                      : "bg-red-50 text-red-700"
-                  }`}
-                >
-                  <span>{entry.name}</span>
-                  <span className="font-semibold">{entry.status}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-gray-400 py-4 text-center">No attendance data found.</div>
-          )}
-        </div>
+        <AllAttendance />
         {/* Dashboard Cards */}
         <main className="flex-1 p-4 bg-gray-50">
           <div className="grid grid-cols-3 md:grid-cols-4 gap-4 mb-8">
