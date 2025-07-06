@@ -30,6 +30,7 @@ import AddPayment from './pages/addPayment';
 import AllLeadByAdmission from './Reports/allLeadByAdmission';
 import AddAttendance from './pages/AddAttendance';
 import AllAttendance from './Reports/allAttendance';
+import AllBatches from './Reports/allBatches';
 import AllBalance from './Reports/allBalance'; // <-- ✅ NEW PAGE
 import AddAccount from './pages/AddAccount';
 
@@ -70,6 +71,7 @@ export default function App() {
         <Route path="addAttendance" element={<AddAttendance />} />
         <Route path="allAttendance" element={<AllAttendance />} />
         <Route path="allBalance" element={<AllBalance />} /> {/* ✅ Added Route */}
+        <Route path="allBatches" element={<AllBatches />} /> {/* ✅ Added Route */}
         <Route path="whatsapp" element={<WhatsAppAdminPage />} />
       </Route>
 
