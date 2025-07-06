@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import BASE_URL from '../config';
 import AdmissionFormModal from '../components/admissions/AdmissionFormModal';
 import ConfirmAdmissionModal from '../components/admissions/ConfirmAdmissionModal';
+import ManageBatchModal from '../components/common/ManageBatchModal';
 
 
 const AllLeadByAdmission = () => {
@@ -16,6 +17,7 @@ const AllLeadByAdmission = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const [editLead, setEditLead] = useState(null);
   const [confirmLead, setConfirmLead] = useState(null);
+   const [batchAdmission, setBatchAdmission] = useState(null);
   const navigate = useNavigate();
   const { username } = useParams();
   const institute_uuid = localStorage.getItem('institute_uuid');
@@ -84,7 +86,19 @@ const handleEditClick = async (lead) => {
       toast.error('Failed to load admission');
     }
   };
-
+  const handleManageBatchClick = async (lead) => {
+    try {
+      const { data } = await axios.get(
+        `${BASE_URL}/api/admissions/${lead.admission_uuid}`
+      );
+      const admission = data?.data || data;
+      setBatchAdmission(admission);
+      setSelectedLead(null);
+    } catch (error) {
+      console.error('Error fetching admission for batch:', error);
+      toast.error('Failed to load admission');
+    }
+  };
   const getCourseName = (courseUuid) => {
   const course = courses.find((c) => c.Course_uuid === courseUuid);
   return course ? course.name : 'Course N/A';
@@ -105,12 +119,18 @@ const handleEditClick = async (lead) => {
             </p>
             <div className="flex gap-2">
               <button
-                  onClick={() => handleEditClick(selectedLead)}
+                   onClick={() => handleEditClick(selectedLead)}
                 className="bg-yellow-500 text-white px-4 py-2 rounded text-sm"
               >
                 Edit
               </button>
                <button
+                onClick={() => handleManageBatchClick(selectedLead)}
+                className="bg-purple-600 text-white px-4 py-2 rounded text-sm"
+              >
+                Manage Batch
+              </button>
+              <button
                 onClick={() => {
                   setConfirmLead(selectedLead);
                   setSelectedLead(null);
@@ -207,6 +227,16 @@ const handleEditClick = async (lead) => {
           onClose={() => setConfirmLead(null)}
           onUpdated={() => {
             setConfirmLead(null);
+            fetchLeads();
+          }}
+        />
+      )}
+   {batchAdmission && (
+        <ManageBatchModal
+          admission={batchAdmission}
+          onClose={() => setBatchAdmission(null)}
+          onUpdated={() => {
+            setBatchAdmission(null);
             fetchLeads();
           }}
         />
