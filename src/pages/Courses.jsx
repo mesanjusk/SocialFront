@@ -21,7 +21,7 @@ const Courses = () => {
   const [search, setSearch] = useState('');
 
   const institute_id = localStorage.getItem('institute_uuid');
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
+  const themeColor = localStorage.getItem('theme_color') || '#6fa8dc';
 
   const fetchCourses = async () => {
     try {

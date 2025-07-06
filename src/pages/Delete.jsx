@@ -55,7 +55,7 @@
     const [educations, setEducations] = useState([]);
     const [exams, setExams] = useState([]);
     const [batches, setBatches] = useState([]);
-    const themeColor = localStorage.getItem('theme_color') || '#10B981';
+    const themeColor = localStorage.getItem('theme_color') || '#6fa8dc';
     const [paymentModes, setPaymentModes] = useState([]);
     const [installmentPlan, setInstallmentPlan] = useState([]);
 

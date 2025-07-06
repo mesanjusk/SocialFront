@@ -13,7 +13,7 @@ const InstituteProfile = () => {
   const [faviconPreview, setFaviconPreview] = useState('');
   const [faviconFile, setFaviconFile] = useState(null);
 
-  const themeColor = institute?.theme_color || '#10B981';
+  const themeColor = institute?.theme_color || '#6fa8dc';
   const instituteUUID = institute?.institute_uuid;
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const InstituteProfile = () => {
       const updated = {
         ...data,
         institute_logo: logoUrl,
-        theme_color: data.theme_color || '#10B981',
+        theme_color: data.theme_color || '#6fa8dc',
         theme_logo: logoUrl,
         theme_favicon: faviconUrl,
       };

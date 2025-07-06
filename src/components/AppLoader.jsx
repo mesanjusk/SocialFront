@@ -27,8 +27,8 @@ const AppLoader = ({ children }) => {
       localStorage.setItem('institute_id', org._id);
       localStorage.setItem('institute_uuid', org.institute_uuid);
       localStorage.setItem('institute_title', org.institute_title);
-      localStorage.setItem('theme_color', org.theme_color || '#10B981');
-      document.documentElement.style.setProperty('--theme-color', org.theme_color || '#10B981');
+      localStorage.setItem('theme_color', org.theme_color || '#6fa8dc');
+      document.documentElement.style.setProperty('--theme-color', org.theme_color || '#6fa8dc');
       setLoading(false);
     })
     .catch(() => {

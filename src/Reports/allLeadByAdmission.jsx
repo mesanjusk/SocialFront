@@ -71,6 +71,19 @@ setLeads(leadsWithAdmission);
     if (!mobile) return toast.error('Mobile number not available');
     window.open(`tel:${mobile}`);
   };
+const handleEditClick = async (lead) => {
+    try {
+      const { data } = await axios.get(
+        `${BASE_URL}/api/admissions/${lead.admission_uuid}`
+      );
+      const admission = data?.data || data;
+      setEditLead(admission);
+      setSelectedLead(null);
+    } catch (error) {
+      console.error('Error fetching admission:', error);
+      toast.error('Failed to load admission');
+    }
+  };
 
   const getCourseName = (courseUuid) => {
   const course = courses.find((c) => c.Course_uuid === courseUuid);
@@ -88,14 +101,11 @@ setLeads(leadsWithAdmission);
               {selectedLead.student?.firstName} {selectedLead.student?.lastName}
             </h2>
             <p className="text-gray-700 mb-2">
-              Course: {getCourseName(setSelectedLead.course)}
+              Course: {getCourseName(selectedLead.course)}
             </p>
             <div className="flex gap-2">
               <button
-                 onClick={() => {
-                  setEditLead(selectedLead);
-                  setSelectedLead(null);
-                }}
+                  onClick={() => handleEditClick(selectedLead)}
                 className="bg-yellow-500 text-white px-4 py-2 rounded text-sm"
               >
                 Edit

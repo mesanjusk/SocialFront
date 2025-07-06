@@ -14,13 +14,13 @@ institute_call_number: '',
 center_head_name: '',
  institute_type: '',
     center_code: '',
-     theme_color: '#10B981'
+     theme_color: '#6fa8dc'
   });
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const navigate = useNavigate();
 
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
+  const themeColor = localStorage.getItem('theme_color') || '#6fa8dc';
 
   useEffect(() => {
     axios.get(`${BASE_URL}/api/org-categories`)

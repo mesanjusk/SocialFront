@@ -38,7 +38,7 @@ const Followup = () => {
   const [search, setSearch] = useState('');
   const [actionModal, setActionModal] = useState(null);
   const institute_uuid = localStorage.getItem('institute_uuid');
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
+  const themeColor = localStorage.getItem('theme_color') || '#6fa8dc';
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;

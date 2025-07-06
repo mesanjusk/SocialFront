@@ -18,7 +18,7 @@ const User = () => {
   const [editingId, setEditingId] = useState(null);
   const navigate = useNavigate();
 
-  const themeColor = institute?.theme_color || '#10B981';
+  const themeColor = institute?.theme_color || '#6fa8dc';
 
   // ✅ Prevent early redirect until loading is complete
   useEffect(() => {

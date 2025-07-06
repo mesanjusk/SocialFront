@@ -13,7 +13,7 @@ const Batches = () => {
   const nameInputRef = useRef();
 
   const institute_id = localStorage.getItem('institute_uuid');
-  const themeColor = localStorage.getItem('theme_color') || '#10B981';
+  const themeColor = localStorage.getItem('theme_color') || '';
 
   const fetchBatches = async () => {
     try {
