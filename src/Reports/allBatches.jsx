@@ -3,12 +3,14 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
 import BASE_URL from '../config';
+import ManageBatchModal from '../components/common/ManageBatchModal';
 
 const AllBatches = () => {
   const [admissions, setAdmissions] = useState([]);
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedAdmission, setSelectedAdmission] = useState(null);
 
   const institute_uuid = localStorage.getItem('institute_uuid');
 
@@ -89,10 +91,12 @@ const AllBatches = () => {
       {!loading && Object.entries(grouped).map(([batch, list]) => (
         <div key={batch} className="mb-8">
           <h2 className="text-xl font-semibold mb-3">{batch}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-12 gap-4">
             {list.map((admission) => (
               <div
                 key={admission._id}
+                
+                 onClick={() => setSelectedAdmission(admission)}
                 className="border rounded-lg p-4 shadow hover:shadow-md transition cursor-pointer flex flex-col justify-between"
               >
                 <div>
@@ -103,25 +107,16 @@ const AllBatches = () => {
                     {getCourseName(admission.course)}
                   </p>
                 </div>
-                <div className="flex justify-end items-center gap-2 mt-3">
-                  <button
-                    onClick={() => handleWhatsApp(admission.studentData?.mobileSelf || admission.student?.mobileSelf, admission.studentData?.firstName || admission.student?.firstName)}
-                    className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600"
-                    title="WhatsApp"
-                  >
-                    <FaWhatsapp />
-                  </button>
-                  <button
-                    onClick={() => handleCall(admission.studentData?.mobileSelf || admission.student?.mobileSelf)}
-                    className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600"
-                    title="Call"
-                  >
-                    <FaPhoneAlt />
-                  </button>
-                </div>
               </div>
             ))}
           </div>
+         {selectedAdmission && (
+        <ManageBatchModal
+          admission={selectedAdmission}
+          onClose={() => setSelectedAdmission(null)}
+          onUpdated={fetchAdmissions}
+        />
+      )}
         </div>
       ))}
     </div>
