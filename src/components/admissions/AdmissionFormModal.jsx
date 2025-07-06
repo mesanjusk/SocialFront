@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import useAdmissionForm from './useAdmissionForm';
 import AdmissionStudentInfoTab from './AdmissionStudentInfoTab';
 import AdmissionCourseBatchTab from './AdmissionCourseBatchTab';
 import AdmissionPaymentInstallmentTab from './AdmissionPaymentInstallmentTab';
 
-const AdmissionFormModal = ({ onClose, onSuccess }) => {
+const AdmissionFormModal = ({ onClose, onSuccess, editingData }) => {
   const {
     form,
     setForm,
@@ -20,8 +20,16 @@ const AdmissionFormModal = ({ onClose, onSuccess }) => {
     batches,
     paymentModes,
     editingId,
+    handleEdit,
     themeColor,
   } = useAdmissionForm();
+
+   useEffect(() => {
+    if (editingData) {
+      handleEdit(editingData);
+    }
+  }, [editingData]);
+
 
   // Handle tab navigation
   const handleNext = () => setTab(tab + 1);

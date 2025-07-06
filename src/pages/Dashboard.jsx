@@ -110,7 +110,7 @@ const Dashboard = () => {
     <div className="min-h-screen flex bg-gray-50">
       <div className="flex-1 flex flex-col">
         {/* Institute name on top */}
-        <div className="text-2xl font-semibold text-center my-6">{instituteName}</div>
+        
         {/* Days left on trial */}
         {planType === 'trial' && daysLeft !== null && (
           <div className="text-center text-orange-500 mb-2">
@@ -177,7 +177,7 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
             <div className="bg-white p-4 rounded-2xl shadow flex flex-col">
-              <div className="text-sm text-gray-400 mb-2">Today's Fees Collection</div>
+              <div className="text-sm text-gray-400 mb-2">Today's Collection</div>
               <div className="text-3xl font-bold text-green-700 mb-4">
                 {display(stats.feesToday, true)}
               </div>

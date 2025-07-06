@@ -4,6 +4,9 @@ import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import BASE_URL from '../config';
+import AdmissionFormModal from '../components/admissions/AdmissionFormModal';
+import ConfirmAdmissionModal from '../components/admissions/ConfirmAdmissionModal';
+
 
 const AllLeadByAdmission = () => {
   const [leads, setLeads] = useState([]);
@@ -11,6 +14,8 @@ const AllLeadByAdmission = () => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [editLead, setEditLead] = useState(null);
+  const [confirmLead, setConfirmLead] = useState(null);
   const navigate = useNavigate();
   const { username } = useParams();
   const institute_uuid = localStorage.getItem('institute_uuid');
@@ -87,10 +92,22 @@ setLeads(leadsWithAdmission);
             </p>
             <div className="flex gap-2">
               <button
-                onClick={() => navigate(`/${username}/edit-lead/${selectedLead._id}`)}
+                 onClick={() => {
+                  setEditLead(selectedLead);
+                  setSelectedLead(null);
+                }}
                 className="bg-yellow-500 text-white px-4 py-2 rounded text-sm"
               >
                 Edit
+              </button>
+               <button
+                onClick={() => {
+                  setConfirmLead(selectedLead);
+                  setSelectedLead(null);
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+              >
+                Confirm
               </button>
               <button
                 onClick={() => setSelectedLead(null)}
@@ -163,6 +180,26 @@ setLeads(leadsWithAdmission);
             </div>
           ))}
         </div>
+      )}
+       {editLead && (
+        <AdmissionFormModal
+          editingData={editLead}
+          onClose={() => setEditLead(null)}
+          onSuccess={() => {
+            setEditLead(null);
+            fetchLeads();
+          }}
+        />
+      )}
+      {confirmLead && (
+        <ConfirmAdmissionModal
+          admission={confirmLead}
+          onClose={() => setConfirmLead(null)}
+          onUpdated={() => {
+            setConfirmLead(null);
+            fetchLeads();
+          }}
+        />
       )}
     </div>
   );

@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import BASE_URL from '../../config';
 import { useNavigate } from 'react-router-dom';
+import LeadEditModal from './LeadEditModal';
 
 const LeadStatusModal = ({ lead, onClose, refresh }) => {
-  // Set default to "" so user must actively choose
   const [status, setStatus] = useState(lead.leadStatus || '');
   const [remark, setRemark] = useState('');
   const [followUpDate, setFollowUpDate] = useState(new Date().toISOString().substring(0, 10));
   const [loading, setLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/courses`);
+        setCourses(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+      }
+    };
+    fetchCourses();
+  }, []);
+
   const updateStatus = async () => {
-    // Validation: must pick a status
     if (!status) {
       toast.error('Please select a status');
       return;
@@ -24,10 +37,10 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
     }
     setLoading(true);
     try {
-      await axios.put(`${BASE_URL}/api/leads/${lead.uuid}`, {
+      await axios.put(`${BASE_URL}/api/leads/${lead.uuid || lead.Lead_uuid}`, {   // fallback to Lead_uuid if uuid missing
         leadStatus: status,
         remark: remark,
-        followUpDate: status === 'follow-up' ? followUpDate : null,
+        followupDate: status === 'follow-up' ? followUpDate : null, // backend expects followupDate
         createdBy: 'System',
       });
       toast.success('Status updated successfully');
@@ -42,7 +55,7 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
   };
 
   const handleConvertToAdmission = () => {
-    window.open(`/admin/addNewAdd?lead_uuid=${lead.uuid}`, '_blank');
+    window.open(`/admin/addNewAdd?lead_uuid=${lead.uuid || lead.Lead_uuid}`, '_blank');
     onClose();
   };
 
@@ -50,7 +63,6 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded shadow-lg p-6 w-full max-w-sm">
         <h2 className="text-lg font-semibold mb-4">Update Lead Status</h2>
-
         <div className="mb-4">
           <label className="block mb-1 font-medium">Status</label>
           <select
@@ -65,7 +77,6 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
             <option value="lost">Lost</option>
           </select>
         </div>
-
         {status === 'follow-up' && (
           <div className="mb-4">
             <label className="block mb-1 font-medium">Follow-Up Date</label>
@@ -77,7 +88,6 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
             />
           </div>
         )}
-
         {(status === 'follow-up' || status === 'lost') && (
           <div className="mb-4">
             <label className="block mb-1 font-medium">
@@ -93,7 +103,6 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
             />
           </div>
         )}
-
         {status === 'converted' && (
           <div className="mb-4">
             <button
@@ -104,13 +113,18 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
             </button>
           </div>
         )}
-
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
           >
             Cancel
+          </button>
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+          >
+            Edit
           </button>
           <button
             onClick={updateStatus}
@@ -121,6 +135,16 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
           </button>
         </div>
       </div>
+      {showEditModal && (
+        <LeadEditModal
+          lead={lead}
+          courses={courses}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={() => {
+            refresh();
+          }}
+        />
+      )}
     </div>
   );
 };
