@@ -139,9 +139,10 @@ const AllBalance = () => {
 
     return (
         <>
-            <div className="no-print"></div>
-            <div className=" pb-20">
-                <div className="mt-6 max-w-7xl mx-auto  p-4">
+            
+            
+                <div className="w-full overflow-x-auto pb-2">
+                
 
 
 
@@ -183,7 +184,7 @@ const AllBalance = () => {
                         <thead className="bg-green-100 text-green-900">
                             <tr>
                                 <th onClick={() => handleSort('name')} className="border px-3 py-2 cursor-pointer text-left">
-                                    Customer {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
+                                    Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
                                 </th>
                                 <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left">
                                     Mobile {sortConfig.key === 'mobile' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
@@ -219,7 +220,7 @@ const AllBalance = () => {
                     </table>
 
                 </div>
-            </div>
+            
         </>
     );
 };
