@@ -7,13 +7,14 @@ import logoutUser from '../utils/logout';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupIcon from '@mui/icons-material/Group';
+import { FaHeart } from "react-icons/fa";
 
 export default function Navbar({ toggleSidebar }) {
   const { user, institute, loading } = useApp();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); 
-  const [showMasterItems, setShowMasterItems] = useState(false); 
-  const [showSettingsItems, setShowSettingsItems] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
+  const [showMasterItems, setShowMasterItems] = useState(false);
+  const [showSettingsItems, setShowSettingsItems] = useState(false);
   const navigate = useNavigate();
 
   const instituteTitle =
@@ -38,7 +39,7 @@ export default function Navbar({ toggleSidebar }) {
       <header className="bg-white  px-4 py-3 flex justify-between items-center z-30 relative">
         <div className="flex items-center gap-3">
           <button className="md:hidden" onClick={toggleSidebar}>
-            
+            {/* sidebar icon here if needed */}
           </button>
           <button
             onClick={() => navigate('/dashboard')}
@@ -49,7 +50,26 @@ export default function Navbar({ toggleSidebar }) {
         </div>
 
         <div className="flex items-center pr-4 gap-6 relative">
-         
+
+          {/* 1. Square 'F' */}
+          <button
+            className="flex items-center gap-2 focus:outline-none"
+            onClick={() => {/* your action here */ }}
+          >
+            <div className="w-8 h-8 bg-blue-200 flex items-center justify-center rounded text-lg font-bold text-blue-700">
+              F
+            </div>
+          </button>
+
+          {/* 2. Heart Icon */}
+          <button
+            className="flex items-center gap-2 focus:outline-none"
+            onClick={() => {/* your action here */ }}
+          >
+            <FaHeart className="text-2xl text-red-500" />
+          </button>
+
+          {/* 3. User Icon */}
           <button
             className="flex items-center gap-2 focus:outline-none"
             onClick={() => setShowUserMenu((v) => !v)}
@@ -57,20 +77,8 @@ export default function Navbar({ toggleSidebar }) {
             <AccountCircleIcon className="text-3xl text-blue-500" />
           </button>
 
-           <button
-            className="flex items-center gap-2 focus:outline-none"
-            onClick={() => setShowUserMenu((v) => !v)}
-          >
-            <AccountCircleIcon className="text-3xl text-blue-500" />
-          </button>
-           <button
-            className="flex items-center gap-2 focus:outline-none"
-            onClick={() => setShowUserMenu((v) => !v)}
-          >
-            <AccountCircleIcon className="text-3xl text-blue-500" />
-          </button>
-
-           <button onClick={toggleDrawer} className="text-2xl focus:outline-none">
+          {/* Drawer/menu icon */}
+          <button onClick={toggleDrawer} className="text-2xl focus:outline-none">
             <MenuIcon />
           </button>
 

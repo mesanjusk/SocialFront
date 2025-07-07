@@ -15,15 +15,15 @@ const Leads = () => {
   const { username } = useParams();
   const [courses, setCourses] = useState([]);
 
-const fetchCourses = async () => {
-  try {
-    const res = await axios.get(`${BASE_URL}/api/courses`, {
-    });
-    setCourses(Array.isArray(res.data) ? res.data : []);
-  } catch (err) {
-    console.error('Error fetching courses:', err);
-  }
-};
+  const fetchCourses = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/courses`, {
+      });
+      setCourses(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Error fetching courses:', err);
+    }
+  };
 
 
   const fetchLeads = async () => {
@@ -47,19 +47,19 @@ const fetchCourses = async () => {
     fetchCourses();
   }, []);
 
- const filteredLeads = leads
-  .filter((lead) => {
-    if (!Array.isArray(lead.followups) || lead.followups.length === 0) return false;
-    const latestFollowup = [...lead.followups].sort(
-      (a, b) => new Date(b.date) - new Date(a.date)
-    )[0];
-    return latestFollowup?.status === 'follow-up';
-  })
-  .filter((lead) => {
-    const name = `${lead.studentData?.firstName || ''} ${lead.studentData?.lastName || ''}`.toLowerCase();
-    const mobile = lead.studentData?.mobileSelf || '';
-    return name.includes(search.toLowerCase()) || mobile.includes(search);
-  });
+  const filteredLeads = leads
+    .filter((lead) => {
+      if (!Array.isArray(lead.followups) || lead.followups.length === 0) return false;
+      const latestFollowup = [...lead.followups].sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      )[0];
+      return latestFollowup?.status === 'follow-up';
+    })
+    .filter((lead) => {
+      const name = `${lead.studentData?.firstName || ''} ${lead.studentData?.lastName || ''}`.toLowerCase();
+      const mobile = lead.studentData?.mobileSelf || '';
+      return name.includes(search.toLowerCase()) || mobile.includes(search);
+    });
 
 
 
@@ -75,9 +75,9 @@ const fetchCourses = async () => {
   };
 
   const getCourseName = (uuid) => {
-  const course = courses.find(c => c.Course_uuid === uuid);
-  return course?.name || 'Course N/A';
-};
+    const course = courses.find(c => c.Course_uuid === uuid);
+    return course?.name || 'Course N/A';
+  };
 
 
   return (
@@ -91,21 +91,21 @@ const fetchCourses = async () => {
         />
       )}
       <div className="flex items-center gap-2 mb-4 w-full">
-  <input
-    type="text"
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    placeholder="Search by name or mobile"
-    className="border p-2 rounded flex-1 min-w-0"
-  />
-  <button
-    onClick={() => navigate(`/${username}/add-lead`)}
-    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
-    aria-label="Add Lead"
-  >
-    +
-  </button>
-</div>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name or mobile"
+          className="border p-2 rounded flex-1 min-w-0"
+        />
+        <button
+          onClick={() => navigate(`/${username}/add-lead`)}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
+          aria-label="Add Lead"
+        >
+          +
+        </button>
+      </div>
 
       {loading && <div>Loading leads...</div>}
       {!loading && filteredLeads.length === 0 && <div>No leads found.</div>}

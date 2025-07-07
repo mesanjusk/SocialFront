@@ -5,6 +5,8 @@ import { FaSortUp, FaSortDown } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import { jsPDF } from "jspdf";
 import BASE_URL from '../config';
+import { FaFileExcel, FaFilePdf } from "react-icons/fa";
+
 
 const AllBalance = () => {
     const [transactions, setTransactions] = useState([]);
@@ -19,7 +21,7 @@ const AllBalance = () => {
     // ... rest as before
 
     const TRANSACTION_API = `${BASE_URL}/api/transaction/GetTransactionList`;
-const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
+    const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
 
 
     useEffect(() => {
@@ -27,9 +29,9 @@ const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
             try {
                 const res = await axios.get(TRANSACTION_API);
                 setTransactions(
-                  (res.data.result || []).filter(
-                    t => t.institute_uuid === institute_uuid
-                  )
+                    (res.data.result || []).filter(
+                        t => t.institute_uuid === institute_uuid
+                    )
                 );
             } catch (err) {
                 console.error('Transaction fetch error:', err);
@@ -39,9 +41,9 @@ const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
             try {
                 const res = await axios.get(CUSTOMER_API);
                 setCustomers(
-                  (res.data.result || []).filter(
-                    c => c.institute_uuid === institute_uuid
-                  )
+                    (res.data.result || []).filter(
+                        c => c.institute_uuid === institute_uuid
+                    )
                 );
             } catch (err) {
                 console.error('Customer fetch error:', err);
@@ -56,49 +58,49 @@ const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
     }, [transactions, customers]);
 
     // Generates outstanding balance per customer
-   const generateOutstandingReport = () => {
-  const report = customers.map(customer => {
-    let debit = 0, credit = 0;
+    const generateOutstandingReport = () => {
+        const report = customers.map(customer => {
+            let debit = 0, credit = 0;
 
-    transactions.forEach(tx => {
-      (tx.Journal_entry || []).forEach(entry => {
-        if (entry.Account_id === customer.uuid) {
+            transactions.forEach(tx => {
+                (tx.Journal_entry || []).forEach(entry => {
+                    if (entry.Account_id === customer.uuid) {
 
-          if (entry.Type === 'Debit') debit += Number(entry.Amount) || 0;
-          if (entry.Type === 'Credit') credit += Number(entry.Amount) || 0;
-        }
-      });
-    });
+                        if (entry.Type === 'Debit') debit += Number(entry.Amount) || 0;
+                        if (entry.Type === 'Credit') credit += Number(entry.Amount) || 0;
+                    }
+                });
+            });
 
-    return {
-      uuid: customer.uuid,
-      name: customer.Account_name,
-      mobile: customer.Mobile_number || 'No phone number',
-      debit,
-      credit,
-      balance: credit - debit,
+            return {
+                uuid: customer.uuid,
+                name: customer.Account_name,
+                mobile: customer.Mobile_number || 'No phone number',
+                debit,
+                credit,
+                balance: credit - debit,
+            };
+        });
+
+        setOutstandingReport(report);
     };
-  });
-
-  setOutstandingReport(report);
-};
 
 
     const sortedReport = [...outstandingReport]
-    .filter(item => {
-        // Show only non-zero balances (receivable or payable)
-        if (filterType === 'receivable') return item.balance > 0;
-        if (filterType === 'payable') return item.balance < 0;
-        if (filterType === 'zero') return false; // don't show zero balance even if filter is zero
-        // By default, skip zero balances
-        return item.balance !== 0;
-    })
-    .filter(item => (item.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
-    .sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-    });
+        .filter(item => {
+            // Show only non-zero balances (receivable or payable)
+            if (filterType === 'receivable') return item.balance > 0;
+            if (filterType === 'payable') return item.balance < 0;
+            if (filterType === 'zero') return false; // don't show zero balance even if filter is zero
+            // By default, skip zero balances
+            return item.balance !== 0;
+        })
+        .filter(item => (item.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
+        .sort((a, b) => {
+            if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
 
     const handleSort = (key) => {
         let direction = 'asc';
@@ -138,16 +140,14 @@ const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
     return (
         <>
             <div className="no-print"></div>
-            <div className="pt-12 pb-20">
+            <div className=" pb-20">
                 <div className="mt-6 max-w-7xl mx-auto  p-4">
-                    <div className="mb-4 flex gap-2">
-                        <button onClick={exportToExcel} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Excel</button>
-                        <button onClick={exportToPDF} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">PDF</button>
-                    </div>
-                    <h2 className="text-lg font-semibold mb-4 text-center text-green-700">Outstanding Report</h2>
+
+
 
                     {/* Search & Filter */}
-                    <div className="mb-4 flex flex-col md:flex-row gap-3 md:items-center">
+
+                    <div className="flex items-center gap-2 mb-4 w-full">
                         <input
                             type="text"
                             placeholder="Search customer name..."
@@ -155,52 +155,68 @@ const CUSTOMER_API = `${BASE_URL}/api/account/GetAccountList`;
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
-                        <div className="flex gap-2 flex-wrap">
-                            <button onClick={() => setFilterType('receivable')} className={`px-4 py-2 rounded ${filterType === 'receivable' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'} hover:bg-green-200`}>Receivable</button>
-                            <button onClick={() => setFilterType('payable')} className={`px-4 py-2 rounded ${filterType === 'payable' ? 'bg-red-600 text-white' : 'bg-red-100 text-red-700'} hover:bg-red-200`}>Payable</button>
-                            <button onClick={() => setFilterType('zero')} className={`px-4 py-2 rounded ${filterType === 'zero' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700'} hover:bg-blue-200`}>Zero</button>
+                        <div className="flex gap-2 justify-start md:justify-end w-full md:w-auto">
+                            <button
+                                onClick={exportToExcel}
+                                className="flex items-center px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                                aria-label="Export to Excel"
+                                title="Export to Excel"
+                            >
+                                <FaFileExcel className="text-xl mr-1" />
+                                <span className="hidden sm:inline">Excel</span>
+                            </button>
+                            <button
+                                onClick={exportToPDF}
+                                className="flex items-center px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                                aria-label="Export to PDF"
+                                title="Export to PDF"
+                            >
+                                <FaFilePdf className="text-xl mr-1" />
+                                <span className="hidden sm:inline">PDF</span>
+                            </button>
                         </div>
                     </div>
 
+
                     {/* Table */}
                     <table className="w-full table-auto text-sm border">
-    <thead className="bg-green-100 text-green-900">
-        <tr>
-            <th onClick={() => handleSort('name')} className="border px-3 py-2 cursor-pointer text-left">
-                Customer {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
-            </th>
-            <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left">
-                Mobile {sortConfig.key === 'mobile' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
-            </th>
-            <th className="border px-3 py-2 text-right">Receivable</th>
-            <th className="border px-3 py-2 text-right">Payable</th>
-            <th className="border px-3 py-2 text-center"></th>
-        </tr>
-    </thead>
-    <tbody>
-        {sortedReport.length === 0 ? (
-            <tr>
-                <td colSpan="5" className="text-center py-6 text-gray-500">No customers found.</td>
-            </tr>
-        ) : (
-            sortedReport.map((item, index) => (
-                <tr key={index} className="border-t hover:bg-gray-50">
-                    <td className="px-3 py-2 cursor-pointer text-green-600" onClick={() => viewTransactions(item)}>
-                        {item.name}
-                    </td>
-                    <td className="px-3 py-2">{item.mobile}</td>
-                    <td className="px-3 py-2 text-right text-green-700">
-                        {item.balance > 0 ? `₹${item.balance}` : '-'}
-                    </td>
-                    <td className="px-3 py-2 text-right text-red-600">
-                        {item.balance < 0 ? `₹${Math.abs(item.balance)}` : '-'}
-                    </td>
-                    <td className="px-3 py-2 text-center"></td>
-                </tr>
-            ))
-        )}
-    </tbody>
-</table>
+                        <thead className="bg-green-100 text-green-900">
+                            <tr>
+                                <th onClick={() => handleSort('name')} className="border px-3 py-2 cursor-pointer text-left">
+                                    Customer {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
+                                </th>
+                                <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left">
+                                    Mobile {sortConfig.key === 'mobile' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
+                                </th>
+                                <th className="border px-3 py-2 text-right">Receivable</th>
+                                <th className="border px-3 py-2 text-right">Payable</th>
+                                <th className="border px-3 py-2 text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sortedReport.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="text-center py-6 text-gray-500">No customers found.</td>
+                                </tr>
+                            ) : (
+                                sortedReport.map((item, index) => (
+                                    <tr key={index} className="border-t hover:bg-gray-50">
+                                        <td className="px-3 py-2 cursor-pointer text-green-600" onClick={() => viewTransactions(item)}>
+                                            {item.name}
+                                        </td>
+                                        <td className="px-3 py-2">{item.mobile}</td>
+                                        <td className="px-3 py-2 text-right text-green-700">
+                                            {item.balance > 0 ? `₹${item.balance}` : '-'}
+                                        </td>
+                                        <td className="px-3 py-2 text-right text-red-600">
+                                            {item.balance < 0 ? `₹${Math.abs(item.balance)}` : '-'}
+                                        </td>
+                                        <td className="px-3 py-2 text-center"></td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
 
                 </div>
             </div>

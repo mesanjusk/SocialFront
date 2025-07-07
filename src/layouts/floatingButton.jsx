@@ -45,7 +45,7 @@ const FloatingButtons = ({ buttonsList = [], direction = "up" }) => {
       {/* Toggle FAB */}
       <button
         onClick={() => setIsOpen((v) => !v)}
-        className="w-10 h-10 bg-purple-600 text-white flex justify-center items-center rounded-full shadow-2xl hover:bg-green-700 transition-all duration-200 transform hover:rotate-90 focus:outline-none"
+        className="w-10 h-10 bg-green-600 text-white flex justify-center items-center rounded-full shadow-2xl hover:bg-green-700 transition-all duration-200 transform hover:rotate-90 focus:outline-none"
         aria-label="Toggle actions"
       >
         {getButtonIcon()}
