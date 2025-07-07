@@ -124,7 +124,7 @@ export default function AllAttendance() {
               <th className="px-4 py-2 border">Break</th>
               <th className="px-4 py-2 border">Start</th>
               <th className="px-4 py-2 border">Out</th>
-              <th className="px-4 py-2 border">Total Hours</th>
+           
             </tr>
           </thead>
           <tbody>
@@ -140,7 +140,7 @@ export default function AllAttendance() {
                   <td className="px-4 py-2 border">{record.Break}</td>
                   <td className="px-4 py-2 border">{record.Start}</td>
                   <td className="px-4 py-2 border">{record.Out}</td>
-                  <td className="px-4 py-2 border">{record.TotalHours}</td>
+             
                 </tr>
               ))
             )}
