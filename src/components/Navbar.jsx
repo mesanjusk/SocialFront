@@ -49,7 +49,7 @@ export default function Navbar({ toggleSidebar }) {
           </button>
         </div>
 
-        <div className="flex items-center pr-4 gap-6 relative">
+        <div className="flex items-center pr-3 gap-4 relative">
 
           {/* 1. Square 'F' */}
           <button
@@ -88,11 +88,17 @@ export default function Navbar({ toggleSidebar }) {
                 className="fixed inset-0 z-40"
                 onClick={() => setShowUserMenu(false)}
               />
-              <div className="absolute right-0 mt-12 w-56 bg-white rounded-lg  z-50 p-4">
+              <div className="absolute top-12 right-0 w-56 bg-white rounded-lg  z-50 p-4">
                 <div className="mb-2">
                   <div className="font-semibold text-gray-800">{username}</div>
                   {role && <div className="text-xs text-gray-500 capitalize">{role}</div>}
                 </div>
+                <button
+                  onClick={logoutUser}
+                  className="w-full text-left px-4 py-2 rounded bg-green-50 hover:bg-green-100 text-green-600 font-medium mt-2"
+                >
+                  Mark Attadance
+                </button>
                 <button
                   onClick={logoutUser}
                   className="w-full text-left px-4 py-2 rounded bg-red-50 hover:bg-red-100 text-red-600 font-medium mt-2"
@@ -108,7 +114,7 @@ export default function Navbar({ toggleSidebar }) {
       {/* Right Drawer */}
       {isOpen && (
         <>
-          <div className="fixed top-12 right-0 w-64 h-[90vh] bg-white z-50 shadow-lg overflow-y-auto p-4 space-y-4">
+          <div className="absolute top-12 right-0 w-56 bg-white rounded-lg  z-50 p-4">
             {/* Master Section */}
             <div>
               <div
