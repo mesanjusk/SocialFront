@@ -5,14 +5,14 @@ const FloatingButtons = ({ buttonsList = [], direction = "up" }) => {
 
   // Modern + Button
   const getButtonIcon = () => (
-    <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+    <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
       <line x1="12" y1="5" x2="12" y2="19" stroke="white" strokeWidth="3" strokeLinecap="round"/>
       <line x1="5" y1="12" x2="19" y2="12" stroke="white" strokeWidth="3" strokeLinecap="round"/>
     </svg>
   );
 
   return (
-    <div className="fixed bottom-16 right-6 flex flex-col items-center z-50">
+    <div className="fixed bottom-20 right-10 flex flex-col items-center z-50">
       {/* Action Buttons */}
       {isOpen && (
         <div
@@ -45,7 +45,7 @@ const FloatingButtons = ({ buttonsList = [], direction = "up" }) => {
       {/* Toggle FAB */}
       <button
         onClick={() => setIsOpen((v) => !v)}
-        className="w-12 h-12 bg-green-600 text-white flex justify-center items-center rounded-full shadow-2xl hover:bg-green-700 transition-all duration-200 transform hover:rotate-90 focus:outline-none"
+        className="w-10 h-10 bg-green-600 text-white flex justify-center items-center rounded-full shadow-2xl hover:bg-green-700 transition-all duration-200 transform hover:rotate-90 focus:outline-none"
         aria-label="Toggle actions"
       >
         {getButtonIcon()}

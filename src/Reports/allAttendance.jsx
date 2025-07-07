@@ -114,8 +114,8 @@ export default function AllAttendance() {
   };
 
   return (
-    <div className="bg-[#e5ddd5] pt-5 max-w-8xl mx-auto px-2">
-      <div className="bg-white overflow-x-auto w-full p-4 shadow">
+    
+      <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
         <table className="min-w-full text-sm text-center border">
           <thead className="bg-gray-100">
             <tr>
@@ -124,7 +124,7 @@ export default function AllAttendance() {
               <th className="px-4 py-2 border">Break</th>
               <th className="px-4 py-2 border">Start</th>
               <th className="px-4 py-2 border">Out</th>
-              <th className="px-4 py-2 border">Total Hours</th>
+           
             </tr>
           </thead>
           <tbody>
@@ -140,13 +140,13 @@ export default function AllAttendance() {
                   <td className="px-4 py-2 border">{record.Break}</td>
                   <td className="px-4 py-2 border">{record.Start}</td>
                   <td className="px-4 py-2 border">{record.Out}</td>
-                  <td className="px-4 py-2 border">{record.TotalHours}</td>
+             
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
-    </div>
+    
   );
 }

@@ -7,13 +7,14 @@ import logoutUser from '../utils/logout';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupIcon from '@mui/icons-material/Group';
+import { FaHeart } from "react-icons/fa";
 
 export default function Navbar({ toggleSidebar }) {
   const { user, institute, loading } = useApp();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); 
-  const [showMasterItems, setShowMasterItems] = useState(false); 
-  const [showSettingsItems, setShowSettingsItems] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
+  const [showMasterItems, setShowMasterItems] = useState(false);
+  const [showSettingsItems, setShowSettingsItems] = useState(false);
   const navigate = useNavigate();
 
   const instituteTitle =
@@ -35,10 +36,10 @@ export default function Navbar({ toggleSidebar }) {
 
   return (
     <>
-      <header className="bg-white shadow-md px-4 py-3 flex justify-between items-center z-30 relative">
+      <header className="bg-white  px-4 py-3 flex justify-between items-center z-30 relative">
         <div className="flex items-center gap-3">
           <button className="md:hidden" onClick={toggleSidebar}>
-            <MenuIcon />
+            {/* sidebar icon here if needed */}
           </button>
           <button
             onClick={() => navigate('/dashboard')}
@@ -48,16 +49,37 @@ export default function Navbar({ toggleSidebar }) {
           </button>
         </div>
 
-        <div className="flex items-center gap-4 relative">
-         
+        <div className="flex items-center pr-3 gap-4 relative">
+
+          {/* 1. Square 'F' */}
+          <button
+            className="flex items-center gap-2 focus:outline-none"
+            onClick={() => {/* your action here */ }}
+          >
+            <div className="w-8 h-8 bg-blue-200 flex items-center justify-center rounded text-lg font-bold text-blue-700">
+              F
+            </div>
+          </button>
+
+          {/* 2. Heart Icon */}
+          <button
+            className="flex items-center gap-2 focus:outline-none"
+            onClick={() => {/* your action here */ }}
+          >
+            <FaHeart className="text-2xl text-red-500" />
+          </button>
+
+          {/* 3. User Icon */}
           <button
             className="flex items-center gap-2 focus:outline-none"
             onClick={() => setShowUserMenu((v) => !v)}
           >
             <AccountCircleIcon className="text-3xl text-blue-500" />
           </button>
-           <button onClick={toggleDrawer} className="text-2xl focus:outline-none">
-            &#x22EE;
+
+          {/* Drawer/menu icon */}
+          <button onClick={toggleDrawer} className="text-2xl focus:outline-none">
+            <MenuIcon />
           </button>
 
           {showUserMenu && (
@@ -66,11 +88,17 @@ export default function Navbar({ toggleSidebar }) {
                 className="fixed inset-0 z-40"
                 onClick={() => setShowUserMenu(false)}
               />
-              <div className="absolute right-0 mt-12 w-56 bg-white rounded-lg shadow-lg z-50 p-4">
+              <div className="absolute top-12 right-0 w-56 bg-white rounded-lg  z-50 p-4">
                 <div className="mb-2">
                   <div className="font-semibold text-gray-800">{username}</div>
                   {role && <div className="text-xs text-gray-500 capitalize">{role}</div>}
                 </div>
+                <button
+                  onClick={logoutUser}
+                  className="w-full text-left px-4 py-2 rounded bg-green-50 hover:bg-green-100 text-green-600 font-medium mt-2"
+                >
+                  Mark Attadance
+                </button>
                 <button
                   onClick={logoutUser}
                   className="w-full text-left px-4 py-2 rounded bg-red-50 hover:bg-red-100 text-red-600 font-medium mt-2"
@@ -86,7 +114,7 @@ export default function Navbar({ toggleSidebar }) {
       {/* Right Drawer */}
       {isOpen && (
         <>
-          <div className="fixed top-12 right-0 w-64 h-[90vh] bg-white z-50 shadow-lg overflow-y-auto p-4 space-y-4">
+          <div className="absolute top-12 right-0 w-56 bg-white rounded-lg  z-50 p-4">
             {/* Master Section */}
             <div>
               <div
