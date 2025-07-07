@@ -17,28 +17,41 @@ const ForgotPassword = () => {
   const [serverOtp, setServerOtp] = useState('');
   const [userId, setUserId] = useState('');
 
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
+ const handleSendOtp = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await axios.post(`${BASE_URL}/api/auth/institute/forgot-password`, {
-        center_code: centerCode,
-        mobile,
-      });
+  if (!/^[0-9]{10}$/.test(mobile)) {
+    toast.error('Enter a valid 10-digit mobile number');
+    return;
+  }
 
-      if (res.data.message === 'verified') {
-        toast.success('OTP sent to registered mobile number');
-        setOtpSent(true);
-        setServerOtp(res.data.otp); // ⚠️ For development/testing only — remove in production
-        setUserId(res.data.user_id);
-      } else {
-        toast.error(res.data.message || 'Verification failed');
-      }
-    } catch (err) {
-      toast.error('Server error');
-      console.error(err);
-    }
-  };
+  const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  setServerOtp(generatedOtp);
+
+  const message = `Your OTP for Institute registration is ${generatedOtp}`;
+
+  try {
+    const res = await axios.post(`${BASE_URL}/api/institute/send-message`, {
+      mobile: `91${mobile}`,
+      message,
+      type: 'forgot',
+      userName: centerCode,
+    });
+
+   if (res.data.success && res.data.userId) {
+  setUserId(res.data.userId); 
+  setOtpSent(true);
+  toast.success('OTP sent to your mobile');
+} else {
+  toast.error('User ID missing in response');
+}
+
+  } catch (err) {
+    console.error('OTP Send Error:', err);
+    toast.error('Error sending OTP');
+  }
+};
+
 
   const handleVerifyOtp = (e) => {
     e.preventDefault();

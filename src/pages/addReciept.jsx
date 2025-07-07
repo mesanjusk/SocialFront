@@ -46,14 +46,25 @@ export default function AddReceipt() {
     }, []);
 
     // --- Fetch payment modes ---
-    useEffect(() => {
-        axios.get(`${BASE_URL}/api/paymentmode`)
-            .then(res => setPaymentOptions(res.data))
-            .catch(err => {
-                alert("Error fetching payment modes");
-                console.error(err);
-            });
-    }, []);
+  useEffect(() => {
+  const fetchPaymentModes = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
+      const options = (res.data?.result || []).filter(
+        (item) =>
+          (item.Account_name === 'Bank' || item.Account_name === 'Cash') &&
+          item.institute_uuid === institute_uuid
+      );
+
+      setPaymentOptions(options);
+    } catch (err) {
+      console.error('Payment mode fetch error:', err);
+      alert('Failed to load payment modes');
+    }
+  };
+
+  fetchPaymentModes();
+}, [institute_uuid]);
 
     // --- Account Search Input Change ---
     const handleInputChange = (e) => {
@@ -125,7 +136,7 @@ export default function AddReceipt() {
         try {
             // Find selected account/mode objects
             const Account = allAccountOptions.find(option => option.uuid === accounts);
-            const Group = paymentOptions.find(option => option.mode === group);
+            const Group = paymentOptions.find(option => option.uuid === group);
             const todayDate = new Date().toISOString().split("T")[0];
 
           
@@ -148,7 +159,7 @@ export default function AddReceipt() {
                 Description: description,
                 Total_Credit: Number(amount),
                 Total_Debit: Number(amount),
-                Payment_mode: Group.mode,
+                Payment_mode: Group.uuid,
                 Created_by: loggedInUser,
                 Transaction_date: transactionDate || todayDate,
                 Journal_entry: journal,
@@ -169,7 +180,7 @@ export default function AddReceipt() {
                 phone: Account.Mobile_number,
                 amount: amount,
                 date: transactionDate,
-                mode: Group.mode
+                mode: Group.uuid
             };
         } catch (e) {
             console.error("Error adding Transaction:", e);
@@ -280,8 +291,8 @@ export default function AddReceipt() {
                         >
                             <option value="">Select Payment</option>
                             {paymentOptions.map((g, idx) => (
-                                <option key={idx} value={g.mode}>
-                                    {g.mode}
+                                <option key={idx} value={g.uuid}>
+                                    {g.Account_name}
                                 </option>
                             ))}
                         </select>

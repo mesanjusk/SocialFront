@@ -152,20 +152,24 @@ useEffect(() => {
     }
   };
 
+  
   const fetchPaymentModes = async () => {
- try {
-      const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`, {
-        params: { institute_uuid },
-      });
+    try {
+      const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
       const options = (res.data?.result || []).filter(
-        (item) => item.Account_name === 'Bank' || item.Account_name === 'Cash'
+        (item) =>
+          (item.Account_name === 'Bank' || item.Account_name === 'Cash') &&
+          item.institute_uuid === institute_uuid
       );
+
       setPaymentModes(options);
     } catch (err) {
-      toast.error('Failed to load payment modes');
       console.error('Payment mode fetch error:', err);
+      alert('Failed to load payment modes');
     }
   };
+
+
 
   useEffect(() => {
     const inst = parseInt(form.installment, 10);

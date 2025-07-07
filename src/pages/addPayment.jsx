@@ -16,55 +16,90 @@ export default function AddPayment() {
   const [customerOptions, setCustomerOptions] = useState([]);
   const [showCustomerList, setShowCustomerList] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState('');
+  const [accountGroupUUID, setAccountGroupUUID] = useState('');
   const institute_uuid = localStorage.getItem("institute_uuid");
   const [loading, setLoading] = useState(false);
-
-  // Keep track of last selected customer name for validation
   const lastSelectedCustomerName = useRef('');
 
+  // Get logged-in user
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user && user.name) setLoggedInUser(user.name);
   }, []);
 
+  // Fetch UUID for Account Group "ACCOUNT"
   useEffect(() => {
-    axios.get(`${BASE_URL}/api/account/GetAccountList`)
-      .then(res => {
-        if (res.data.success) setAllAccounts(res.data.result || []);
-      });
+    const fetchGroupUUID = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
+        const group = res.data.result.find(g => g.Account_group === "ACCOUNT");
+        if (group) setAccountGroupUUID(group.Account_group_uuid);
+      } catch (err) {
+        console.error("Error fetching account groups", err);
+      }
+    };
+    fetchGroupUUID();
   }, []);
 
+  // Fetch customer accounts (only when group UUID is available)
   useEffect(() => {
-    axios.get(`${BASE_URL}/api/paymentmode`)
-      .then(res => setPaymentModes(res.data));
-  }, []);
+    if (!accountGroupUUID) return;
+    const fetchAccounts = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
+        if (res.data.success) {
+          const accounts = res.data.result.filter(
+            item => item.Account_group === accountGroupUUID && item.institute_uuid === institute_uuid
+          );
+          setAllAccounts(accounts);
+        }
+      } catch (err) {
+        alert("Error fetching accounts");
+        console.error(err);
+      }
+    };
+    fetchAccounts();
+  }, [accountGroupUUID, institute_uuid]);
 
-  // Update customer options as user types (do not touch creditAccount here!)
- useEffect(() => {
-  if (customerSearch) {
-    const opts = allAccounts.filter(a =>
-      a.Account_group === "ACCOUNT" &&
-      a.Account_name?.toLowerCase().includes(customerSearch.toLowerCase())
-    );
-    setCustomerOptions(opts);
-    setShowCustomerList(true);
-    // ❌ Don't reset creditAccount here!
-  } else {
-    setCustomerOptions([]);
-    setShowCustomerList(false);
-    setCreditAccount('');
-    lastSelectedCustomerName.current = '';
-  }
-}, [customerSearch, allAccounts]);
+  // Fetch payment modes
+  useEffect(() => {
+    const fetchPaymentModes = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
+        const options = (res.data?.result || []).filter(
+          (item) =>
+            (item.Account_name === 'Bank' || item.Account_name === 'Cash') &&
+            item.institute_uuid === institute_uuid
+        );
+        setPaymentModes(options);
+      } catch (err) {
+        console.error('Payment mode fetch error:', err);
+        alert('Failed to load payment modes');
+      }
+    };
+    fetchPaymentModes();
+  }, [institute_uuid]);
 
+  // Handle customer typing
+  useEffect(() => {
+    if (customerSearch) {
+      const opts = allAccounts.filter(a =>
+        a.Account_name?.toLowerCase().includes(customerSearch.toLowerCase())
+      );
+      setCustomerOptions(opts);
+      setShowCustomerList(true);
+    } else {
+      setCustomerOptions([]);
+      setShowCustomerList(false);
+      setCreditAccount('');
+      lastSelectedCustomerName.current = '';
+    }
+  }, [customerSearch, allAccounts]);
 
-// ✅ Validate customer selection
-const selectedCustomer = allAccounts.find(a => a.uuid === creditAccount);
-const isValidCustomer = !!selectedCustomer;
-
+  const selectedCustomer = allAccounts.find(a => a.uuid === creditAccount);
+  const isValidCustomer = !!selectedCustomer;
   const isValidPaymentMode = !!debitAccount;
 
-  // Mouse or Enter selects customer, stores name for validation
   function handleCustomerPick(account) {
     setCustomerSearch(account.Account_name);
     setCreditAccount(account.uuid);
@@ -72,7 +107,6 @@ const isValidCustomer = !!selectedCustomer;
     lastSelectedCustomerName.current = account.Account_name;
   }
 
-  // Allow Enter key to select first customer if list visible
   function handleCustomerInputKeyDown(e) {
     if (e.key === "Enter" && customerOptions.length === 1) {
       e.preventDefault();
@@ -88,7 +122,7 @@ const isValidCustomer = !!selectedCustomer;
     if (!isValidPaymentMode) return alert("Select payment mode.");
 
     const customer = selectedCustomer;
-    const paymentMode = paymentModes.find(m => m.mode === debitAccount);
+    const paymentMode = paymentModes.find(m => m.uuid === debitAccount);
     if (!customer || !paymentMode) return alert("Invalid customer or payment mode");
 
     const today = new Date().toISOString().slice(0, 10);
@@ -126,7 +160,7 @@ const isValidCustomer = !!selectedCustomer;
         phone: customer.Mobile_number,
         amount,
         date: transactionDate || today,
-        mode: paymentMode.mode
+        mode: paymentMode.Account_name
       };
     } catch (e) {
       setLoading(false);
@@ -171,31 +205,28 @@ const isValidCustomer = !!selectedCustomer;
 
           <label className="block mb-2">Customer</label>
           <input
-  type="text"
-  className="form-control mb-1"
-  value={customerSearch}
-  placeholder="Search customer"
-  onChange={e => setCustomerSearch(e.target.value)}
-  onFocus={() => {
-    if (!isValidCustomer) setShowCustomerList(true);
-  }}
-  onKeyDown={handleCustomerInputKeyDown}
-  autoComplete="off"
-  disabled={isValidCustomer}
-/>
+            type="text"
+            className="form-control mb-1"
+            value={customerSearch}
+            placeholder="Search customer"
+            onChange={e => setCustomerSearch(e.target.value)}
+            onFocus={() => { if (!isValidCustomer) setShowCustomerList(true); }}
+            onKeyDown={handleCustomerInputKeyDown}
+            autoComplete="off"
+            disabled={isValidCustomer}
+          />
 
-        {showCustomerList && !isValidCustomer && customerOptions.length > 0 && (
-  <ul className="list-group mb-2 max-h-40 overflow-y-auto z-10 position-absolute bg-white border w-full">
-    {customerOptions.map(opt =>
-      <li key={opt.uuid} className="list-group-item cursor-pointer"
-        onClick={() => handleCustomerPick(opt)}>
-        {opt.Account_name}
-      </li>
-    )}
-  </ul>
-)}
+          {showCustomerList && !isValidCustomer && customerOptions.length > 0 && (
+            <ul className="list-group mb-2 max-h-40 overflow-y-auto z-10 position-absolute bg-white border w-full">
+              {customerOptions.map(opt =>
+                <li key={opt.uuid} className="list-group-item cursor-pointer"
+                  onClick={() => handleCustomerPick(opt)}>
+                  {opt.Account_name}
+                </li>
+              )}
+            </ul>
+          )}
 
-          {/* Only show if user has typed and not picked from list */}
           {customerSearch && !isValidCustomer && (
             <div className="text-red-600 text-sm mb-2">
               Please select a customer from the list.
@@ -218,7 +249,7 @@ const isValidCustomer = !!selectedCustomer;
           >
             <option value="">Select Payment</option>
             {paymentModes.map(pm =>
-              <option key={pm.mode} value={pm.mode}>{pm.mode}</option>
+              <option key={pm._id} value={pm.uuid}>{pm.Account_name}</option>
             )}
           </select>
 
