@@ -35,10 +35,10 @@ export default function Navbar({ toggleSidebar }) {
 
   return (
     <>
-      <header className="bg-white shadow-md px-4 py-3 flex justify-between items-center z-30 relative">
+      <header className="bg-white  px-4 py-3 flex justify-between items-center z-30 relative">
         <div className="flex items-center gap-3">
           <button className="md:hidden" onClick={toggleSidebar}>
-            <MenuIcon />
+            
           </button>
           <button
             onClick={() => navigate('/dashboard')}
@@ -48,7 +48,7 @@ export default function Navbar({ toggleSidebar }) {
           </button>
         </div>
 
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center pr-4 gap-6 relative">
          
           <button
             className="flex items-center gap-2 focus:outline-none"
@@ -56,8 +56,22 @@ export default function Navbar({ toggleSidebar }) {
           >
             <AccountCircleIcon className="text-3xl text-blue-500" />
           </button>
+
+           <button
+            className="flex items-center gap-2 focus:outline-none"
+            onClick={() => setShowUserMenu((v) => !v)}
+          >
+            <AccountCircleIcon className="text-3xl text-blue-500" />
+          </button>
+           <button
+            className="flex items-center gap-2 focus:outline-none"
+            onClick={() => setShowUserMenu((v) => !v)}
+          >
+            <AccountCircleIcon className="text-3xl text-blue-500" />
+          </button>
+
            <button onClick={toggleDrawer} className="text-2xl focus:outline-none">
-            &#x22EE;
+            <MenuIcon />
           </button>
 
           {showUserMenu && (
@@ -66,7 +80,7 @@ export default function Navbar({ toggleSidebar }) {
                 className="fixed inset-0 z-40"
                 onClick={() => setShowUserMenu(false)}
               />
-              <div className="absolute right-0 mt-12 w-56 bg-white rounded-lg shadow-lg z-50 p-4">
+              <div className="absolute right-0 mt-12 w-56 bg-white rounded-lg  z-50 p-4">
                 <div className="mb-2">
                   <div className="font-semibold text-gray-800">{username}</div>
                   {role && <div className="text-xs text-gray-500 capitalize">{role}</div>}

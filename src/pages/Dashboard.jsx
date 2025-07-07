@@ -122,7 +122,7 @@ const Dashboard = () => {
         <AllAttendance />
         {/* Dashboard Cards */}
         <main className="flex-1 p-4 bg-gray-50">
-          <div className="grid grid-cols-3 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-8">
             <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
               <div className="text-sm text-gray-400 mb-2">Total Students</div>
               <div className="text-3xl font-bold text-green-600">
@@ -146,10 +146,25 @@ const Dashboard = () => {
               <div className="text-3xl font-bold text-orange-500">
                 {display(stats.enquiries)}
               </div>
+              
+            </div>
+            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
+              <div className="text-sm text-gray-400 mb-2">No. of Enquiries</div>
+              <div className="text-3xl font-bold text-orange-500">
+                {display(stats.enquiries)}
+              </div>
+              
+            </div>
+            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
+              <div className="text-sm text-gray-400 mb-2">No. of Enquiries</div>
+              <div className="text-3xl font-bold text-orange-500">
+                {display(stats.enquiries)}
+              </div>
+              
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white p-4 rounded-2xl shadow flex flex-col">
               <div className="text-sm text-gray-400 mb-2">Today's Collection</div>
               <div className="text-3xl font-bold text-green-700 mb-4">
@@ -171,7 +186,7 @@ const Dashboard = () => {
                 onClick={() => navigate('/followup')}
                 className="mt-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
               >
-                View Followups
+                View List
               </button>
             </div>
           </div>

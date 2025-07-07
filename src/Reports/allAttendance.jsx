@@ -114,8 +114,8 @@ export default function AllAttendance() {
   };
 
   return (
-    <div className="bg-[#e5ddd5] pt-5 max-w-8xl mx-auto px-2">
-      <div className="bg-white overflow-x-auto w-full p-4 shadow">
+    
+      <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
         <table className="min-w-full text-sm text-center border">
           <thead className="bg-gray-100">
             <tr>
@@ -147,6 +147,6 @@ export default function AllAttendance() {
           </tbody>
         </table>
       </div>
-    </div>
+    
   );
 }
