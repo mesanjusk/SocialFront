@@ -184,6 +184,7 @@ const AllTransaction = () => {
                     </div>
 
                     {/* Table */}
+                    <div className="overflow-x-auto">
                     <table className="w-full table-auto text-sm border">
                         <thead className="bg-green-100 text-green-900">
                             <tr>
@@ -226,6 +227,7 @@ const AllTransaction = () => {
                             )}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </>

@@ -102,6 +102,7 @@ const PaymentMode = () => {
         </button>
       </div>
 
+      <div className="overflow-x-auto">
       <table className="w-full border">
         <thead className="bg-gray-100">
           <tr>
@@ -141,6 +142,7 @@ const PaymentMode = () => {
           )}
         </tbody>
       </table>
+      </div>
 
       {/* Modal */}
       {showModal && (

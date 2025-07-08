@@ -105,6 +105,7 @@ const Batches = () => {
         </button>
       </div>
 
+      <div className="overflow-x-auto">
       <table className="w-full border">
         <thead className="bg-gray-100">
           <tr>
@@ -142,6 +143,7 @@ const Batches = () => {
           )}
         </tbody>
       </table>
+      </div>
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
