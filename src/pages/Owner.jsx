@@ -124,8 +124,7 @@ center_head_name: '',
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-      <table className="w-full border border-gray-300 rounded-md">
+      <table className="w-full border border-gray-300 rounded-md overflow-x-auto">
         <thead>
           <tr className="bg-gray-200 text-center">
             <th className="p-2 border">Name</th>
@@ -158,7 +157,6 @@ center_head_name: '',
           ))}
         </tbody>
       </table>
-      </div>
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

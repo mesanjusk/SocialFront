@@ -180,7 +180,7 @@ const AllBalance = () => {
 
 
                     {/* Table */}
-                    <table className="w-full table-auto text-sm border">
+                    <table className="w-full table-auto text-sm border overflow-x-auto">
                         <thead className="bg-green-100 text-green-900">
                             <tr>
                                 <th onClick={() => handleSort('name')} className="border px-3 py-2 cursor-pointer text-left">
