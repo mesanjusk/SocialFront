@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AllAttendance from '../Reports/allAttendance';
 
-const API_URL = '/api/dashboard-stats'; // Update as per your backend
+const API_URL = 'https://socialbackend-iucy.onrender.com/api/dashboard-stats';
 
 const Dashboard = () => {
   const navigate = useNavigate();
