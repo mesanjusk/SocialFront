@@ -501,17 +501,63 @@ useEffect(() => {
 };
 
   // --- END UPDATED handleSubmit ---
+const handleEdit = async (data) => {
+  const emiDate = data.emiDate || (() => {
+    const d = new Date(data.admissionDate);
+    d.setMonth(d.getMonth() + 1);
+    return d.toISOString().substring(0, 10);
+  })();
 
-  const handleEdit = (data) => {
-    const emiDate = data.emiDate || (() => {
-      const d = new Date(data.admissionDate);
-      d.setMonth(d.getMonth()  +1);
-      return d.toISOString().substring(0, 10);
-    })();
-    setForm({ ...data, emiDate });
-    setInstallmentPlan(data.installmentPlan || []);
-    setEditingId(data._id);
+  const studentData = data.studentData || {};
+
+  // Step 1: Set base admission + student data
+  const baseForm = {
+    admissionDate: data.admissionDate || '',
+    emiDate,
+    batchTime: data.batchTime || '',
+    examEvent: data.examEvent || '',
+    course: data.course || '',
+    student_uuid: data.student_uuid || studentData.uuid || studentData._id || '',
+
+    firstName: studentData.firstName || '',
+    middleName: studentData.middleName || '',
+    lastName: studentData.lastName || '',
+    dob: studentData.dob || '',
+    gender: studentData.gender || '',
+    mobileSelf: studentData.mobileSelf || '',
+    mobileSelfWhatsapp: studentData.mobileSelfWhatsapp || false,
+    mobileParent: studentData.mobileParent || '',
+    mobileParentWhatsapp: studentData.mobileParentWhatsapp || false,
+    address: studentData.address || '',
+    education: studentData.education || '',
   };
+
+  // Step 2: Fetch Fees data by admission_uuid
+  try {
+    const feeRes = await axios.get(`${BASE_URL}/api/fees/admission/${data.uuid}`);
+    const feeData = feeRes.data?.data;
+
+    if (feeData) {
+      baseForm.fees = feeData.fees || '';
+      baseForm.discount = feeData.discount || '';
+      baseForm.total = feeData.total || '';
+      baseForm.feePaid = feeData.feePaid || '';
+      baseForm.balance = feeData.balance || '';
+      baseForm.emi = feeData.emi || '';
+      baseForm.installment = feeData.installment || '';
+      baseForm.paidBy = feeData.paidBy || '';
+
+      setInstallmentPlan(feeData.installmentPlan || []);
+    }
+  } catch (err) {
+    console.error("Failed to fetch fee details:", err);
+    toast.error("Could not load payment and installment info");
+  }
+
+  setForm(baseForm);
+  setEditingId(data._id);
+};
+
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this admission?')) return;

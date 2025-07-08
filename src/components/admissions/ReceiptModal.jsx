@@ -30,7 +30,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
     courseName: data?.courseName || "",
     amount: data?.amount || "",
     amountWords: data?.amountWords || "",
-    installment: data?.installment || "",
+    installmentPlan : data?.installmentPlan || []
   };
 
   // PDF download logic (hide .no-print elements during capture)
@@ -70,7 +70,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
         className="bg-white text-black rounded-lg shadow-xl relative"
         style={{
           width: "420pt", // ~5.8 in
-          height: "595pt", // ~8.3 in
+          height: "450pt", // ~8.3 in
           margin: "auto",
           padding: "36pt", // 0.5 inch all sides
           fontFamily: "Inter, Segoe UI, Arial, sans-serif",
@@ -114,6 +114,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
         {/* Course Name */}
         <div className="mt-3 mb-2">
           <span className="text-lg font-semibold">Course Name:</span>
+          <span className="text-lg font-bold">{fields.courseName}</span>
         </div>
 
         {/* Learner Info Block */}
@@ -129,6 +130,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
         {/* Amount Block */}
         <div className="bg-gray-100 rounded-md px-4 py-3 mb-3">
           <div className="text-base font-medium">Amount Received:</div>
+          <div className="mt-1 font-bold">{fields.amountWords}</div>
           <div className="h-7"></div>
         </div>
 
@@ -136,6 +138,30 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
         <div className="bg-gray-100 rounded-md px-4 py-3 mb-2">
           <div className="text-base font-medium">Amount in Words:</div>
           <div className="mt-1 font-bold">{fields.amountWords}</div>
+        </div>
+
+         {/* Installment Block */}
+
+         <div className="bg-gray-100 rounded-md px-4 py-3 mb-2">
+          <div className="text-base font-medium">Installment:</div>
+           <table className="w-full border mt-2 text-sm">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="border px-2 py-1">#</th>
+            <th className="border px-2 py-1">Due Date</th>
+            <th className="border px-2 py-1">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {fields.installmentPlan.map(p => (
+            <tr key={p.installmentNo}>
+              <td className="border px-2 py-1 text-center">{p.installmentNo}</td>
+              <td className="border px-2 py-1">{p.dueDate}</td>
+              <td className="border px-2 py-1 text-right">{p.amount}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
         </div>
 
         {/* Actions (not shown on print or PDF) */}

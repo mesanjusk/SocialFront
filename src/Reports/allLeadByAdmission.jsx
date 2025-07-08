@@ -7,6 +7,7 @@ import BASE_URL from '../config';
 import AdmissionFormModal from '../components/admissions/AdmissionFormModal';
 import ConfirmAdmissionModal from '../components/admissions/ConfirmAdmissionModal';
 import ManageBatchModal from '../components/common/ManageBatchModal';
+import ManageExamModal from '../components/common/ManageExamModal';
 import ReceiptModal from '../components/admissions/ReceiptModal';
 
 
@@ -19,6 +20,7 @@ const AllLeadByAdmission = () => {
   const [editLead, setEditLead] = useState(null);
   const [confirmLead, setConfirmLead] = useState(null);
    const [batchAdmission, setBatchAdmission] = useState(null);
+    const [examAdmission, setExamAdmission] = useState(null);
    const [receiptData, setReceiptData] = useState(null);
   const [institute, setInstitute] = useState({});
   const navigate = useNavigate();
@@ -91,19 +93,28 @@ const fetchInstitute = async () => {
     if (!mobile) return toast.error('Mobile number not available');
     window.open(`tel:${mobile}`);
   };
-const handleEditClick = async (lead) => {
-    try {
-      const { data } = await axios.get(
-        `${BASE_URL}/api/admissions/${lead.admission_uuid}`
-      );
-      const admission = data?.data || data;
-      setEditLead(admission);
-      setSelectedLead(null);
-    } catch (error) {
-      console.error('Error fetching admission:', error);
-      toast.error('Failed to load admission');
-    }
-  };
+
+  const handleEditClick = async (lead) => {
+  try {
+    const { data } = await axios.get(
+      `${BASE_URL}/api/admissions/${lead.admission_uuid}`
+    );
+    const admission = data?.data || data;
+
+    const enriched = {
+      ...admission,
+      studentData: lead.studentData || lead.student || {},
+      course: admission.course || lead.course,
+    };
+
+    setEditLead(enriched);
+    setSelectedLead(null);
+  } catch (error) {
+    console.error('Error fetching admission:', error);
+    toast.error('Failed to load admission');
+  }
+};
+
   const handleManageBatchClick = async (lead) => {
     try {
       const { data } = await axios.get(
@@ -118,25 +129,79 @@ const handleEditClick = async (lead) => {
     }
   };
 
-  
-  const handleReceiptClick = async (lead) => {
+   const handleManageExamClick = async (lead) => {
     try {
       const { data } = await axios.get(
         `${BASE_URL}/api/admissions/${lead.admission_uuid}`
       );
       const admission = data?.data || data;
-      setReceiptData(admission);
+      setExamAdmission(admission);
       setSelectedLead(null);
     } catch (error) {
-      console.error('Error fetching admission for receipt:', error);
+      console.error('Error fetching admission for exam:', error);
       toast.error('Failed to load admission');
     }
   };
 
-  const getCourseName = (courseUuid) => {
-  const course = courses.find((c) => c.Course_uuid === courseUuid);
+  
+const getCourseName = (courseId) => {
+  const course = courses.find(
+    (c) => c.Course_uuid === courseId || c._id === courseId
+  );
   return course ? course.name : 'Course N/A';
 };
+
+const convertToWords = (num) => {
+  const formatter = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  });
+  return formatter.format(num).replace('₹', '').trim() + ' Rupees';
+};
+
+
+  
+const handleReceiptClick = async (lead) => {
+  try {
+    const { data } = await axios.get(
+      `${BASE_URL}/api/admissions/${lead.admission_uuid}`
+    );
+    const admission = data?.data || data;
+
+    // 🔽 Fetch fees using admission_uuid
+   const { data: feesRes } = await axios.get(`${BASE_URL}/api/fees`, {
+  params: { admission_uuid: lead.admission_uuid }
+});
+
+const feeRecord = Array.isArray(feesRes.data)
+  ? feesRes.data.find((f) => f.admission_uuid === lead.admission_uuid)
+  : null;
+
+const enriched = {
+  ...admission,
+  learnerName: `${lead.studentData?.firstName || ''} ${lead.studentData?.lastName || ''}`,
+  learnerCode: admission?.learnerCode || 'N/A',
+  courseName: getCourseName(admission.course || lead.course),
+  receiptDate: new Date().toLocaleDateString(),
+  receiptNumber: admission?.receiptNumber || `R-${Math.floor(Math.random() * 100000)}`,
+  examEvent: admission?.examEvent || 'August',
+
+  amount: feeRecord?.feePaid?.toString() || '0',
+  amountWords: convertToWords(feeRecord?.feePaid || 0),
+  installmentPlan: feeRecord?.installmentPlan || [],
+};
+
+setReceiptData(enriched);
+setSelectedLead(null);
+
+  } catch (error) {
+    console.error('Error fetching admission/fees for receipt:', error);
+    toast.error('Failed to load receipt data');
+  }
+};
+
+
 
   return (
     <div className="p-4">
@@ -144,7 +209,7 @@ const handleEditClick = async (lead) => {
 
       {selectedLead && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow max-w-md w-full">
+          <div className="bg-white p-6 rounded shadow max-w-xl w-full">
             <h2 className="text-lg font-bold mb-4">
               {selectedLead.student?.firstName} {selectedLead.student?.lastName}
             </h2>
@@ -164,15 +229,36 @@ const handleEditClick = async (lead) => {
               >
                 Manage Batch
               </button>
-              <button
-                onClick={() => {
-                  setConfirmLead(selectedLead);
-                  setSelectedLead(null);
-                }}
-                className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+               <button
+                onClick={() => handleManageExamClick(selectedLead)}
+                className="bg-pink-600 text-white px-4 py-2 rounded text-sm"
               >
-                Confirm
+                Manage Exam
               </button>
+             <button
+  onClick={async () => {
+    try {
+      const { data } = await axios.get(`${BASE_URL}/api/admissions/${selectedLead.admission_uuid}`);
+      const admission = data?.data || data;
+
+      const enriched = {
+        ...admission,
+        student: selectedLead.student || selectedLead.studentData || {},
+        course: selectedLead.course,
+      };
+
+      setConfirmLead(enriched);
+      setSelectedLead(null);
+    } catch (error) {
+      console.error('Failed to fetch admission:', error);
+      toast.error('Unable to fetch admission details');
+    }
+  }}
+  className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+>
+  Confirm
+</button>
+
                  <button
                 onClick={() => handleReceiptClick(selectedLead)}
                 className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
@@ -267,6 +353,16 @@ const handleEditClick = async (lead) => {
           onClose={() => setBatchAdmission(null)}
           onUpdated={() => {
             setBatchAdmission(null);
+            fetchLeads();
+          }}
+        />
+      )}
+       {examAdmission && (
+        <ManageExamModal
+          admission={examAdmission}
+          onClose={() => setExamAdmission(null)}
+          onUpdated={() => {
+            setExamAdmission(null);
             fetchLeads();
           }}
         />

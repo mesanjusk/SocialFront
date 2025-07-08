@@ -4,13 +4,16 @@ import toast from 'react-hot-toast';
 import BASE_URL from '../../config';
 
 const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
-  const [confirmed, setConfirmed] = useState(!!admission?.confirmationStatus);
+  const [confirmationStatus, setConfirmationStatus] = useState(admission?.confirmationStatus || '');
+  const [dropoutReason, setDropoutReason] = useState(admission?.dropoutReason || '');
   const [loading, setLoading] = useState(false);
-  const institute_uuid = localStorage.getItem('institute_uuid');
   const modalRef = useRef();
+  const institute_uuid = localStorage.getItem('institute_uuid');
 
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const handleKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose]);
@@ -20,14 +23,25 @@ const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
   };
 
   const handleSave = async () => {
+    if (!confirmationStatus) {
+      toast.error('Please select a status');
+      return;
+    }
+
+    if (confirmationStatus === 'DropOut' && !dropoutReason.trim()) {
+      toast.error('Please provide a reason for dropout');
+      return;
+    }
+
     try {
       setLoading(true);
-      await axios.put(`${BASE_URL}/api/admissions/${admission._id}`, {
-        confirmationStatus: confirmed,
+      await axios.put(`${BASE_URL}/api/admissions/${admission.uuid}`, {
+        confirmationStatus,
+        dropoutReason: confirmationStatus === 'DropOut' ? dropoutReason : '',
         institute_uuid,
       });
-      toast.success('Admission confirmation updated');
-      if (onUpdated) onUpdated();
+      toast.success('Admission status updated');
+      onUpdated?.();
       onClose();
     } catch (err) {
       console.error(err);
@@ -47,21 +61,44 @@ const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
         className="bg-white rounded-lg p-6 w-full max-w-sm"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold mb-4">Admission Confirmation</h2>
-        <label htmlFor="admission-confirmed" className="flex items-center gap-2 mb-4">
+        <h2 className="text-lg font-semibold mb-4">Admission Status</h2>
+
+        <label className="flex items-center gap-2 mb-2">
           <input
-            id="admission-confirmed"
-            type="checkbox"
-            checked={confirmed}
-            onChange={(e) => setConfirmed(e.target.checked)}
+            type="radio"
+            name="status"
+            value="Confirmed"
+            checked={confirmationStatus === 'Confirmed'}
+            onChange={() => setConfirmationStatus('Confirmed')}
           />
           <span>Confirmed</span>
         </label>
-        <div className="flex justify-end gap-2">
+
+        <label className="flex items-center gap-2 mb-2">
+          <input
+            type="radio"
+            name="status"
+            value="DropOut"
+            checked={confirmationStatus === 'DropOut'}
+            onChange={() => setConfirmationStatus('DropOut')}
+          />
+          <span>Drop Out</span>
+        </label>
+
+        {confirmationStatus === 'DropOut' && (
+          <textarea
+            placeholder="Enter reason for dropout"
+            value={dropoutReason}
+            onChange={(e) => setDropoutReason(e.target.value)}
+            className="w-full border rounded p-2 mb-4"
+            rows={3}
+          />
+        )}
+
+        <div className="flex justify-end gap-2 mt-4">
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-            autoFocus
           >
             Cancel
           </button>

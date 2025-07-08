@@ -5,50 +5,69 @@ import BASE_URL from '../../config';
 
 const ManageBatchModal = ({ admission, onClose, onUpdated }) => {
   const [batches, setBatches] = useState([]);
-  const [selectedBatch, setSelectedBatch] = useState(admission?.batch || admission?.batchTime || '');
+ const [selectedBatch, setSelectedBatch] = useState(() => {
+  const batchObj = batches.find(
+    b => b.time === admission?.batchTime || b.name === admission?.batchTime
+  );
+  return batchObj?._id || '';
+});
+
   const [loading, setLoading] = useState(false);
   const modalRef = useRef();
   const institute_uuid = localStorage.getItem('institute_uuid');
 
-  useEffect(() => {
-    const fetchBatches = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/batches`, {
-          params: { institute_uuid }
-        });
-        setBatches(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        toast.error('Failed to load batches');
-      }
-    };
-    fetchBatches();
+useEffect(() => {
+  const fetchBatches = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/batches`, {
+        params: { institute_uuid },
+      });
+      const batchList = Array.isArray(res.data) ? res.data : [];
+      setBatches(batchList);
 
-    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [onClose, institute_uuid]);
+      const matched = batchList.find(
+        b => b.time === admission?.batchTime || b.name === admission?.batchTime
+      );
+      if (matched) setSelectedBatch(matched._id);
+    } catch (err) {
+      toast.error('Failed to load batches');
+    }
+  };
+  fetchBatches();
+}, [admission?.batchTime, institute_uuid]);
+
 
   const handleBackdrop = (e) => {
     if (modalRef.current && !modalRef.current.contains(e.target)) onClose();
   };
 
   const handleSave = async () => {
-    if (!selectedBatch) return toast.error('Please select a batch');
-    setLoading(true);
-    try {
-      await axios.put(`${BASE_URL}/api/admissions/${admission._id}`, {
-        batch: selectedBatch,
-        institute_uuid,
-      });
-      toast.success('Batch updated');
-      onUpdated && onUpdated();
-      onClose();
-    } catch (err) {
-      toast.error('Failed to update batch');
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!selectedBatch) return toast.error('Please select a batch');
+  setLoading(true);
+
+  const selected = batches.find(b => b._id === selectedBatch);
+  const batchTime = selected?.time || selected?.batchTime || selected?.name;
+
+  if (!batchTime) {
+    toast.error('Invalid batch selected');
+    setLoading(false);
+    return;
+  }
+
+  try {
+    await axios.put(`${BASE_URL}/api/admissions/${admission.uuid}`, {
+      batchTime, 
+      institute_uuid,
+    });
+    toast.success('Batch updated');
+    onUpdated && onUpdated();
+    onClose();
+  } catch (err) {
+    toast.error('Failed to update batch');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div

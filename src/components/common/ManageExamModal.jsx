@@ -37,7 +37,7 @@ const ManageExamModal = ({ admission, onClose, onUpdated }) => {
     if (!selectedExam) return toast.error('Please select an exam');
     setLoading(true);
     try {
-      await axios.put(`${BASE_URL}/api/admissions/${admission._id}`, {
+      await axios.put(`${BASE_URL}/api/admissions/${admission.uuid}`, {
         examEvent: selectedExam,
         institute_uuid,
       });

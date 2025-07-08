@@ -16,7 +16,7 @@ const LeadEditModal = ({ lead, courses, onClose, onSuccess }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.put(`${BASE_URL}/api/leads/${lead.uuid}`, {
+      await axios.put(`${BASE_URL}/api/leads/${lead.Lead_uuid}/edit`, {
         ...lead,
         studentData,
         course: studentData.course,

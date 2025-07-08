@@ -33,47 +33,38 @@ const Dashboard = () => {
   const [expired, setExpired] = useState(false);
   const [daysLeft, setDaysLeft] = useState(null);
 
-  useEffect(() => {
-    // Plan logic
-    if (planType === 'trial' && expiryDateStr) {
-      const expiryDate = new Date(expiryDateStr);
-      const today = new Date();
-      const diffTime = expiryDate.getTime() - today.getTime();
-      const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (days <= 0) {
-        setExpired(true);
-        localStorage.setItem('plan_type', 'free');
-      } else {
-        setDaysLeft(days);
-      }
-    }
-    // Dashboard stats fetch
-    fetch(API_URL)
-      .then((res) => res.ok ? res.json() : Promise.reject())
-      .then((data) => {
-        setStats({
-          students: data.students ?? 0,
-          admissions: data.admissions ?? 0,
-          courses: data.courses ?? 0,
-          enquiries: data.enquiries ?? 0,
-          feesToday: data.feesToday ?? 0,
-          followupToday: data.followupToday ?? 0,
-          attendance: Array.isArray(data.attendance) ? data.attendance : [],
-        });
-      })
-      .catch(() => {
-        setStats({
-          students: 0,
-          admissions: 0,
-          courses: 0,
-          enquiries: 0,
-          feesToday: 0,
-          followupToday: 0,
-          attendance: [],
-        });
-      })
-      .finally(() => setLoading(false));
-  }, [planType, expiryDateStr]);
+ useEffect(() => {
+  const institute_uuid = localStorage.getItem('institute_uuid');
+  const fetchUrl = `${API_URL}?institute_uuid=${institute_uuid}`;
+
+  fetch(fetchUrl)
+    .then((res) => res.ok ? res.json() : Promise.reject())
+    .then((data) => { 
+      setStats({
+        students: data.students ?? 0,
+        admissions: data.admissions ?? 0,
+        courses: data.courses ?? 0,
+        enquiries: data.enquiries ?? 0,
+        feesToday: data.feesToday ?? 0,
+        followupToday: data.followupToday ?? 0,
+        attendance: Array.isArray(data.attendance) ? data.attendance : [],
+      });
+    })
+    .catch((err) => {
+      setStats({
+        students: 0,
+        admissions: 0,
+        courses: 0,
+        enquiries: 0,
+        feesToday: 0,
+        followupToday: 0,
+        attendance: [],
+      });
+    })
+    .finally(() => setLoading(false));
+}, []);
+
+
 
   if (expired) {
     return (
@@ -148,7 +139,7 @@ const Dashboard = () => {
               </div>
               
             </div>
-            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
+           {/*  <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
               <div className="text-sm text-gray-400 mb-2">No. of Enquiries</div>
               <div className="text-3xl font-bold text-orange-500">
                 {display(stats.enquiries)}
@@ -161,7 +152,7 @@ const Dashboard = () => {
                 {display(stats.enquiries)}
               </div>
               
-            </div>
+            </div>*/}
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
