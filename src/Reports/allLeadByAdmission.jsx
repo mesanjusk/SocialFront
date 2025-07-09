@@ -8,6 +8,7 @@ import AdmissionFormModal from '../components/admissions/AdmissionFormModal';
 import ConfirmAdmissionModal from '../components/admissions/ConfirmAdmissionModal';
 import ManageBatchModal from '../components/common/ManageBatchModal';
 import ManageExamModal from '../components/common/ManageExamModal';
+import CertificateModal from '../components/admissions/CertificateModel';
 import ReceiptModal from '../components/admissions/ReceiptModal';
 
 // CSS to hide no-print elements on print
@@ -29,6 +30,7 @@ const AllLeadByAdmission = () => {
    const [batchAdmission, setBatchAdmission] = useState(null);
     const [examAdmission, setExamAdmission] = useState(null);
    const [receiptData, setReceiptData] = useState(null);
+   const [certificateData, setCertificateData] = useState(null);
   const [institute, setInstitute] = useState({});
   const navigate = useNavigate();
   const { username } = useParams();
@@ -124,6 +126,27 @@ const fetchInstitute = async () => {
     };
 
     setEditLead(enriched);
+    setSelectedLead(null);
+  } catch (error) {
+    console.error('Error fetching admission:', error);
+    toast.error('Failed to load admission');
+  }
+};
+
+const handleCertificateClick = async (lead) => {
+  try {
+    const { data } = await axios.get(
+      `${BASE_URL}/api/admissions/${lead.admission_uuid}`
+    );
+    const admission = data?.data || data;
+
+    const enriched = {
+      ...admission,
+      studentData: lead.studentData || lead.student || {},
+      course: admission.course || lead.course,
+    };
+
+    setCertificateData(enriched);
     setSelectedLead(null);
   } catch (error) {
     console.error('Error fetching admission:', error);
@@ -367,6 +390,12 @@ const handleSelectLead = async (lead) => {
               >
                 Download Receipt
               </button>
+               <button
+                onClick={() => handleCertificateClick(selectedLead)}
+                className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+              >
+                Certificate
+              </button>
               <button
                 onClick={() => setSelectedLead(null)}
                 className="bg-gray-400 text-white px-4 py-2 rounded text-sm ml-auto"
@@ -475,6 +504,16 @@ const handleSelectLead = async (lead) => {
           data={receiptData}
           institute={institute}
           onClose={() => setReceiptData(null)}
+        />
+      )}
+       {certificateData && (
+        <CertificateModal
+          certificate={certificateData}
+          onClose={() => setCertificateData(null)}
+          onSuccess={() => {
+            setCertificateData(null);
+            fetchLeads();
+          }}
         />
       )}
     </div>

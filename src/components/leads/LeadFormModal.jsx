@@ -121,23 +121,39 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
                                 value={followupDate}
                                 className="form-control mb-3"
                             />
-          <input
-            type="text"
-            placeholder="Referred By"
-            value={leadData.referredBy}
-            onChange={(e) => setLeadData({ ...leadData, referredBy: e.target.value })}
-            className="border p-2 rounded w-full"
-          />
-          <textarea
-            placeholder="Remark"
-            value={leadData.followups[0].remark}
-            onChange={(e) => {
-              const updatedFollowups = [...leadData.followups];
-              updatedFollowups[0].remark = e.target.value;
-              setLeadData({ ...leadData, followups: updatedFollowups });
-            }}
-            className="border p-2 rounded w-full"
-          />
+
+                           
+<label className="block font-medium">Referred By</label>
+<input
+  type="text"
+  list="referredByOptions"
+  value={leadData.referredBy}
+  onChange={(e) => setLeadData({ ...leadData, referredBy: e.target.value })}
+  placeholder="Enter or select ReferredBy"
+  className="border p-2 rounded w-full"
+/>
+<datalist id="referredByOptions">
+  <option value="ReferredBy" />
+</datalist>
+
+<label className="block font-medium mt-3">Remark</label>
+<input
+  type="text"
+  list="remarkOptions"
+  value={leadData.followups[0].remark}
+  onChange={(e) => {
+    const updatedFollowups = [...leadData.followups];
+    updatedFollowups[0].remark = e.target.value;
+    setLeadData({ ...leadData, followups: updatedFollowups });
+  }}
+  placeholder="Enter or select Remark"
+  className="border p-2 rounded w-full"
+/>
+<datalist id="remarkOptions">
+  <option value="Remark" />
+</datalist>
+
+          
           <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"

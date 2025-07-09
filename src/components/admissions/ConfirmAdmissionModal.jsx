@@ -4,9 +4,11 @@ import toast from 'react-hot-toast';
 import BASE_URL from '../../config';
 
 const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
-  const [confirmationStatus, setConfirmationStatus] = useState(admission?.confirmationStatus || '');
+  const [status, setStatus] = useState(admission?.confirmationStatus || '');
   const [dropoutReason, setDropoutReason] = useState(admission?.dropoutReason || '');
   const [loading, setLoading] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   const modalRef = useRef();
   const institute_uuid = localStorage.getItem('institute_uuid');
 
@@ -23,12 +25,12 @@ const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
   };
 
   const handleSave = async () => {
-    if (!confirmationStatus) {
+    if (!status) {
       toast.error('Please select a status');
       return;
     }
 
-    if (confirmationStatus === 'DropOut' && !dropoutReason.trim()) {
+    if (status === 'DropOut' && !dropoutReason.trim()) {
       toast.error('Please provide a reason for dropout');
       return;
     }
@@ -36,8 +38,8 @@ const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
     try {
       setLoading(true);
       await axios.put(`${BASE_URL}/api/admissions/${admission.uuid}`, {
-        confirmationStatus,
-        dropoutReason: confirmationStatus === 'DropOut' ? dropoutReason : '',
+        confirmationStatus: status,
+        dropoutReason: status === 'DropOut' ? dropoutReason : '',
         institute_uuid,
       });
       toast.success('Admission status updated');
@@ -52,67 +54,98 @@ const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
-      onMouseDown={handleBackdrop}
-    >
+    <>
       <div
-        ref={modalRef}
-        className="bg-white rounded-lg p-6 w-full max-w-sm"
-        onMouseDown={(e) => e.stopPropagation()}
+        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
+        onMouseDown={handleBackdrop}
       >
-        <h2 className="text-lg font-semibold mb-4">Admission Status</h2>
+        <div
+          ref={modalRef}
+          className="bg-white rounded-lg p-6 w-full max-w-sm"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-lg font-semibold mb-4">Admission Status</h2>
 
-        <label className="flex items-center gap-2 mb-2">
-          <input
-            type="radio"
-            name="status"
-            value="Confirmed"
-            checked={confirmationStatus === 'Confirmed'}
-            onChange={() => setConfirmationStatus('Confirmed')}
-          />
-          <span>Confirmed</span>
-        </label>
+          <div className="mb-4">
+            <label className="block mb-1 font-medium">Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+            >
+              <option value="">Select Status</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="DropOut">Drop-out</option>
+            </select>
+          </div>
 
-        <label className="flex items-center gap-2 mb-2">
-          <input
-            type="radio"
-            name="status"
-            value="DropOut"
-            checked={confirmationStatus === 'DropOut'}
-            onChange={() => setConfirmationStatus('DropOut')}
-          />
-          <span>Drop Out</span>
-        </label>
+          {status === 'DropOut' && (
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">Drop-out Remark</label>
+              <textarea
+                value={dropoutReason}
+                onChange={(e) => setDropoutReason(e.target.value)}
+                rows={3}
+                required
+                className="w-full border p-2 rounded"
+                placeholder="Reason for Drop-out"
+              />
+            </div>
+          )}
 
-        {confirmationStatus === 'DropOut' && (
-          <textarea
-            placeholder="Enter reason for dropout"
-            value={dropoutReason}
-            onChange={(e) => setDropoutReason(e.target.value)}
-            className="w-full border rounded p-2 mb-4"
-            rows={3}
-          />
-        )}
+          {status === 'Confirmed' && (
+            <div className="mb-4">
+              <button
+                onClick={() => setShowConfirmModal(true)}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Confirmed Admission
+              </button>
+            </div>
+          )}
 
-        <div className="flex justify-end gap-2 mt-4">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            {loading ? 'Saving...' : 'Save'}
-          </button>
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              {loading ? 'Saving...' : 'Save'}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {showConfirmModal && (
+        <ConfirmedAdmissionPopup onClose={() => setShowConfirmModal(false)} />
+      )}
+    </>
   );
 };
 
 export default ConfirmAdmissionModal;
+
+const ConfirmedAdmissionPopup = ({ onClose }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded shadow max-w-sm w-full">
+      <h2 className="text-xl font-bold mb-4">Confirmed Admission Details</h2>
+      
+      <div className="mt-4 flex justify-end">
+        <button
+          onClick={onClose}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
