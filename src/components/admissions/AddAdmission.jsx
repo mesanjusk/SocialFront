@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import AdmissionFormModal from "./AdmissionFormModal";
 import ReceiptModal from "./ReceiptModal";
 import jsPDF from 'jspdf';
@@ -11,26 +11,53 @@ const AddAdmission = () => {
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
 
-  // Name maps:
   const [studentsMap, setStudentsMap] = useState({});
   const [coursesMap, setCoursesMap] = useState({});
   const [institute, setInstitute] = useState({});
 
+  const [searchParams] = useSearchParams();
+  const [leadData, setLeadData] = useState(null);
+const [studentData, setStudentData] = useState(null);
+
+  const lead_uuid = searchParams.get("lead_uuid");
+
   const navigate = useNavigate();
 
-  // Fetch and build maps on mount
+  // 🔍 Fetch lead data if lead_uuid exists
   useEffect(() => {
-    // Students map
+  const fetchLeadData = async () => {
+  if (!lead_uuid) return;
+
+  try {
+    const { data } = await axios.get(`${BASE_URL}/api/leads/${lead_uuid}`);
+    const lead = data.data;
+    setLeadData(lead);
+
+    if (lead?.student_uuid) {
+      const studentRes = await axios.get(`${BASE_URL}/api/students/${lead.student_uuid}`);
+      const student = studentRes.data?.data;
+      setStudentData(student); 
+    }
+  } catch (err) {
+    console.error("❌ Error fetching lead/student data:", err);
+  }
+};
+
+
+    fetchLeadData();
+  }, [lead_uuid]);
+
+  // 🔁 Build mapping
+  useEffect(() => {
     axios.get(`${BASE_URL}/api/students?institute_uuid=${localStorage.getItem('institute_uuid')}`)
       .then(res => {
         const map = {};
-        res.data.forEach(s => {
+        res.data.data.forEach(s => {
           map[s.uuid || s._id] = `${s.firstName || ''} ${s.lastName || ''}`.trim();
         });
         setStudentsMap(map);
       });
 
-    // Courses map
     axios.get(`${BASE_URL}/api/courses`)
       .then(res => {
         const map = {};
@@ -40,7 +67,6 @@ const AddAdmission = () => {
         setCoursesMap(map);
       });
 
-    // Institute branding
     axios.get(`${BASE_URL}/api/institute/${localStorage.getItem('institute_uuid')}`)
       .then(res => {
         const i = res.data.result;
@@ -55,22 +81,12 @@ const AddAdmission = () => {
       });
   }, []);
 
-  // DEBUG: Show what your maps and receiptData look like
-  useEffect(() => {
-    if (receiptData) {
-      console.log('=== RECEIPT DATA ===', receiptData);
-      console.log('studentsMap', studentsMap);
-      console.log('coursesMap', coursesMap);
-    }
-  }, [receiptData, studentsMap, coursesMap]);
-
   const handlePrint = () => {
     window.print();
     setShowReceipt(false);
     navigate('/dashboard/allLeadByAdmission');
   };
 
-  // Custom PDF download (optional, modal has its own)
   const handleDownload = () => {
     const doc = new jsPDF();
     doc.text('Admission Receipt', 10, 10);
@@ -83,23 +99,18 @@ const AddAdmission = () => {
     navigate('/dashboard/allLeadByAdmission');
   };
 
-  // On modal close
   const handleClose = () => {
     setShowModal(false);
     navigate('/dashboard/allLeadByAdmission');
   };
 
-  // On successful admission, show receipt
   const handleSuccess = (admissionData) => {
-    // Merge in uuid fields for mapping if not present
     setShowModal(false);
     setShowReceipt(true);
-
     setReceiptData({
       ...admissionData,
-      // Add uuid fields if you only have names in admissionData
       student_uuid: admissionData.student_uuid || admissionData.student?.uuid,
-      course_uuid: admissionData.course_uuid || admissionData.course, // if course is uuid
+      course_uuid: admissionData.course_uuid || admissionData.course,
     });
   };
 
@@ -109,6 +120,8 @@ const AddAdmission = () => {
         <AdmissionFormModal
           onClose={handleClose}
           onSuccess={handleSuccess}
+          leadData={leadData} 
+          studentData={studentData}
         />
       )}
       {showReceipt && receiptData && (

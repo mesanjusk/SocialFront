@@ -5,7 +5,8 @@ import AdmissionStudentInfoTab from './AdmissionStudentInfoTab';
 import AdmissionCourseBatchTab from './AdmissionCourseBatchTab';
 import AdmissionPaymentInstallmentTab from './AdmissionPaymentInstallmentTab';
 
-const AdmissionFormModal = ({ onClose, onSuccess, editingData }) => {
+const AdmissionFormModal = ({ onClose, onSuccess, editingData, leadData, studentData }) => {
+
   const {
     form,
     setForm,
@@ -22,13 +23,39 @@ const AdmissionFormModal = ({ onClose, onSuccess, editingData }) => {
     editingId,
     handleEdit,
     themeColor,
-  } = useAdmissionForm();
+  } = useAdmissionForm({});
+
+
+
+ useEffect(() => {
+  if (!leadData || !studentData) return;
+
+  const updatedForm = {
+    firstName: studentData.firstName || '',
+    middleName: studentData.middleName || '',
+    lastName: studentData.lastName || '',
+    dob: studentData.dob ? new Date(studentData.dob).toISOString().split('T')[0] : '',
+    gender: studentData.gender || '',
+    mobileSelf: studentData.mobileSelf || '',
+    mobileParent: studentData.mobileParent || '',
+    address: studentData.address || '',
+    course: leadData.course || '',
+    referredBy: leadData.referredBy || '',
+    student_uuid: leadData.student_uuid || '',
+  };
+
+  setForm((prev) => ({ ...prev, ...updatedForm }));
+}, [leadData, studentData]);
+
+
 
    useEffect(() => {
     if (editingData) {
       handleEdit(editingData);
     }
   }, [editingData]);
+
+ 
 
 
   // Handle tab navigation

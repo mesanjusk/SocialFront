@@ -8,7 +8,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import BASE_URL from '../../config';
 
-const useAdmissionForm = () => {
+const useAdmissionForm = (initialForm = {}) => {
   const navigate = useNavigate();
   const nextMonthDate = (() => {
     const d = new Date();
@@ -16,7 +16,7 @@ const useAdmissionForm = () => {
     return d.toISOString().substring(0, 10);
   })();
 
-  const initialForm = {
+  const defaultForm = {
     branchCode: '',
     admissionDate: new Date().toISOString().substring(0, 10),
     emiDate: nextMonthDate,
@@ -44,7 +44,7 @@ const useAdmissionForm = () => {
     emi: ''
   };
 
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState({ ...defaultForm, ...initialForm });
   const [tab, setTab] = useState(0);
   const [admissions, setAdmissions] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -56,7 +56,6 @@ const useAdmissionForm = () => {
   const [exams, setExams] = useState([]);
   const [batches, setBatches] = useState([]);
   const [paymentModes, setPaymentModes] = useState([]);
-  const [leadData, setLeadData] = useState(null);
 
   const [installmentPlan, setInstallmentPlan] = useState([]);
 
@@ -98,32 +97,7 @@ useEffect(() => {
     }
   };
 
-  // Fetch lead data if lead_uuid is present in the URL
-  useEffect(() => {
-    if (!lead_uuid) return;
-    axios.get(`${BASE_URL}/api/leads/${lead_uuid}`)
-      .then(res => setLeadData(res.data))
-      .catch(() => toast.error('Failed to load lead data'));
-  }, [lead_uuid]);
-  // When both leadData and courses are loaded, prefill the form
-  useEffect(() => {
-    if (!leadData || !courses.length) return;
-    setForm(prev => {
-      const selectedCourse = courses.find(c => c.name === leadData.studentData?.course);
-      const courseFee = selectedCourse ? Number(selectedCourse.courseFees || 0) : '';
-      return {
-        ...prev,
-        firstName: leadData.studentData?.firstName || '',
-        lastName: leadData.studentData?.lastName || '',
-        mobileSelf: leadData.studentData?.mobileSelf || '',
-        address: leadData.studentData?.address || '',
-        course: leadData.studentData?.course || '',
-        fees: courseFee,
-        total: courseFee,
-        balance: courseFee,
-      };
-    });
-  }, [leadData, courses]);
+ 
 
   const fetchEducations = async () => {
     try {
