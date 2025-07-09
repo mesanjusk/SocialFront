@@ -39,35 +39,41 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!/^\d{10}$/.test(studentData.mobileSelf)) {
-      toast.error('Mobile number must be exactly 10 digits');
-      return;
-    }
-    if (!studentData.course) {
-      toast.error('Please select a course');
-      return;
-    }
-    setLoading(true);
-    try {
-      await axios.post(`${BASE_URL}/api/leads`, {
-        institute_uuid,
-        course: studentData.course,
-        studentData,
-        referredBy: leadData.referredBy,
-        followups: leadData.followups,
-        followupDate: followupDate
-      });
-      toast.success('Lead created successfully');
-      onSuccess();
-      onClose();
-    } catch (err) {
-      console.error('Error creating lead:', err);
+  e.preventDefault();
+  if (!/^\d{10}$/.test(studentData.mobileSelf)) {
+    toast.error('Mobile number must be exactly 10 digits');
+    return;
+  }
+  if (!studentData.course) {
+    toast.error('Please select a course');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    await axios.post(`${BASE_URL}/api/leads`, {
+      institute_uuid,
+      course: studentData.course,
+      studentData,
+      referredBy: leadData.referredBy,
+      followups: leadData.followups,
+      followupDate: followupDate
+    });
+    toast.success('Lead created successfully');
+    onSuccess();
+    onClose();
+  } catch (err) {
+    if (err.response?.status === 409) {
+      toast.error('Mobile number already exists for this institute.');
+    } else {
       toast.error('Error creating lead');
-    } finally {
-      setLoading(false);
     }
-  };
+    console.error('Error creating lead:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

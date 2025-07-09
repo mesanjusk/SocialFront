@@ -4,6 +4,9 @@ import useAdmissionForm from './useAdmissionForm';
 import AdmissionStudentInfoTab from './AdmissionStudentInfoTab';
 import AdmissionCourseBatchTab from './AdmissionCourseBatchTab';
 import AdmissionPaymentInstallmentTab from './AdmissionPaymentInstallmentTab';
+import toast from 'react-hot-toast';
+import axios from 'axios';
+import BASE_URL from '../../config';
 
 const AdmissionFormModal = ({ onClose, onSuccess, editingData, leadData, studentData }) => {
 
@@ -59,7 +62,33 @@ const AdmissionFormModal = ({ onClose, onSuccess, editingData, leadData, student
 
 
   // Handle tab navigation
-  const handleNext = () => setTab(tab + 1);
+const handleNext = async () => {
+  if (tab === 0) {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/students/check-mobile`, {
+        params: {
+          institute_uuid: localStorage.getItem('institute_uuid'),
+          mobileSelf: form.mobileSelf,
+        },
+      });
+
+      if (res.data.exists && !form.student_uuid) {
+        toast.error('Mobile number already exists in student records');
+        return;
+      }
+
+    } catch (error) {
+      console.error('Mobile check failed:', error);
+      toast.error('Failed to validate mobile number');
+      return;
+    }
+  }
+
+  setTab(tab + 1);
+};
+
+
+
   const handleBack = () => setTab(tab - 1);
 
   return (

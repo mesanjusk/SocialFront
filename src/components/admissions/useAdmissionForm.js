@@ -205,6 +205,7 @@ useEffect(() => {
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    
     let updatedForm = { ...form, [field]: value };
     if (field === 'admissionDate') {
       const d = new Date(value);
@@ -234,6 +235,25 @@ useEffect(() => {
     setForm(updatedForm);
   };
 
+  const handleBlur = async (field, value) => {
+  if (field === 'mobileSelf' && /^\d{10}$/.test(value)) {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/students/check-mobile`, {
+        params: {
+          institute_uuid,
+          mobileSelf: value,
+        },
+      });
+      if (res.data.exists) {
+        toast.error('Mobile number already exists for this institute');
+      }
+    } catch (err) {
+      console.error('Error checking mobileSelf:', err);
+    }
+  }
+};
+
+
   // --- UPDATED handleSubmit ---
  const handleSubmit = async (e, onSuccess) => {
   e.preventDefault();
@@ -251,6 +271,19 @@ useEffect(() => {
 
   if (discount > fees) return toast.error('Discount cannot exceed fees');
   if (feePaid > total) return toast.error('Fee paid cannot exceed total');
+
+const checkDuplicate = await axios.get(`${BASE_URL}/api/students/check-mobile`, {
+  params: {
+    institute_uuid,
+    mobileSelf: form.mobileSelf,
+  },
+});
+
+if (checkDuplicate.data.exists && !form.student_uuid) {
+  return toast.error('Mobile number already exists');
+}
+
+
 
   try {
     const studentPayload = {
@@ -629,6 +662,7 @@ const handleEdit = async (data) => {
     handleDelete,
     exportPDF,
     exportExcel,
+    handleBlur,
     filteredAdmissions,
   };
 };
