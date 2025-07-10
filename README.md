@@ -13,9 +13,11 @@ npm run dev
 
 ### Offline Caching
 
-The client caches recent master data (courses, educations, exams, batches and payment modes)
-inside **IndexedDB** using [Dexie](https://dexie.org). Sensitive fields are encrypted via
-`crypto-js` before being stored. All cached data is purged on user logout.
+The client caches leads, students, attendance, admissions, courses, exams,
+batches and payment modes in **IndexedDB** via [Dexie](https://dexie.org).
+Highly sensitive fields are encrypted with `crypto-js` before storage. Set
+`VITE_DB_SECRET_KEY` in your `.env` files to configure encryption. Cached data
+is automatically purged on logout.
 
 ## API Endpoints
 

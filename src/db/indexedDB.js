@@ -1,8 +1,8 @@
 import Dexie from 'dexie';
 import CryptoJS from 'crypto-js';
 
-// Secret key for AES encryption - in production load from env
-const SECRET_KEY = 'instify-secret-key';
+// Secret key for AES encryption - loaded from env for security
+const SECRET_KEY = import.meta.env.VITE_DB_SECRET_KEY || 'change_me';
 
 /**
  * Dexie database instance used for offline caching of key app data.
@@ -11,6 +11,7 @@ const SECRET_KEY = 'instify-secret-key';
 class AppDatabase extends Dexie {
   constructor() {
     super('appDB');
+    // Initial schema version
     this.version(1).stores({
       leads: '++id, lead_uuid, institute_uuid',
       students: '++id, student_uuid, institute_uuid',
@@ -38,3 +39,4 @@ class AppDatabase extends Dexie {
 
 const db = new AppDatabase();
 export default db;
+

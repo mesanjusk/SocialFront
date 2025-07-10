@@ -13,6 +13,7 @@ import ReceiptModal from '../components/admissions/ReceiptModal';
 import SearchAddAdmissionBar from '../components/reports/SearchAddAdmissionBar';
 import LeadCard from '../components/reports/LeadCard';
 import LeadDetailsModal from '../components/reports/LeadDetailsModal';
+import { saveRecords, getAllRecords } from '../db/dbService';
 
 
 
@@ -55,8 +56,9 @@ const AllLeadByAdmission = () => {
         params: { institute_uuid },
       });
       const allLeads = Array.isArray(data?.data) ? data.data : [];
-const leadsWithAdmission = allLeads.filter((lead) => !!lead.admission_uuid);
-setLeads(leadsWithAdmission);
+      const leadsWithAdmission = allLeads.filter((lead) => !!lead.admission_uuid);
+      setLeads(leadsWithAdmission);
+      await saveRecords('leads', leadsWithAdmission, ['student']);
 
     } catch (error) {
       console.error('❌ Error fetching leads:', error.response?.data || error.message);
@@ -81,6 +83,11 @@ const fetchInstitute = async () => {
   };
 
   useEffect(() => {
+    const loadCached = async () => {
+      const cached = await getAllRecords('leads', ['student']);
+      if (cached.length) setLeads(cached);
+    };
+    loadCached();
     fetchLeads();
     fetchCourses();
     fetchInstitute();
