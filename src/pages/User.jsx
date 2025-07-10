@@ -22,7 +22,7 @@ const User = () => {
   const navigate = useNavigate();
   const searchTimeout = useRef();
 
-  const themeColor = institute?.theme_color || '6fa8dc';
+  const themeColor = institute?.theme_color || '#5b5b5b';
 
   // Prevent early redirect until loading is complete
   useEffect(() => {

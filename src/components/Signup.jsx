@@ -1,4 +1,4 @@
-// src/pages/Signup.jsx (clean, ready-to-paste with themeColor fix)
+// src/pages/Signup.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -14,10 +14,10 @@ const Signup = () => {
     center_code: '',
     institute_call_number: '',
     center_head_name: '',
-    theme_color: '6fa8dc'
+    theme_color: '#5b5b5b'
   });
 
-  const themeColor = form.theme_color || '6fa8dc';
+  const themeColor = form.theme_color || '#5b5b5b';
 
   const [orgTypes, setOrgTypes] = useState([]);
   const [loadingTypes, setLoadingTypes] = useState(true);
@@ -42,39 +42,38 @@ const Signup = () => {
     setForm({ ...form, [field]: e.target.value });
   };
 
- const handleSendOtp = async (e) => {
-  e.preventDefault();
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
 
-  if (!/^[0-9]{10}$/.test(form.institute_call_number)) {
-    toast.error('Enter a valid 10-digit mobile number');
-    return;
-  }
-
-  const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-  setServerOtp(generatedOtp); // Save it for comparison later
-
-  const message = `Your OTP for Institute registration is ${generatedOtp}`;
-
-  try {
-    const res = await axios.post(`${BASE_URL}/api/institute/send-message`, {
-      mobile: `91${form.institute_call_number}`,
-      message,
-      type: 'signup',
-      userName: form.center_head_name,
-    });
-
-    if (res.data.success) {
-      setOtpSent(true);
-      toast.success('OTP sent to your mobile');
-    } else {
-      toast.error('Failed to send OTP');
+    if (!/^[0-9]{10}$/.test(form.institute_call_number)) {
+      toast.error('Enter a valid 10-digit mobile number');
+      return;
     }
-  } catch (err) {
-    console.error('OTP Send Error:', err);
-    toast.error('Error sending OTP');
-  }
-};
 
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setServerOtp(generatedOtp); // Save it for comparison later
+
+    const message = `Your OTP for Institute registration is ${generatedOtp}`;
+
+    try {
+      const res = await axios.post(`${BASE_URL}/api/institute/send-message`, {
+        mobile: `91${form.institute_call_number}`,
+        message,
+        type: 'signup',
+        userName: form.center_head_name,
+      });
+
+      if (res.data.success) {
+        setOtpSent(true);
+        toast.success('OTP sent to your mobile');
+      } else {
+        toast.error('Failed to send OTP');
+      }
+    } catch (err) {
+      console.error('OTP Send Error:', err);
+      toast.error('Error sending OTP');
+    }
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -83,7 +82,14 @@ const Signup = () => {
       return;
     }
     try {
-      const res = await axios.post(`${BASE_URL}/api/institute/signup`, { ...form, plan_type: 'trial' });
+      // Use center_code as passwordHash for admin user
+      const signupData = { 
+        ...form, 
+        plan_type: 'trial', 
+        passwordHash: form.center_code 
+      };
+
+      const res = await axios.post(`${BASE_URL}/api/institute/signup`, signupData);
       const data = res.data;
       if (data.message === 'exist') {
         toast.error('Center code or email already registered');
@@ -111,60 +117,62 @@ const Signup = () => {
 
         document.documentElement.style.setProperty('--theme-color', data.theme_color || '#45818e');
 
-         try {
-    const groupRes = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
-    const accountGroup = groupRes.data.result.find(g => g.Account_group === "ACCOUNT");
-    const accountBank = groupRes.data.result.find(g => g.Account_group == "Bank");
+        // --- Account Creation Logic (optional, can remove if not needed) ---
+        try {
+          const groupRes = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
+          const accountGroup = groupRes.data.result.find(g => g.Account_group === "ACCOUNT");
+          const accountBank = groupRes.data.result.find(g => g.Account_group === "Bank");
 
-    if (accountGroup) {
-      await axios.post(`${BASE_URL}/api/account/addAccount`, {
-        Account_name: form.center_head_name,
-        Mobile_number: form.institute_call_number,
-        Account_group: accountGroup.Account_group_uuid,
-        institute_uuid: data.institute_uuid
-      });
-      toast.success("Institute account created");
-    } else {
-      toast.error("ACCOUNT group not found");
-    }
+          if (accountGroup) {
+            await axios.post(`${BASE_URL}/api/account/addAccount`, {
+              Account_name: form.center_head_name,
+              Mobile_number: form.institute_call_number,
+              Account_group: accountGroup.Account_group_uuid,
+              institute_uuid: data.institute_uuid
+            });
+            toast.success("Institute account created");
+          } else {
+            toast.error("ACCOUNT group not found");
+          }
 
-     if (accountGroup) {
-      await axios.post(`${BASE_URL}/api/account/addAccount`, {
-        Account_name: "Fees Receivable",
-        Mobile_number: form.institute_call_number,
-        Account_group: accountGroup.Account_group_uuid,
-        institute_uuid: data.institute_uuid
-      });
-      toast.success("Fees Receivable account created");
-    } else {
-      toast.error("ACCOUNT group not found");
-    }
-    if (accountBank) {
-      await axios.post(`${BASE_URL}/api/account/addAccount`, {
-        Account_name: "Bank",
-        Mobile_number: form.institute_call_number,
-        Account_group: accountBank.Account_group_uuid,
-        institute_uuid: data.institute_uuid
-      });
-      toast.success("Bank account created");
-    } else {
-      toast.error("ACCOUNT group not found");
-    }
-    if (accountBank) {
-      await axios.post(`${BASE_URL}/api/account/addAccount`, {
-        Account_name: "Cash",
-        Mobile_number: form.institute_call_number,
-        Account_group: accountBank.Account_group_uuid,
-        institute_uuid: data.institute_uuid
-      });
-      toast.success("Cash account created");
-    } else {
-      toast.error("ACCOUNT group not found");
-    }
-  } catch (err) {
-    console.error("Error creating institute account:", err);
-    toast.error("Failed to create institute account");
-  }
+          if (accountGroup) {
+            await axios.post(`${BASE_URL}/api/account/addAccount`, {
+              Account_name: "Fees Receivable",
+              Mobile_number: form.institute_call_number,
+              Account_group: accountGroup.Account_group_uuid,
+              institute_uuid: data.institute_uuid
+            });
+            toast.success("Fees Receivable account created");
+          } else {
+            toast.error("ACCOUNT group not found");
+          }
+          if (accountBank) {
+            await axios.post(`${BASE_URL}/api/account/addAccount`, {
+              Account_name: "Bank",
+              Mobile_number: form.institute_call_number,
+              Account_group: accountBank.Account_group_uuid,
+              institute_uuid: data.institute_uuid
+            });
+            toast.success("Bank account created");
+          } else {
+            toast.error("ACCOUNT group not found");
+          }
+          if (accountBank) {
+            await axios.post(`${BASE_URL}/api/account/addAccount`, {
+              Account_name: "Cash",
+              Mobile_number: form.institute_call_number,
+              Account_group: accountBank.Account_group_uuid,
+              institute_uuid: data.institute_uuid
+            });
+            toast.success("Cash account created");
+          } else {
+            toast.error("ACCOUNT group not found");
+          }
+        } catch (err) {
+          console.error("Error creating institute account:", err);
+          toast.error("Failed to create institute account");
+        }
+        // ---------------------------------------------------------------
 
         if (window.updateAppContext) {
           window.updateAppContext({
@@ -192,20 +200,89 @@ const Signup = () => {
         </div>
         <h2 className="text-2xl font-bold text-center text-theme mb-6">Register Institute</h2>
         <form onSubmit={otpSent ? handleSignup : handleSendOtp} className="space-y-4">
-          <input type="text" value={form.institute_title} onChange={handleChange('institute_title')} placeholder="Institute Name" className="w-full px-3 py-2 border rounded-md shadow-sm" style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }} required />
-          <select value={form.institute_type} onChange={handleChange('institute_type')} className="w-full px-3 py-2 border rounded-md shadow-sm" style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }} required>
+          <input
+            type="text"
+            value={form.institute_title}
+            onChange={handleChange('institute_title')}
+            placeholder="Institute Name"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+            required
+          />
+          <select
+            value={form.institute_type}
+            onChange={handleChange('institute_type')}
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+            required
+          >
             <option value="">Select Institute Type</option>
-            {loadingTypes ? <option disabled>Loading...</option> : orgTypes.map((type) => <option key={type._id} value={type.category}>{type.category}</option>)}
+            {loadingTypes ? (
+              <option disabled>Loading...</option>
+            ) : (
+              orgTypes.map((type) => (
+                <option key={type._id} value={type.category}>
+                  {type.category}
+                </option>
+              ))
+            )}
           </select>
-          <input type="text" value={form.center_code} onChange={handleChange('center_code')} placeholder="Center Code" className="w-full px-3 py-2 border rounded-md shadow-sm" style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }} required />
-          <input type="tel" value={form.institute_call_number} onChange={handleChange('institute_call_number')} placeholder="Mobile Number" maxLength={10} pattern="[0-9]{10}" className="w-full px-3 py-2 border rounded-md shadow-sm" style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }} required />
-          <input type="text" value={form.center_head_name} onChange={handleChange('center_head_name')} placeholder="Center Head Name" className="w-full px-3 py-2 border rounded-md shadow-sm" style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }} required />
-          {otpSent && <input type="text" placeholder="Enter OTP" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="w-full px-3 py-2 border rounded-md shadow-sm" style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }} required />}
-          <button type="submit" className="w-full bg-theme text-white py-2 rounded-md transition hover:opacity-90">{otpSent ? 'Verify OTP & Register' : 'Send OTP'}</button>
+          <input
+            type="text"
+            value={form.center_code}
+            onChange={handleChange('center_code')}
+            placeholder="Center Code"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+            required
+          />
+          <input
+            type="tel"
+            value={form.institute_call_number}
+            onChange={handleChange('institute_call_number')}
+            placeholder="Mobile Number"
+            maxLength={10}
+            pattern="[0-9]{10}"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+            required
+          />
+          <input
+            type="text"
+            value={form.center_head_name}
+            onChange={handleChange('center_head_name')}
+            placeholder="Center Head Name"
+            className="w-full px-3 py-2 border rounded-md shadow-sm"
+            style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+            required
+          />
+          {otpSent && (
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              maxLength={6}
+              className="w-full px-3 py-2 border rounded-md shadow-sm"
+              style={{ boxShadow: `0 0 0 1.5px ${themeColor}` }}
+              required
+            />
+          )}
+          <button
+            type="submit"
+            className="w-full bg-theme text-white py-2 rounded-md transition hover:opacity-90"
+          >
+            {otpSent ? 'Verify OTP & Register' : 'Send OTP'}
+          </button>
         </form>
         <div className="text-center mt-4 text-sm text-gray-600">
           Already have an account?
-          <button onClick={() => navigate('/')} className="ml-1 text-blue-600 hover:underline font-medium">Login</button>
+          <button
+            onClick={() => navigate('/')}
+            className="ml-1 text-blue-600 hover:underline font-medium"
+          >
+            Login
+          </button>
         </div>
       </div>
     </div>

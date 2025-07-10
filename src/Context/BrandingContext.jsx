@@ -5,7 +5,7 @@ import BASE_URL from '../config';
 export const BrandingContext = createContext();
 
 const defaultTheme = {
-  color: '6fa8dc', // fallback green
+  color: '#5b5b5b', // fallback green
   logo: '/logo.png',
   favicon: '/favicon.ico',
   institute: 'Instify'

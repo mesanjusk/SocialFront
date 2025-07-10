@@ -25,13 +25,11 @@ export default function AddPayment() {
   const [whatsAppInfo, setWhatsAppInfo] = useState(null);
   const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
 
-  // --- Load user ---
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user && user.name) setLoggedInUser(user.name);
   }, []);
 
-  // --- Fetch group UUID for account filtering ---
   useEffect(() => {
     const fetchGroupUUID = async () => {
       try {
@@ -45,7 +43,6 @@ export default function AddPayment() {
     fetchGroupUUID();
   }, []);
 
-  // --- Fetch all customer accounts ---
   useEffect(() => {
     if (!accountGroupUUID) return;
     const fetchAccounts = async () => {
@@ -64,7 +61,6 @@ export default function AddPayment() {
     fetchAccounts();
   }, [accountGroupUUID, institute_uuid]);
 
-  // --- Fetch payment modes ---
   useEffect(() => {
     const fetchPaymentModes = async () => {
       try {
@@ -82,7 +78,6 @@ export default function AddPayment() {
     fetchPaymentModes();
   }, [institute_uuid]);
 
-  // --- Customer search/autocomplete ---
   useEffect(() => {
     if (customerSearch) {
       const opts = allAccounts.filter(a =>
@@ -102,7 +97,6 @@ export default function AddPayment() {
   const isValidCustomer = !!selectedCustomer;
   const isValidPaymentMode = !!debitAccount;
 
-  // --- Customer selection handlers ---
   function handleCustomerPick(account) {
     setCustomerSearch(account.Account_name);
     setCreditAccount(account.uuid);
@@ -117,7 +111,6 @@ export default function AddPayment() {
     }
   }
 
-  // --- Main submit: After payment, show WhatsApp modal ---
   async function handleSubmit(e) {
     e.preventDefault();
     if (!transactionDate) {
@@ -181,7 +174,6 @@ export default function AddPayment() {
     }
   }
 
-  // --- WhatsApp send ---
   async function handleWhatsAppSend() {
     if (!whatsAppInfo || !whatsAppInfo.phone) {
       toast.error("No customer phone number.");
@@ -207,17 +199,17 @@ export default function AddPayment() {
     }
   }
 
-  // --- Render ---
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <Toaster />
       <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg relative">
         {/* X Close Button */}
         <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl p-2 rounded-full focus:outline-none"
+          className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl font-bold p-2 rounded-full focus:outline-none"
           onClick={() => navigate("/home")}
           aria-label="Close"
           title="Close"
+          type="button"
         >
           ×
         </button>
@@ -297,22 +289,14 @@ export default function AddPayment() {
               placeholder="Description"
             />
           </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              type="button"
-              onClick={() => navigate("/home")}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !isValidCustomer || !isValidPaymentMode || !amount}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              {loading ? 'Processing...' : 'Add Payment'}
-            </button>
-          </div>
+          {/* Centered Save Button */}
+          <button
+            type="submit"
+            disabled={loading || !isValidCustomer || !isValidPaymentMode || !amount}
+            className="w-full mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold transition"
+          >
+            {loading ? 'Processing...' : 'Save '}
+          </button>
         </form>
       </div>
 
@@ -329,7 +313,6 @@ export default function AddPayment() {
             </button>
             <div className="flex flex-col items-center text-center">
               <div className="text-green-600 mb-2">
-                {/* SVG for WhatsApp icon */}
                 <svg xmlns="http://www.w3.org/2000/svg" className="inline h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.031-.967-.273-.099-.471-.148-.67.151-.197.297-.767.966-.94 1.164-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.654-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.67-.51-.173-.007-.371-.009-.57-.009s-.521.074-.793.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.199 5.077 4.366.709.305 1.262.486 1.694.621.712.227 1.36.195 1.872.118.571-.085 1.758-.718 2.007-1.412.248-.694.248-1.289.173-1.412-.074-.124-.272-.198-.57-.347z" />
                   <path d="M20.52 3.48C18.19 1.151 15.157 0 12.001 0 5.372 0 0 5.373 0 12c0 2.119.553 4.188 1.607 5.991L0 24l6.182-1.605C8.021 23.447 9.997 24 12.001 24c6.627 0 12-5.373 12-12 0-3.157-1.151-6.19-3.48-8.52zm-8.519 19.021c-1.783 0-3.534-.472-5.061-1.362l-.363-.214-3.672.954.982-3.583-.236-.368C2.133 15.858 1.613 13.956 1.613 12c0-5.729 4.658-10.388 10.387-10.388 2.778 0 5.388 1.082 7.345 3.041 1.958 1.958 3.04 4.567 3.04 7.345 0 5.729-4.659 10.388-10.388 10.388z" />

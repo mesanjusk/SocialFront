@@ -26,13 +26,11 @@ export default function AddReceipt() {
 
     const institute_uuid = localStorage.getItem("institute_uuid");
 
-    // --- Load user from localStorage ---
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
         if (user && user.name) setLoggedInUser(user.name);
     }, []);
 
-    // --- Fetch all accounts ---
     useEffect(() => {
         axios.get(`${BASE_URL}/api/account/GetAccountList`)
             .then(res => {
@@ -47,7 +45,6 @@ export default function AddReceipt() {
             });
     }, []);
 
-    // --- Fetch payment modes ---
     useEffect(() => {
         const fetchPaymentModes = async () => {
             try {
@@ -66,7 +63,6 @@ export default function AddReceipt() {
         fetchPaymentModes();
     }, [institute_uuid]);
 
-    // --- Account Search Input Change ---
     const handleInputChange = (e) => {
         const value = e.target.value;
         setCustomerName(value);
@@ -82,7 +78,6 @@ export default function AddReceipt() {
         }
     };
 
-    // --- Account Option Select ---
     const handleOptionClick = (option) => {
         setCustomerName(option.Account_name);
         setAccounts(option.uuid);
@@ -91,12 +86,10 @@ export default function AddReceipt() {
         setFilteredOptions([]);
     };
 
-    // --- Amount Input Change ---
     const handleAmountChange = (e) => {
-        setAmount(e.target.value.replace(/^0+/, '')); // prevent leading zero
+        setAmount(e.target.value.replace(/^0+/, ''));
     };
 
-    // --- Submit Receipt ---
     async function submit(e) {
         e.preventDefault();
 
@@ -143,7 +136,6 @@ export default function AddReceipt() {
 
             if (response.data.success) {
                 toast.success("Receipt added successfully.");
-                // After saving, show WhatsApp modal
                 setWhatsAppInfo({
                     name: Account.Account_name,
                     phone: Account.Mobile_number,
@@ -163,7 +155,6 @@ export default function AddReceipt() {
         }
     }
 
-    // --- WhatsApp Message Send ---
     const sendMessageToAPI = async () => {
         if (!whatsAppInfo || !whatsAppInfo.phone) {
             toast.error("Customer phone number is missing.");
@@ -207,16 +198,17 @@ export default function AddReceipt() {
         }
     };
 
-    // --- Render ---
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <Toaster />
             <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg relative">
+                {/* X close button */}
                 <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl p-2 rounded-full focus:outline-none"
+                    className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl font-bold p-2 rounded-full focus:outline-none"
                     onClick={() => navigate("/home")}
                     aria-label="Close"
                     title="Close"
+                    type="button"
                 >
                     ×
                 </button>
@@ -296,25 +288,17 @@ export default function AddReceipt() {
                             className="border p-2 rounded w-full"
                         />
                     </div>
-                    <div className="flex justify-end gap-2 mt-4">
-                        <button
-                            type="button"
-                            onClick={() => navigate("/home")}
-                            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                        >
-                            {loading ? 'Saving...' : 'Save'}
-                        </button>
-                    </div>
+                    {/* Centered Save Button */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold transition"
+                    >
+                        {loading ? 'Saving...' : 'Save'}
+                    </button>
                 </form>
             </div>
-            {/* WhatsApp Confirmation Modal */}
+            {/* WhatsApp Confirmation Modal (unchanged) */}
             {showWhatsAppModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                     <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm relative animate-fadeIn">

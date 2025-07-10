@@ -16,7 +16,7 @@ institute_call_number: '',
 center_head_name: '',
  institute_type: '',
     center_code: '',
-     theme_color: '6fa8dc'
+     theme_color: '#5b5b5b'
   });
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
