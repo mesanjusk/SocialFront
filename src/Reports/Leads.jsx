@@ -5,6 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
 import BASE_URL from '../config';
 import LeadStatusModal from "../components/leads/LeadStatusModal";
+import { saveRecords, getAllRecords } from '../db/dbService';
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
@@ -33,7 +34,10 @@ const Leads = () => {
       const { data } = await axios.get(`${BASE_URL}/api/leads`, {
         params: { institute_uuid },
       });
-      setLeads(Array.isArray(data?.data) ? data.data : []);
+      const list = Array.isArray(data?.data) ? data.data : [];
+      setLeads(list);
+      // cache offline
+      await saveRecords('leads', list, ['studentData']);
     } catch (error) {
       console.error('❌ Error fetching leads:', error.response?.data || error.message);
       toast.error('Error fetching leads');
@@ -43,6 +47,11 @@ const Leads = () => {
   };
 
   useEffect(() => {
+    const loadCached = async () => {
+      const cached = await getAllRecords('leads', ['studentData']);
+      if (cached.length) setLeads(cached);
+    };
+    loadCached();
     fetchLeads();
     fetchCourses();
   }, []);

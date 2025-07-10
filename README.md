@@ -4,12 +4,22 @@ Frontend for managing enquiries, admissions, and follow-ups.
 
 ## Development
 
-Install dependencies and start the dev server:
+Install dependencies and start the dev server. Copy `.env.example` to
+`.env.development` and `.env.production` and set `VITE_BASE_URL` and
+`VITE_DB_SECRET_KEY` appropriately:
 
 ```bash
 npm install
 npm run dev
 ```
+
+### Offline Caching
+
+The client caches leads, students, attendance, admissions, courses, exams,
+batches and payment modes in **IndexedDB** via [Dexie](https://dexie.org).
+Highly sensitive fields are encrypted with `crypto-js` before storage.
+Set `VITE_DB_SECRET_KEY` in your environment files to configure encryption.
+All cached data is automatically purged on logout.
 
 ## API Endpoints
 
