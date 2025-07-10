@@ -605,7 +605,8 @@
                   className="border p-2"
                 />
                 <input placeholder="EMI" value={form.emi} type="number" className="border p-2" readOnly />
-                {installmentPlan.length > 0 && (
+                  {installmentPlan.length > 0 && (
+                  <div className="overflow-x-auto">
                   <table className="w-full border mt-2 text-sm">
                     <thead>
                       <tr className="bg-gray-100">
@@ -624,7 +625,8 @@
                       ))}
                     </tbody>
                   </table>
-                )}
+                  </div>
+                  )}
               </>
             )}
 

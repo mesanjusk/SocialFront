@@ -142,6 +142,7 @@ const Courses = () => {
         </div>
       </div>
 
+      <div className="overflow-x-auto">
       <table className="w-full border">
         <thead className="bg-gray-100">
           <tr>
@@ -173,6 +174,7 @@ const Courses = () => {
           ))}
         </tbody>
       </table>
+      </div>
 
       {/* Modal */}
       {showModal && (

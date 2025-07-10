@@ -144,6 +144,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
 
          <div className="bg-gray-100 rounded-md px-4 py-3 mb-2">
           <div className="text-base font-medium">Installment:</div>
+           <div className="overflow-x-auto">
            <table className="w-full border mt-2 text-sm">
         <thead>
           <tr className="bg-gray-100">
@@ -161,8 +162,9 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
             </tr>
           ))}
         </tbody>
-      </table>
-        </div>
+        </table>
+           </div>
+         </div>
 
         {/* Actions (not shown on print or PDF) */}
         <div className="flex justify-center gap-4 mt-8 no-print">
