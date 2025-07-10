@@ -146,6 +146,4 @@ export default function AllAttendance() {
       </table>
     </div>
   </div>
-  ); // <-- Add this closing parenthesis and div
-
 }
