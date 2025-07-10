@@ -9,5 +9,5 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f9f9f9;
+  background-color: var(--theme-color, #d0e0e3);
 }

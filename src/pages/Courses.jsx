@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { Edit, Delete, Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
 import BASE_URL from '../config';
+import { getThemeColor } from '../utils/storageUtils';
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
@@ -22,7 +23,7 @@ const Courses = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const searchTimeout = useRef();
-  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+  const themeColor = getThemeColor();
 
   // Debounced search
   useEffect(() => {

@@ -84,3 +84,13 @@ export const getStoredUser = () => {
     return null;
   }
 };
+
+/**
+ * Retrieve the current theme color from localStorage.
+ * Falls back to '#d0e0e3' when none is stored.
+ */
+export const getThemeColor = () => {
+  const color = localStorage.getItem('theme_color') || '#d0e0e3';
+  document.documentElement.style.setProperty('--theme-color', color);
+  return color;
+};

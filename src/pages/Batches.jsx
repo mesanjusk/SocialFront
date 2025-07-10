@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
+import { getThemeColor } from '../utils/storageUtils';
 
 const Batches = () => {
   const [batches, setBatches] = useState([]);
@@ -16,7 +17,7 @@ const Batches = () => {
   const searchTimeout = useRef();
 
   const institute_id = localStorage.getItem('institute_uuid');
-  const themeColor = localStorage.getItem('theme_color') || '';
+  const themeColor = getThemeColor();
 
   const fetchBatches = async () => {
     try {

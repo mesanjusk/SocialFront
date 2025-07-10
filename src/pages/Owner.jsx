@@ -4,6 +4,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../Context/AppContext';
 import BASE_URL from '../config'; // Adjust the path based on your folder structure
+import { getThemeColor } from '../utils/storageUtils';
 
 
 const Owner = () => {
@@ -22,7 +23,7 @@ center_head_name: '',
   const navigate = useNavigate();
   const { user } = useApp();
 
-  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+  const themeColor = getThemeColor();
 
   useEffect(() => {
     if (user && user.role !== 'owner' && user.role !== 'super_admin') {

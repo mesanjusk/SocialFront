@@ -5,7 +5,8 @@
   import jsPDF from 'jspdf';
   import autoTable from 'jspdf-autotable';
   import * as XLSX from 'xlsx';
-  import BASE_URL from '../config';
+import BASE_URL from '../config';
+import { getThemeColor } from '../utils/storageUtils';
 
   const AddAdmission = () => {
     const nextMonthDate = (() => {
@@ -55,7 +56,7 @@
     const [educations, setEducations] = useState([]);
     const [exams, setExams] = useState([]);
     const [batches, setBatches] = useState([]);
-    const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+    const themeColor = getThemeColor();
     const [paymentModes, setPaymentModes] = useState([]);
     const [installmentPlan, setInstallmentPlan] = useState([]);
 
