@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import BASE_URL from '../config';
 import AdmissionFormModal from '../components/admissions/AdmissionFormModal';
@@ -14,12 +14,6 @@ import SearchAddAdmissionBar from '../components/reports/SearchAddAdmissionBar';
 import LeadCard from '../components/reports/LeadCard';
 import LeadDetailsModal from '../components/reports/LeadDetailsModal';
 
-// CSS to hide no-print elements on print
-const style = `
-@media print {
-  .no-print { display: none !important; }
-}
-`;
 
 
 const AllLeadByAdmission = () => {
@@ -41,12 +35,6 @@ const AllLeadByAdmission = () => {
 
   
 // Institute/branding details
-  const INSTITUTE = {
-    name: institute?.name || "",
-    contact: institute?.contact || "",
-    code: institute?.code || "",
-    logo: '/mnt/data/mkcl.png',
-  };
 
   const fetchCourses = async () => {
   try {
@@ -110,10 +98,6 @@ const fetchInstitute = async () => {
     window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  const handleCall = (mobile) => {
-    if (!mobile) return toast.error('Mobile number not available');
-    window.open(`tel:${mobile}`);
-  };
 
   const handleEditClick = async (lead) => {
   try {
