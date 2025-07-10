@@ -41,8 +41,11 @@ export default function Sidebar() {
         ...(userType === 'admin'
           ? [{ path: '/dashboard/instituteProfile', label: 'Profile', icon: <EventNoteIcon fontSize="small" /> }]
           : []),
-        ...(userType === 'owner'
-          ? [{ path: '/dashboard/Owner', label: 'Owner', icon: <EventNoteIcon fontSize="small" /> }]
+        ...(userType === 'owner' || userType === 'super_admin'
+          ? [
+              { path: '/dashboard/Owner', label: 'Owner', icon: <EventNoteIcon fontSize="small" /> },
+              { path: '/dashboard/institutes', label: 'Institutes', icon: <EventNoteIcon fontSize="small" /> }
+            ]
           : [])
       ]
     },

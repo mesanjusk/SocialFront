@@ -1,0 +1,92 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '../Context/AppContext';
+import BASE_URL from '../config';
+
+const Institutes = () => {
+  const { user } = useApp();
+  const navigate = useNavigate();
+  const [institutes, setInstitutes] = useState([]);
+
+  useEffect(() => {
+    if (user && user.role !== 'owner' && user.role !== 'super_admin') {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    fetchInstitutes();
+  }, []);
+
+  const fetchInstitutes = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/institute/GetOrganizList`);
+      if (res.data?.success) {
+        setInstitutes(res.data.result);
+      } else {
+        toast.error('No institutes found');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to fetch institutes');
+    }
+  };
+
+  const handleDelete = async (uuid) => {
+    if (!window.confirm('Delete this institute and all related data?')) return;
+    try {
+      await axios.delete(`${BASE_URL}/api/institute/${uuid}`);
+      toast.success('Institute deleted');
+      fetchInstitutes();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete');
+    }
+  };
+
+  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+
+  return (
+    <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
+      <Toaster position="top-right" />
+      <h1 className="text-3xl font-bold text-gray-800 mb-4">Manage Institutes</h1>
+      <div className="overflow-x-auto">
+        <table className="w-full border border-gray-300 rounded-md">
+          <thead>
+            <tr className="bg-gray-200 text-center text-sm">
+              <th className="p-2 border">Name</th>
+              <th className="p-2 border">Center Code</th>
+              <th className="p-2 border">Plan</th>
+              <th className="p-2 border">Start Date</th>
+              <th className="p-2 border">Expiry</th>
+              <th className="p-2 border">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {institutes.map((inst) => (
+              <tr key={inst.institute_uuid || inst._id} className="text-center text-sm">
+                <td className="p-2 border">{inst.institute_title}</td>
+                <td className="p-2 border">{inst.center_code}</td>
+                <td className="p-2 border">{inst.plan_type || 'trial'}</td>
+                <td className="p-2 border">{inst.start_date ? new Date(inst.start_date).toLocaleDateString() : '-'}</td>
+                <td className="p-2 border">{inst.expiry_date ? new Date(inst.expiry_date).toLocaleDateString() : '-'}</td>
+                <td className="p-2 border space-x-2">
+                  <button
+                    onClick={() => handleDelete(inst.institute_uuid || inst._id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default Institutes;

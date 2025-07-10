@@ -383,17 +383,29 @@ export default function Navbar({ toggleSidebar }) {
                     </div>
                   )}
 
-                  {user?.role === 'owner' && (
-                    <div
-                      onClick={() => {
-                        navigate('/dashboard/Owner');
-                        setIsOpen(false);
-                      }}
-                      className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
-                    >
-                      <EventNoteIcon fontSize="small" />
-                      Owner
-                    </div>
+                  {(user?.role === 'owner' || user?.role === 'super_admin') && (
+                    <>
+                      <div
+                        onClick={() => {
+                          navigate('/dashboard/Owner');
+                          setIsOpen(false);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
+                      >
+                        <EventNoteIcon fontSize="small" />
+                        Owner
+                      </div>
+                      <div
+                        onClick={() => {
+                          navigate('/dashboard/institutes');
+                          setIsOpen(false);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
+                      >
+                        <EventNoteIcon fontSize="small" />
+                        Institutes
+                      </div>
+                    </>
                   )}
                 </div>
               )}

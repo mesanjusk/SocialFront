@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../Context/AppContext';
 import BASE_URL from '../config'; // Adjust the path based on your folder structure
 
 
@@ -19,8 +20,15 @@ center_head_name: '',
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const navigate = useNavigate();
+  const { user } = useApp();
 
   const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+
+  useEffect(() => {
+    if (user && user.role !== 'owner' && user.role !== 'super_admin') {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     axios.get(`${BASE_URL}/api/org-categories`)
@@ -82,15 +90,15 @@ center_head_name: '',
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this organize?')) return;
+  const handleDelete = async (uuid) => {
+    if (!window.confirm('Are you sure you want to delete this institute and all related data?')) return;
 
     try {
-      await axios.delete(`${BASE_URL}/api/organize/${id}`);
-      toast.success('Organize deleted');
+      await axios.delete(`${BASE_URL}/api/institute/${uuid}`);
+      toast.success('Institute deleted');
       fetchOrgs();
     } catch (error) {
-      toast.error('Error deleting organize');
+      toast.error('Error deleting institute');
     }
   };
 
@@ -131,6 +139,9 @@ center_head_name: '',
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Mobile</th>
             <th className="p-2 border">Head Name</th>
+            <th className="p-2 border">Plan</th>
+            <th className="p-2 border">Start</th>
+            <th className="p-2 border">Expiry</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
@@ -140,6 +151,9 @@ center_head_name: '',
               <td className="p-2 border">{item.institute_title}</td>
               <td className="p-2 border">{item.institute_call_number}</td>
               <td className="p-2 border">{item.center_head_name}</td>
+              <td className="p-2 border">{item.plan_type || 'trial'}</td>
+              <td className="p-2 border">{item.start_date ? new Date(item.start_date).toLocaleDateString() : '-'}</td>
+              <td className="p-2 border">{item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : '-'}</td>
               <td className="p-2 border space-x-2">
                 <button
                   onClick={() => handleEdit(item)}
@@ -148,7 +162,7 @@ center_head_name: '',
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(item._id)}
+                  onClick={() => handleDelete(item.institute_uuid || item._id)}
                   className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                 >
                   Delete

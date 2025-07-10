@@ -34,6 +34,7 @@ import AllBatches from './Reports/allBatches';
 import AllBalance from './Reports/allBalance'; // <-- ✅ NEW PAGE
 import AddAccount from './pages/AddAccount';
 import AllExams from './Reports/allExams';
+import Institutes from './pages/Institutes';
 
 export default function App() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="paymentmode" element={<PaymentMode />} />
         <Route path="instituteProfile" element={<InstituteProfile />} />
         <Route path="owner" element={<Owner />} />
+        <Route path="institutes" element={<Institutes />} />
         <Route path="coursesCategory" element={<CoursesCategory />} />
         <Route path="leads" element={<Leads />} />
         <Route path="allAdmission" element={<AllAdmission />} />
