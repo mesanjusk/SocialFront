@@ -146,4 +146,5 @@ export default function AllAttendance() {
       </table>
     </div>
   </div>
+ );
 }
