@@ -11,6 +11,12 @@ npm install
 npm run dev
 ```
 
+### Offline Caching
+
+The client caches recent master data (courses, educations, exams, batches and payment modes)
+inside **IndexedDB** using [Dexie](https://dexie.org). Sensitive fields are encrypted via
+`crypto-js` before being stored. All cached data is purged on user logout.
+
 ## API Endpoints
 
 The app now consumes the following updated API routes:
