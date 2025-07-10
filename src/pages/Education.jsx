@@ -16,7 +16,7 @@ const Education = () => {
   const [fetchLoading, setFetchLoading] = useState(true);
   const inputRef = useRef();
   const searchTimeout = useRef(); // <-- critical fix!
-  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+  const themeColor = localStorage.getItem('theme_color') || '6fa8dc';
 
   const fetchData = async () => {
     try {

@@ -12,8 +12,8 @@ export default defineConfig({
         name: 'Instify',
         short_name: 'Instify',
         description: 'Addmission 2 Celebration',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '6fa8dc',
+        background_color: '6fa8dc',
         display: 'standalone',
         start_url: '/',
         icons: [

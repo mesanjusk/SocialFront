@@ -102,7 +102,7 @@ const handleNext = async () => {
           <button onClick={onClose} className="text-gray-500 hover:text-black text-2xl">&times;</button>
         </div>
         <div className="flex justify-around border-b">
-          {['Student Info', 'Course & Batch', 'Payment & Installments'].map((tabName, idx) => (
+          {['Student Info', 'Course & Batch', 'Payment & EMI'].map((tabName, idx) => (
             <button
               key={idx}
               onClick={() => setTab(idx)}

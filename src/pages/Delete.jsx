@@ -495,7 +495,7 @@ import { getThemeColor } from '../utils/storageUtils';
 
           {/* Tab Navigation */}
           <div className="flex justify-around border-b">
-            {['Student Info', 'Course & Batch', 'Payment & Installments'].map((tabName, idx) => (
+            {['Student Info', 'Course & Batch', 'Payment & EMI'].map((tabName, idx) => (
               <button
                 key={idx}
                 onClick={() => setTab(idx)}
@@ -580,7 +580,7 @@ import { getThemeColor } from '../utils/storageUtils';
               </>
             )}
 
-            {/* TAB 3: Payment & Installments */}
+            {/* TAB 3: Payment & EMI */}
             {tab === 2 && (
               <>
 

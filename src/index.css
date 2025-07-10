@@ -4,10 +4,10 @@
 
 /* Optional: global styles */
 :root {
-  --theme-color: #d0e0e3; /* fallback default theme color */
+  --theme-color: 6fa8dc; /* fallback default theme color */
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--theme-color, #d0e0e3);
+  background-color: var(--theme-color, 6fa8dc);
 }
