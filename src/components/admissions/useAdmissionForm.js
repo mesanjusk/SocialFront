@@ -355,20 +355,27 @@ if (checkDuplicate.data.exists && !form.student_uuid) {
     await axios.post(`${BASE_URL}/api/fees`, feesPayload);
 
     const leadPayload = {
-      institute_uuid,
-      student_uuid,
-      admission_uuid,
-      enquiryDate: form.admissionDate,
-      course: form.course,
-      referredBy: 'Self',
-      createdBy: 'System',
-      followups: [{
-        date: new Date().toISOString().substring(0, 10),
-        status: 'converted',
-        remark: '',
-        createdBy: 'System',
-      }],
-    };
+  institute_uuid,
+  student_uuid,
+  admission_uuid,
+  enquiryDate: form.admissionDate,
+  course: form.course,
+  referredBy: 'Self',
+  createdBy: 'System',
+  followups: [{
+    date: new Date().toISOString().substring(0, 10),
+    status: 'converted',
+    remark: '',
+    createdBy: 'System',
+  }],
+  studentData: {
+    mobileSelf: form.mobileSelf, 
+    firstName: form.firstName,
+    lastName: form.lastName,
+    course: form.course,
+  },
+};
+
     await axios.post(`${BASE_URL}/api/leads`, leadPayload);
 
     const accountGroup = accountGroups.find(group => group.Account_group === 'ACCOUNT');
