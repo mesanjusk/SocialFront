@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
+import { getThemeColor } from '../utils/storageUtils';
 
 const PaymentMode = () => {
   const [list, setList] = useState([]);
@@ -11,7 +12,7 @@ const PaymentMode = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const inputRef = useRef();
-  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+  const themeColor = getThemeColor();
 
   const fetchData = async () => {
     try {

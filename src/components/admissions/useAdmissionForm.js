@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import BASE_URL from '../../config';
+import { getThemeColor } from '../../utils/storageUtils';
 
 const useAdmissionForm = (initialForm = {}) => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const useAdmissionForm = (initialForm = {}) => {
 
   const [installmentPlan, setInstallmentPlan] = useState([]);
 
-  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+  const themeColor = getThemeColor();
   const institute_uuid = localStorage.getItem('institute_uuid');
   const [searchParams] = useSearchParams();
   const lead_uuid = searchParams.get('lead_uuid');

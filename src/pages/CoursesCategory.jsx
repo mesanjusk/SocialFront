@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { Edit, Delete, Add, PictureAsPdf, FileDownload } from '@mui/icons-material';
 import BASE_URL from '../config';
+import { getThemeColor } from '../utils/storageUtils';
 
 const CoursesCategory = () => {
   const [courses, setCourses] = useState([]);
@@ -15,7 +16,7 @@ const CoursesCategory = () => {
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
-  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+  const themeColor = getThemeColor();
 
   const fetchCourses = async () => {
     try {

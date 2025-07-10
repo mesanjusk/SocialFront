@@ -10,6 +10,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 import BASE_URL from '../config';
+import { getThemeColor } from '../utils/storageUtils';
 import { useMetadata } from '../Context/MetadataContext';
 
 const Followup = () => {
@@ -38,7 +39,7 @@ const Followup = () => {
   const [search, setSearch] = useState('');
   const [actionModal, setActionModal] = useState(null);
   const institute_uuid = localStorage.getItem('institute_uuid');
-  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+  const themeColor = getThemeColor();
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;

@@ -4,6 +4,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../Context/AppContext';
 import BASE_URL from '../config';
+import { getThemeColor } from '../utils/storageUtils';
 
 const Institutes = () => {
   const { user } = useApp();
@@ -46,7 +47,7 @@ const Institutes = () => {
     }
   };
 
-  const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+  const themeColor = getThemeColor();
 
   return (
     <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
