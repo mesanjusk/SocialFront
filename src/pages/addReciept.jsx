@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
 
 export default function AddReceipt() {
     const navigate = useNavigate();
-
-    // --- State Declarations ---
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
     const [transactionDate, setTransactionDate] = useState('');
@@ -20,9 +19,12 @@ export default function AddReceipt() {
     const [showOptions, setShowOptions] = useState(false);
     const [filteredOptions, setFilteredOptions] = useState([]);
     const [customerName, setCustomerName] = useState('');
-    const [isDateChecked, setIsDateChecked] = useState(false);
-    const institute_uuid = localStorage.getItem("institute_uuid");
+    const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+    const [whatsAppInfo, setWhatsAppInfo] = useState(null);
+    const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
+    const [loading, setLoading] = useState(false);
 
+    const institute_uuid = localStorage.getItem("institute_uuid");
 
     // --- Load user from localStorage ---
     useEffect(() => {
@@ -40,31 +42,29 @@ export default function AddReceipt() {
                     setAccountOptions(options);
                 }
             }).catch(err => {
-                alert("Error fetching accounts");
+                toast.error("Error fetching accounts");
                 console.error(err);
             });
     }, []);
 
     // --- Fetch payment modes ---
-  useEffect(() => {
-  const fetchPaymentModes = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
-      const options = (res.data?.result || []).filter(
-        (item) =>
-          (item.Account_name === 'Bank' || item.Account_name === 'Cash') &&
-          item.institute_uuid === institute_uuid
-      );
-
-      setPaymentOptions(options);
-    } catch (err) {
-      console.error('Payment mode fetch error:', err);
-      alert('Failed to load payment modes');
-    }
-  };
-
-  fetchPaymentModes();
-}, [institute_uuid]);
+    useEffect(() => {
+        const fetchPaymentModes = async () => {
+            try {
+                const res = await axios.get(`${BASE_URL}/api/account/GetAccountList`);
+                const options = (res.data?.result || []).filter(
+                    (item) =>
+                        (item.Account_name === 'Bank' || item.Account_name === 'Cash') &&
+                        item.institute_uuid === institute_uuid
+                );
+                setPaymentOptions(options);
+            } catch (err) {
+                toast.error('Failed to load payment modes');
+                console.error('Payment mode fetch error:', err);
+            }
+        };
+        fetchPaymentModes();
+    }, [institute_uuid]);
 
     // --- Account Search Input Change ---
     const handleInputChange = (e) => {
@@ -88,73 +88,46 @@ export default function AddReceipt() {
         setAccounts(option.uuid);
         setStudent(option);
         setShowOptions(false);
-        setFilteredOptions([]); // Clear dropdown after select
+        setFilteredOptions([]);
     };
 
-     const handleWhatsAppClick = async (e) => {
-        e.preventDefault(); 
-    
-        try {
-            const whatsappInfo = await submit(e);  
-            if (!whatsappInfo) return;
-    
-            const { name, phone, amount, date, mode } = whatsappInfo;
-    
-            if (!phone) {
-                alert("Customer phone number is missing.");
-                return;
-            }
-    
-            const message = `Hello ${name}, we have received your payment of ₹${amount} on ${date} via ${mode}. Thank you!`;
-    
-            const confirmed = window.confirm(`Send WhatsApp message to ${name}?\n\n"${message}"`);
-            if (!confirmed) return;
-    
-            await sendMessageToAPI(name, phone, message);
-    
-            navigate("/home");
-    
-        } catch (error) {
-            console.error("Failed to process WhatsApp order flow:", error);
-        }
+    // --- Amount Input Change ---
+    const handleAmountChange = (e) => {
+        setAmount(e.target.value.replace(/^0+/, '')); // prevent leading zero
     };
 
-    // --- Form Submission (Save Receipt) ---
+    // --- Submit Receipt ---
     async function submit(e) {
         e.preventDefault();
 
-        if (!amount || isNaN(amount) || Number(amount) <= 0) {
-            alert("Please enter a valid amount.");
+        if (!transactionDate) {
+            toast.error("Select the date.");
             return;
         }
-        
-        if (!accounts || !group) {
-            alert("Select both account and payment mode.");
+        if (!customerName || !accounts) {
+            toast.error("Please select a customer.");
+            return;
+        }
+        if (!amount || isNaN(amount) || Number(amount) <= 0) {
+            toast.error("Please enter a valid amount.");
+            return;
+        }
+        if (!group) {
+            toast.error("Select payment mode.");
             return;
         }
 
+        setLoading(true);
         try {
-            // Find selected account/mode objects
             const Account = allAccountOptions.find(option => option.uuid === accounts);
             const Group = paymentOptions.find(option => option.uuid === group);
             const todayDate = new Date().toISOString().split("T")[0];
 
-          
-            // Journal entry
             const journal = [
-                {
-                    Account_id: accounts,
-                    Type: 'Debit',
-                    Amount: Number(amount),
-                },
-                {
-                    Account_id: Group.account_uuid || group,
-                    Type: 'Credit',
-                    Amount: Number(amount),
-                }
+                { Account_id: accounts, Type: 'Debit', Amount: Number(amount) },
+                { Account_id: Group.account_uuid || group, Type: 'Credit', Amount: Number(amount) }
             ];
 
-            // Prepare payload
             const payload = {
                 Description: description,
                 Total_Credit: Number(amount),
@@ -166,100 +139,117 @@ export default function AddReceipt() {
                 institute_uuid,
             };
 
-            // Save to backend
             const response = await axios.post(`${BASE_URL}/api/transaction/addTransaction`, payload);
 
             if (response.data.success) {
-                alert(response.data.message);
-                navigate("/dashboard");
+                toast.success("Receipt added successfully.");
+                // After saving, show WhatsApp modal
+                setWhatsAppInfo({
+                    name: Account.Account_name,
+                    phone: Account.Mobile_number,
+                    amount,
+                    date: transactionDate || todayDate,
+                    mode: Group.Account_name,
+                });
+                setShowWhatsAppModal(true);
             } else {
-                alert("Failed to add Transaction");
+                toast.error("Failed to add transaction");
             }
-             return {
-                name: Account.Account_name,
-                phone: Account.Mobile_number,
-                amount: amount,
-                date: transactionDate,
-                mode: Group.uuid
-            };
         } catch (e) {
             console.error("Error adding Transaction:", e);
-            alert("Error occurred while submitting the form.");
+            toast.error("Error occurred while submitting the form.");
+        } finally {
+            setLoading(false);
         }
     }
 
-   
+    // --- WhatsApp Message Send ---
+    const sendMessageToAPI = async () => {
+        if (!whatsAppInfo || !whatsAppInfo.phone) {
+            toast.error("Customer phone number is missing.");
+            return;
+        }
+        setSendingWhatsApp(true);
+        const { name, phone, amount, date, mode } = whatsAppInfo;
+        const message = `Hello ${name}, we have received your payment of ₹${amount} on ${date} via ${mode}. Thank you!`;
 
-    // --- Amount Input Change ---
-    const handleAmountChange = (e) => {
-        const value = e.target.value;
-        setAmount(value);
-    };
-
-   const sendMessageToAPI = async (name, phone, message) => {
         const payload = {
             mobile: phone,
             userName: name,
             type: 'customer',
             message: message,
         };
-    
         try {
             const res = await fetch(`${BASE_URL}/api/institute/send-message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
-    
+
             if (!res.ok) {
                 const errorText = await res.text();
                 throw new Error(`Failed to send message: ${errorText}`);
             }
-    
+
             const result = await res.json();
             if (result.error) {
-                alert("Failed to send: " + result.error);
+                toast.error("Failed to send: " + result.error);
             } else {
-                alert("Message sent successfully.");
+                toast.success("Message sent successfully.");
             }
+            setShowWhatsAppModal(false);
+            navigate("/dashboard");
         } catch (error) {
             console.error("Request failed:", error);
-            alert("Failed to send message: " + error.message);
+            toast.error("Failed to send message: " + error.message);
+        } finally {
+            setSendingWhatsApp(false);
         }
-    
-  };
-
+    };
 
     // --- Render ---
     return (
-        <div className="flex justify-center items-center bg-secondary min-h-screen">
-            <div className="bg-white p-6 rounded shadow w-full max-w-md">
-                <h2 className="text-xl font-semibold mb-4">Add Receipt</h2>
-                <form onSubmit={submit}>
-                    
-                            <label className="block mb-2">Date</label>
-                            <input
-                                type="date"
-                                onChange={e => setTransactionDate(e.target.value)}
-                                value={transactionDate}
-                                className="form-control mb-3"
-                            />
-                    
-                    <label className="block mb-2">Customer</label>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <Toaster />
+            <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg relative">
+                <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl p-2 rounded-full focus:outline-none"
+                    onClick={() => navigate("/home")}
+                    aria-label="Close"
+                    title="Close"
+                >
+                    ×
+                </button>
+                <h2 className="text-lg font-semibold mb-4 text-center">Add Receipt</h2>
+                <form onSubmit={submit} className="space-y-4">
+                    <div>
+                        <label className="block mb-1 font-medium">Date</label>
+                        <input
+                            type="date"
+                            value={transactionDate}
+                            onChange={e => setTransactionDate(e.target.value)}
+                            className="border p-2 rounded w-full"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block mb-1 font-medium">Customer</label>
                         <input
                             type="text"
                             placeholder="Search customer"
-                            className="form-control mb-1"
                             value={customerName}
                             onChange={handleInputChange}
                             onFocus={() => setShowOptions(true)}
+                            className="border p-2 rounded w-full"
+                            autoComplete="off"
+                            required
                         />
                         {showOptions && filteredOptions.length > 0 && (
-                            <ul className="list-group position-absolute w-100" style={{ zIndex: 999 }}>
+                            <ul className="border rounded bg-white mt-1 absolute w-full max-h-40 overflow-y-auto z-50">
                                 {filteredOptions.map((option, index) => (
                                     <li
-                                        key={index}
-                                        className="list-group-item list-group-item-action"
+                                        key={option.uuid}
+                                        className="px-3 py-2 hover:bg-gray-200 cursor-pointer"
                                         onClick={() => handleOptionClick(option)}
                                     >
                                         {option.Account_name}
@@ -267,57 +257,108 @@ export default function AddReceipt() {
                                 ))}
                             </ul>
                         )}
-                    
-                    {/* --- REMOVED: Add Account Button --- */}
-                    
-                    
-                       <label className="block mb-2">Amount</label>
+                    </div>
+                    <div>
+                        <label className="block mb-1 font-medium">Amount</label>
                         <input
                             type="number"
-                            onChange={handleAmountChange}
                             value={amount}
+                            onChange={handleAmountChange}
                             placeholder="Amount"
-                            className="form-control mb-3"
-                             min="0"
-                             required
+                            className="border p-2 rounded w-full"
+                            min="1"
+                            required
                         />
-                                   
-                        <label className="block mb-2">Payment Mode</label>
+                    </div>
+                    <div>
+                        <label className="block mb-1 font-medium">Payment Mode</label>
                         <select
-                            className="form-control mb-3"
-                            onChange={e => setGroup(e.target.value)}
+                            className="border p-2 rounded w-full"
                             value={group}
+                            onChange={e => setGroup(e.target.value)}
                             required
                         >
                             <option value="">Select Payment</option>
-                            {paymentOptions.map((g, idx) => (
-                                <option key={idx} value={g.uuid}>
+                            {paymentOptions.map((g) => (
+                                <option key={g.uuid} value={g.uuid}>
                                     {g.Account_name}
                                 </option>
                             ))}
                         </select>
-                    
-                 <label className="block mb-2">Description</label>
+                    </div>
+                    <div>
+                        <label className="block mb-1 font-medium">Description</label>
                         <input
                             type="text"
-                            onChange={e => setDescription(e.target.value)}
                             value={description}
+                            onChange={e => setDescription(e.target.value)}
                             placeholder="Description"
-                            className="form-control mb-4"
+                            className="border p-2 rounded w-full"
                         />
-                   
-                    <button type="submit" className="w-full py-2 mb-2 bg-green-600 text-white rounded">
-                        Submit
-                    </button>
-                    <button type="button" className="w-full py-2 mb-2 bg-green-500 text-white rounded" onClick={handleWhatsAppClick}>
-                        WhatsApp
-                    </button>
-                    {/* --- REMOVED: WhatsApp Button --- */}
-                    <button type="button" className="w-full py-2 bg-red-500 text-white rounded" onClick={() => navigate("/home")}>
-                        Close
-                    </button>
+                    </div>
+                    <div className="flex justify-end gap-2 mt-4">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/home")}
+                            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                        >
+                            {loading ? 'Saving...' : 'Save'}
+                        </button>
+                    </div>
                 </form>
             </div>
+            {/* WhatsApp Confirmation Modal */}
+            {showWhatsAppModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm relative animate-fadeIn">
+                        <button
+                            className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl p-2 rounded-full focus:outline-none"
+                            onClick={() => setShowWhatsAppModal(false)}
+                            aria-label="Close Modal"
+                        >
+                            ×
+                        </button>
+                        <div className="flex flex-col items-center text-center">
+                            <div className="text-green-600 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="inline h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.031-.967-.273-.099-.471-.148-.67.151-.197.297-.767.966-.94 1.164-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.654-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.67-.51-.173-.007-.371-.009-.57-.009s-.521.074-.793.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.199 5.077 4.366.709.305 1.262.486 1.694.621.712.227 1.36.195 1.872.118.571-.085 1.758-.718 2.007-1.412.248-.694.248-1.289.173-1.412-.074-.124-.272-.198-.57-.347z" />
+                                    <path d="M20.52 3.48C18.19 1.151 15.157 0 12.001 0 5.372 0 0 5.373 0 12c0 2.119.553 4.188 1.607 5.991L0 24l6.182-1.605C8.021 23.447 9.997 24 12.001 24c6.627 0 12-5.373 12-12 0-3.157-1.151-6.19-3.48-8.52zm-8.519 19.021c-1.783 0-3.534-.472-5.061-1.362l-.363-.214-3.672.954.982-3.583-.236-.368C2.133 15.858 1.613 13.956 1.613 12c0-5.729 4.658-10.388 10.387-10.388 2.778 0 5.388 1.082 7.345 3.041 1.958 1.958 3.04 4.567 3.04 7.345 0 5.729-4.659 10.388-10.388 10.388z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">Send WhatsApp Message?</h3>
+                            <p className="mb-4">
+                                Do you want to send a WhatsApp receipt to <span className="font-bold">{whatsAppInfo?.name}</span>?
+                            </p>
+                            <div className="flex gap-3 w-full">
+                                <button
+                                    className="flex-1 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium flex items-center justify-center"
+                                    onClick={sendMessageToAPI}
+                                    disabled={sendingWhatsApp}
+                                >
+                                    {sendingWhatsApp ? "Sending..." : "Send"}
+                                </button>
+                                <button
+                                    className="flex-1 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium"
+                                    onClick={() => {
+                                        setShowWhatsAppModal(false);
+                                        navigate("/dashboard");
+                                    }}
+                                    disabled={sendingWhatsApp}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

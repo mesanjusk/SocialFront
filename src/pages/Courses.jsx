@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import jsPDF from 'jspdf';
@@ -19,18 +19,33 @@ const Courses = () => {
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
-
-  const institute_id = localStorage.getItem('institute_uuid');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const searchTimeout = useRef();
   const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
+
+  // Debounced search
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(searchTimeout.current);
+  }, [search]);
 
   const fetchCourses = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`${BASE_URL}/api/courses`);
       setCourses(res.data || []);
     } catch (err) {
       toast.error('Failed to fetch courses');
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
   const handleChange = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
@@ -40,7 +55,6 @@ const Courses = () => {
     e.preventDefault();
 
     const payload = { ...form };
-
 
     try {
       if (editingId) {
@@ -83,6 +97,10 @@ const Courses = () => {
     }
   };
 
+  const filteredCourses = courses.filter(c =>
+    c.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+  );
+
   const exportPDF = () => {
     const doc = new jsPDF();
     autoTable(doc, {
@@ -111,85 +129,75 @@ const Courses = () => {
     XLSX.writeFile(wb, 'courses.xlsx');
   };
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
-
-  const filteredCourses = courses.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
-    <div className="min-h-screen p-4 relative" style={{ backgroundColor: themeColor }}>
+    <div className="min-h-screen p-2" style={{ backgroundColor: themeColor }}>
       <Toaster />
-      <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
+      <div className="flex items-center gap-2 mb-4 w-full flex-wrap">
         <input
           placeholder="Search course"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="border p-2 rounded w-full max-w-sm"
+          className="border p-2 rounded flex-1 min-w-0 max-w-xs"
         />
-        <div className="flex gap-2">
-          <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded" title="Export PDF">
-            <PictureAsPdf fontSize="small" />
-          </button>
-          <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded" title="Export Excel">
-            <FileDownload fontSize="small" />
-          </button>
-          <button onClick={() => { setForm({ name: '', description: '', courseFees: '', examFees: '', duration: '' }); setEditingId(null); setShowModal(true); }} className="bg-blue-600 text-white px-4 py-2 rounded" title="Add Course">
-            <Add fontSize="small" />
-          </button>
-        </div>
+        <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" title="Export PDF">
+          <PictureAsPdf fontSize="small" />
+        </button>
+        <button onClick={exportExcel} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" title="Export Excel">
+          <FileDownload fontSize="small" />
+        </button>
+        <button
+          onClick={() => { setForm({ name: '', description: '', courseFees: '', examFees: '', duration: '' }); setEditingId(null); setShowModal(true); }}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          title="Add Course"
+        >
+          <Add fontSize="small" />
+        </button>
       </div>
 
-      <div className="overflow-x-auto">
-      <table className="min-w-full border">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">Name</th>
-            <th className="p-2 border hidden md:table-cell">Description</th>
-            <th className="p-2 border">Course Fees</th>
-            <th className="p-2 border hidden md:table-cell">Exam Fees</th>
-            <th className="p-2 border">Duration</th>
-            <th className="p-2 border">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredCourses.map((c, i) => (
-            <tr key={i} className="text-center">
-              <td className="border p-2 truncate">{c.name}</td>
-              <td className="border p-2 truncate hidden md:table-cell">{c.description}</td>
-              <td className="border p-2">{c.courseFees}</td>
-              <td className="border p-2 truncate hidden md:table-cell">{c.examFees}</td>
-              <td className="border p-2">{c.duration}</td>
-              <td className="border p-2 space-x-2">
-                <button onClick={() => handleEdit(c)} className="bg-yellow-500 text-white px-2 py-1 rounded" title="Edit">
+      {loading ? (
+        <div className="text-center p-6">Loading courses...</div>
+      ) : filteredCourses.length === 0 ? (
+        <div className="text-center p-6 text-gray-500">No courses found.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3">
+          {filteredCourses.map((c) => (
+            <div key={c._id} className="border rounded-lg p-3 shadow hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <h2 className="font-semibold text-lg text-gray-800">{c.name}</h2>
+                <p className="text-sm text-gray-600 mt-1">{c.description || <span className="italic text-gray-400">No description</span>}</p>
+                <div className="mt-2 text-sm text-gray-700">
+                  <div>Course Fees: <span className="font-medium">{c.courseFees || '-'}</span></div>
+                  <div>Exam Fees: <span className="font-medium">{c.examFees || '-'}</span></div>
+                  <div>Duration: <span className="font-medium">{c.duration || '-'}</span></div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 mt-3">
+                <button onClick={() => handleEdit(c)} className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" title="Edit">
                   <Edit fontSize="small" />
                 </button>
-                <button onClick={() => handleDelete(c._id)} className="bg-red-600 text-white px-2 py-1 rounded" title="Delete">
+                <button onClick={() => handleDelete(c._id)} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700" title="Delete">
                   <Delete fontSize="small" />
                 </button>
-              </td>
-            </tr>
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
-      </div>
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded w-full max-w-md max-h-[90vh] overflow-y-auto shadow">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
             <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit Course' : 'Add New Course'}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-              <input type="text" value={form.name} onChange={handleChange('name')} className="border p-2 w-full" placeholder="Course Name" required />
-              <textarea value={form.description} onChange={handleChange('description')} className="border p-2 w-full" placeholder="Description" rows={3} />
-              <input type="number" value={form.courseFees} onChange={handleChange('courseFees')} className="border p-2 w-full" placeholder="Course Fees" />
-              <input type="number" value={form.examFees} onChange={handleChange('examFees')} className="border p-2 w-full" placeholder="Exam Fees" />
-              <input type="text" value={form.duration} onChange={handleChange('duration')} className="border p-2 w-full" placeholder="Duration (e.g., 6 months)" />
+              <input type="text" value={form.name} onChange={handleChange('name')} className="border p-2 w-full rounded" placeholder="Course Name" required />
+              <textarea value={form.description} onChange={handleChange('description')} className="border p-2 w-full rounded" placeholder="Description" rows={3} />
+              <input type="number" value={form.courseFees} onChange={handleChange('courseFees')} className="border p-2 w-full rounded" placeholder="Course Fees" />
+              <input type="number" value={form.examFees} onChange={handleChange('examFees')} className="border p-2 w-full rounded" placeholder="Exam Fees" />
+              <input type="text" value={form.duration} onChange={handleChange('duration')} className="border p-2 w-full rounded" placeholder="Duration (e.g., 6 months)" />
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{editingId ? 'Update' : 'Save'}</button>
+                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancel</button>
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{editingId ? 'Update' : 'Save'}</button>
               </div>
             </form>
           </div>

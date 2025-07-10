@@ -6,74 +6,94 @@ import BASE_URL from '../../config';
 const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
-  const [ followupDate, setFollowupDate] = useState();
   const [studentData, setStudentData] = useState({
     firstName: '',
     lastName: '',
     mobileSelf: '',
     course: '',
   });
+
+  // Default followup is today
+  const todayStr = new Date().toISOString().substring(0, 10);
+
   const [leadData, setLeadData] = useState({
     referredBy: '',
     followups: [{
-      date: new Date().toISOString().substring(0, 10),
+      date: todayStr,
       status: 'follow-up',
       remark: '',
-      createdBy: 'System',
+      createdBy: JSON.parse(localStorage.getItem('user'))?.name || 'System',
     }],
   });
 
- useEffect(() => {
-  const fetchCourses = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/courses`, {
-      });
-      setCourses(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error('Error fetching courses:', err);
-      toast.error('Failed to load courses');
-    }
-  };
- fetchCourses();
-}, []);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/courses`);
+        setCourses(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+        toast.error('Failed to load courses');
+      }
+    };
+    fetchCourses();
+  }, []);
 
+  // Update followup date on input change
+  const handleFollowupDateChange = (dateVal) => {
+    setLeadData((prev) => ({
+      ...prev,
+      followups: [
+        { ...prev.followups[0], date: dateVal },
+        ...prev.followups.slice(1)
+      ]
+    }));
+  };
+
+  // Update followup remark on input change
+  const handleFollowupRemarkChange = (remarkVal) => {
+    setLeadData((prev) => ({
+      ...prev,
+      followups: [
+        { ...prev.followups[0], remark: remarkVal },
+        ...prev.followups.slice(1)
+      ]
+    }));
+  };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!/^\d{10}$/.test(studentData.mobileSelf)) {
-    toast.error('Mobile number must be exactly 10 digits');
-    return;
-  }
-  if (!studentData.course) {
-    toast.error('Please select a course');
-    return;
-  }
-
-  setLoading(true);
-  try {
-    await axios.post(`${BASE_URL}/api/leads`, {
-      institute_uuid,
-      course: studentData.course,
-      studentData,
-      referredBy: leadData.referredBy,
-      followups: leadData.followups,
-      followupDate: followupDate
-    });
-    toast.success('Lead created successfully');
-    onSuccess();
-    onClose();
-  } catch (err) {
-    if (err.response?.status === 409) {
-      toast.error('Mobile number already exists for this institute.');
-    } else {
-      toast.error('Error creating lead');
+    e.preventDefault();
+    if (!/^\d{10}$/.test(studentData.mobileSelf)) {
+      toast.error('Mobile number must be exactly 10 digits');
+      return;
     }
-    console.error('Error creating lead:', err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    if (!studentData.course) {
+      toast.error('Please select a course');
+      return;
+    }
+    setLoading(true);
+    try {
+      await axios.post(`${BASE_URL}/api/leads`, {
+        institute_uuid,
+        course: studentData.course,
+        studentData,
+        referredBy: leadData.referredBy,
+        followups: leadData.followups,
+      });
+      toast.success('Lead created successfully');
+      onSuccess();
+      onClose();
+    } catch (err) {
+      if (err.response?.status === 409) {
+        toast.error('Mobile number already exists for this institute.');
+      } else {
+        toast.error('Error creating lead');
+      }
+      console.error('Error creating lead:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -106,7 +126,6 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
             required
             maxLength={10}
             pattern="[0-9]{10}"
-
             className="border p-2 rounded w-full"
           />
           <select
@@ -120,46 +139,34 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
               <option key={course._id} value={course.Course_uuid}>{course.name}</option>
             ))}
           </select>
-           <label className="block mb-2">Follow up</label>
-                            <input
-                                type="date"
-                                onChange={e => setFollowupDate(e.target.value)}
-                                value={followupDate}
-                                className="form-control mb-3"
-                            />
 
-                           
-<label className="block font-medium">Referred By</label>
-<input
-  type="text"
-  list="referredByOptions"
-  value={leadData.referredBy}
-  onChange={(e) => setLeadData({ ...leadData, referredBy: e.target.value })}
-  placeholder="Enter or select ReferredBy"
-  className="border p-2 rounded w-full"
-/>
-<datalist id="referredByOptions">
-  <option value="ReferredBy" />
-</datalist>
+          <label className="block mb-2 mt-3">Follow Up Date</label>
+          <input
+            type="date"
+            onChange={e => handleFollowupDateChange(e.target.value)}
+            value={leadData.followups[0].date}
+            className="border p-2 rounded w-full"
+            required
+          />
 
-<label className="block font-medium mt-3">Remark</label>
-<input
-  type="text"
-  list="remarkOptions"
-  value={leadData.followups[0].remark}
-  onChange={(e) => {
-    const updatedFollowups = [...leadData.followups];
-    updatedFollowups[0].remark = e.target.value;
-    setLeadData({ ...leadData, followups: updatedFollowups });
-  }}
-  placeholder="Enter or select Remark"
-  className="border p-2 rounded w-full"
-/>
-<datalist id="remarkOptions">
-  <option value="Remark" />
-</datalist>
+          <label className="block font-medium mt-3">Referred By</label>
+          <input
+            type="text"
+            value={leadData.referredBy}
+            onChange={(e) => setLeadData({ ...leadData, referredBy: e.target.value })}
+            placeholder="Enter Referred By"
+            className="border p-2 rounded w-full"
+          />
 
-          
+          <label className="block font-medium mt-3">Remark</label>
+          <input
+            type="text"
+            value={leadData.followups[0].remark}
+            onChange={(e) => handleFollowupRemarkChange(e.target.value)}
+            placeholder="Enter Remark"
+            className="border p-2 rounded w-full"
+          />
+
           <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
