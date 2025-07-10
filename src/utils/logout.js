@@ -11,7 +11,9 @@ import toast from 'react-hot-toast';
 const logoutUser = () => {
   // ✅ Clear user and institute data
   clearUserAndInstituteData();
-  purgeAllData();
+
+  // ✅ Purge IndexedDB data (async, non-blocking)
+  purgeAllData().catch(console.error);
 
   // ✅ Clear additional related values
   localStorage.removeItem('remember_me');
