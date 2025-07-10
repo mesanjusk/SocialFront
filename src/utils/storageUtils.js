@@ -90,5 +90,7 @@ export const getStoredUser = () => {
  * Falls back to '#d0e0e3' when none is stored.
  */
 export const getThemeColor = () => {
-  return localStorage.getItem('theme_color') || '#d0e0e3';
+  const color = localStorage.getItem('theme_color') || '#d0e0e3';
+  document.documentElement.style.setProperty('--theme-color', color);
+  return color;
 };
