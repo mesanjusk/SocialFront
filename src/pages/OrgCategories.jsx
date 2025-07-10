@@ -105,11 +105,11 @@ const OrgCategories = () => {
       </div>
 
       <div className="overflow-x-auto">
-      <table className="w-full border">
+      <table className="min-w-full border">
         <thead className="bg-gray-100">
           <tr>
             <th className="p-2 border">Category</th>
-            <th className="p-2 border">Description</th>
+            <th className="p-2 border hidden md:table-cell">Description</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
@@ -123,8 +123,8 @@ const OrgCategories = () => {
           ) : (
             filtered.map((c) => (
               <tr key={c._id} className="text-center hover:bg-gray-100 transition">
-                <td className="border p-2">{c.category}</td>
-                <td className="border p-2">{c.description}</td>
+                <td className="border p-2 truncate">{c.category}</td>
+                <td className="border p-2 truncate hidden md:table-cell">{c.description}</td>
                 <td className="border p-2">
                   <button
                     onClick={() => handleEdit(c)}

@@ -185,13 +185,13 @@ const AllTransaction = () => {
 
                     {/* Table */}
                     <div className="overflow-x-auto">
-                    <table className="w-full table-auto text-sm border">
+                    <table className="min-w-full table-auto text-sm border">
                         <thead className="bg-green-100 text-green-900">
                             <tr>
                                 <th onClick={() => handleSort('name')} className="border px-3 py-2 cursor-pointer text-left">
                                     Customer {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
                                 </th>
-                                <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left">
+                                <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left hidden md:table-cell">
                                     Mobile {sortConfig.key === 'mobile' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
                                 </th>
                                 <th onClick={() => handleSort('balance')} className="border px-3 py-2 cursor-pointer text-right">
@@ -208,11 +208,11 @@ const AllTransaction = () => {
                             ) : (
                                 sortedReport.map((item, index) => (
                                     <tr key={index} className="border-t hover:bg-gray-50">
-                                        <td className="px-3 py-2 cursor-pointer text-green-600" onClick={() => viewTransactions(item)}>
+                                        <td className="px-3 py-2 cursor-pointer text-green-600 truncate" onClick={() => viewTransactions(item)}>
                                             {item.name}
                                         </td>
-                                        <td className="px-3 py-2">{item.mobile}</td>
-                                        <td className={`px-3 py-2 text-right ${item.balance < 0 ? 'text-red-600' : 'text-green-700'}`}>
+                                        <td className="px-3 py-2 truncate hidden md:table-cell">{item.mobile}</td>
+                                        <td className={`px-3 py-2 text-right ${item.balance < 0 ? 'text-red-600' : 'text-green-700'} truncate`}>
                                             ₹{Math.abs(item.balance)}
                                         </td>
                                         <td className="px-3 py-2 text-center">

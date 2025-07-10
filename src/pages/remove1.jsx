@@ -103,12 +103,12 @@ const PaymentMode = () => {
       </div>
 
       <div className="overflow-x-auto">
-      <table className="w-full border">
+      <table className="min-w-full border">
         <thead className="bg-gray-100">
           <tr>
             
             <th className="p-2 border">Mode</th>
-            <th className="p-2 border">Description</th>
+            <th className="p-2 border hidden md:table-cell">Description</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
@@ -121,8 +121,8 @@ const PaymentMode = () => {
             filtered.map((item) => (
               <tr key={item._id} className="text-center hover:bg-gray-100 transition">
                 
-                <td className="border p-2">{item.mode}</td>
-                <td className="border p-2">{item.description}</td>
+                <td className="border p-2 truncate">{item.mode}</td>
+                <td className="border p-2 truncate hidden md:table-cell">{item.description}</td>
                 <td className="border p-2">
                   <button
                     onClick={() => handleEdit(item)}

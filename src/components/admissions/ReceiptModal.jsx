@@ -145,7 +145,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
          <div className="bg-gray-100 rounded-md px-4 py-3 mb-2">
           <div className="text-base font-medium">Installment:</div>
            <div className="overflow-x-auto">
-           <table className="w-full border mt-2 text-sm">
+           <table className="min-w-full border mt-2 text-sm">
         <thead>
           <tr className="bg-gray-100">
             <th className="border px-2 py-1">#</th>
@@ -156,9 +156,9 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
         <tbody>
           {fields.installmentPlan.map(p => (
             <tr key={p.installmentNo}>
-              <td className="border px-2 py-1 text-center">{p.installmentNo}</td>
-              <td className="border px-2 py-1">{p.dueDate}</td>
-              <td className="border px-2 py-1 text-right">{p.amount}</td>
+              <td className="border px-2 py-1 text-center truncate">{p.installmentNo}</td>
+              <td className="border px-2 py-1 truncate">{p.dueDate}</td>
+              <td className="border px-2 py-1 text-right truncate">{p.amount}</td>
             </tr>
           ))}
         </tbody>

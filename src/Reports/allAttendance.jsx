@@ -121,8 +121,8 @@ export default function AllAttendance() {
           <tr>
             <th className="px-4 py-2 border">Name</th>
             <th className="px-4 py-2 border">In</th>
-            <th className="px-4 py-2 border">Break</th>
-            <th className="px-4 py-2 border">Start</th>
+            <th className="px-4 py-2 border hidden md:table-cell">Break</th>
+            <th className="px-4 py-2 border hidden md:table-cell">Start</th>
             <th className="px-4 py-2 border">Out</th>
           </tr>
         </thead>
@@ -135,10 +135,10 @@ export default function AllAttendance() {
             attendance.map((record, idx) => (
               <tr key={idx} className="hover:bg-gray-50 border-t">
                 <td className="px-4 py-2 border">{record.User_name}</td>
-                <td className="px-4 py-2 border">{record.In}</td>
-                <td className="px-4 py-2 border">{record.Break}</td>
-                <td className="px-4 py-2 border">{record.Start}</td>
-                <td className="px-4 py-2 border">{record.Out}</td>
+                <td className="px-4 py-2 border truncate">{record.In}</td>
+                <td className="px-4 py-2 border truncate hidden md:table-cell">{record.Break}</td>
+                <td className="px-4 py-2 border truncate hidden md:table-cell">{record.Start}</td>
+                <td className="px-4 py-2 border truncate">{record.Out}</td>
               </tr>
             ))
           )}

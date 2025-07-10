@@ -53,12 +53,12 @@ const Institutes = () => {
       <Toaster position="top-right" />
       <h1 className="text-3xl font-bold text-gray-800 mb-4">Manage Institutes</h1>
       <div className="overflow-x-auto">
-        <table className="w-full border border-gray-300 rounded-md">
+        <table className="min-w-full border border-gray-300 rounded-md">
           <thead>
             <tr className="bg-gray-200 text-center text-sm">
               <th className="p-2 border">Name</th>
-              <th className="p-2 border">Center Code</th>
-              <th className="p-2 border">Plan</th>
+              <th className="p-2 border hidden md:table-cell">Center Code</th>
+              <th className="p-2 border hidden md:table-cell">Plan</th>
               <th className="p-2 border">Start Date</th>
               <th className="p-2 border">Expiry</th>
               <th className="p-2 border">Action</th>
@@ -67,9 +67,9 @@ const Institutes = () => {
           <tbody>
             {institutes.map((inst) => (
               <tr key={inst.institute_uuid || inst._id} className="text-center text-sm">
-                <td className="p-2 border">{inst.institute_title}</td>
-                <td className="p-2 border">{inst.center_code}</td>
-                <td className="p-2 border">{inst.plan_type || 'trial'}</td>
+                <td className="p-2 border truncate">{inst.institute_title}</td>
+                <td className="p-2 border truncate hidden md:table-cell">{inst.center_code}</td>
+                <td className="p-2 border truncate hidden md:table-cell">{inst.plan_type || 'trial'}</td>
                 <td className="p-2 border">{inst.start_date ? new Date(inst.start_date).toLocaleDateString() : '-'}</td>
                 <td className="p-2 border">{inst.expiry_date ? new Date(inst.expiry_date).toLocaleDateString() : '-'}</td>
                 <td className="p-2 border space-x-2">

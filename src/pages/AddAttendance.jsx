@@ -202,8 +202,8 @@ export default function AddAttendance() {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-4 py-2 border">In</th>
-                                    <th className="px-4 py-2 border">Lunch</th>
-                                    <th className="px-4 py-2 border">Start</th>
+                                    <th className="px-4 py-2 border hidden md:table-cell">Lunch</th>
+                                    <th className="px-4 py-2 border hidden md:table-cell">Start</th>
                                     <th className="px-4 py-2 border">Out</th>
                                 </tr>
                             </thead>
@@ -215,10 +215,10 @@ export default function AddAttendance() {
                                 ) : (
                                     attendance.map((record, index) => (
                                         <tr key={index} className="hover:bg-gray-50 border-t">
-                                            <td className="px-4 py-2 border">{record.In}</td>
-                                            <td className="px-4 py-2 border">{record.Break}</td>
-                                            <td className="px-4 py-2 border">{record.Start}</td>
-                                            <td className="px-4 py-2 border">{record.Out}</td>
+                                            <td className="px-4 py-2 border truncate">{record.In}</td>
+                                            <td className="px-4 py-2 border truncate hidden md:table-cell">{record.Break}</td>
+                                            <td className="px-4 py-2 border truncate hidden md:table-cell">{record.Start}</td>
+                                            <td className="px-4 py-2 border truncate">{record.Out}</td>
                                         </tr>
                                     ))
                                 )}

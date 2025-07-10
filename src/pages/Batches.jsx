@@ -106,11 +106,11 @@ const Batches = () => {
       </div>
 
       <div className="overflow-x-auto">
-      <table className="w-full border">
+      <table className="min-w-full border">
         <thead className="bg-gray-100">
           <tr>
             <th className="p-2 border">Name</th>
-            <th className="p-2 border">Timing</th>
+            <th className="p-2 border hidden md:table-cell">Timing</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
@@ -122,8 +122,8 @@ const Batches = () => {
           ) : (
             filtered.map((b) => (
               <tr key={b._id} className="text-center hover:bg-gray-100 transition">
-                <td className="border p-2">{b.name}</td>
-                <td className="border p-2">{b.timing}</td>
+                <td className="border p-2 truncate">{b.name}</td>
+                <td className="border p-2 truncate hidden md:table-cell">{b.timing}</td>
                 <td className="border p-2">
                   <button
                     onClick={() => handleEdit(b)}

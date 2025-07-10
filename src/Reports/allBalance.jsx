@@ -141,7 +141,7 @@ const AllBalance = () => {
         <>
             
             
-                <div className="w-full overflow-x-auto pb-2">
+                <div className="min-w-full overflow-x-auto pb-2">
                 
 
 
@@ -180,13 +180,13 @@ const AllBalance = () => {
 
 
                     {/* Table */}
-                    <table className="w-full table-auto text-sm border">
+                    <table className="min-w-full table-auto text-sm border">
                         <thead className="bg-green-100 text-green-900">
                             <tr>
                                 <th onClick={() => handleSort('name')} className="border px-3 py-2 cursor-pointer text-left">
                                     Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
                                 </th>
-                                <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left">
+                                <th onClick={() => handleSort('mobile')} className="border px-3 py-2 cursor-pointer text-left hidden md:table-cell">
                                     Mobile {sortConfig.key === 'mobile' && (sortConfig.direction === 'asc' ? <FaSortUp className="inline ml-1" /> : <FaSortDown className="inline ml-1" />)}
                                 </th>
                                 <th className="border px-3 py-2 text-right">Receivable</th>
@@ -202,14 +202,14 @@ const AllBalance = () => {
                             ) : (
                                 sortedReport.map((item, index) => (
                                     <tr key={index} className="border-t hover:bg-gray-50">
-                                        <td className="px-3 py-2 cursor-pointer text-green-600" onClick={() => viewTransactions(item)}>
+                                        <td className="px-3 py-2 cursor-pointer text-green-600 truncate" onClick={() => viewTransactions(item)}>
                                             {item.name}
                                         </td>
-                                        <td className="px-3 py-2">{item.mobile}</td>
-                                        <td className="px-3 py-2 text-right text-green-700">
+                                        <td className="px-3 py-2 truncate hidden md:table-cell">{item.mobile}</td>
+                                        <td className="px-3 py-2 text-right text-green-700 truncate">
                                             {item.balance > 0 ? `₹${item.balance}` : '-'}
                                         </td>
-                                        <td className="px-3 py-2 text-right text-red-600">
+                                        <td className="px-3 py-2 text-right text-red-600 truncate">
                                             {item.balance < 0 ? `₹${Math.abs(item.balance)}` : '-'}
                                         </td>
                                         <td className="px-3 py-2 text-center"></td>

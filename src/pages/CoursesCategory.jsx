@@ -100,7 +100,7 @@ const CoursesCategory = () => {
       </div>
 
       <div className="overflow-x-auto">
-      <table className="w-full border">
+      <table className="min-w-full border">
         <thead className="bg-gray-100">
           <tr>
             <th className="p-2 border">Name</th>
@@ -110,7 +110,7 @@ const CoursesCategory = () => {
         <tbody>
           {filteredCourses.map((c, i) => (
             <tr key={i} className="text-center">
-              <td className="border p-2">{c.name}</td>
+              <td className="border p-2 truncate">{c.name}</td>
               <td className="border p-2 space-x-2">
                 <button onClick={() => handleEdit(c)} className="bg-yellow-500 text-white px-2 py-1 rounded" title="Edit">
                   <Edit fontSize="small" />

@@ -143,13 +143,13 @@ const Courses = () => {
       </div>
 
       <div className="overflow-x-auto">
-      <table className="w-full border">
+      <table className="min-w-full border">
         <thead className="bg-gray-100">
           <tr>
             <th className="p-2 border">Name</th>
-            <th className="p-2 border">Description</th>
+            <th className="p-2 border hidden md:table-cell">Description</th>
             <th className="p-2 border">Course Fees</th>
-            <th className="p-2 border">Exam Fees</th>
+            <th className="p-2 border hidden md:table-cell">Exam Fees</th>
             <th className="p-2 border">Duration</th>
             <th className="p-2 border">Action</th>
           </tr>
@@ -157,10 +157,10 @@ const Courses = () => {
         <tbody>
           {filteredCourses.map((c, i) => (
             <tr key={i} className="text-center">
-              <td className="border p-2">{c.name}</td>
-              <td className="border p-2">{c.description}</td>
+              <td className="border p-2 truncate">{c.name}</td>
+              <td className="border p-2 truncate hidden md:table-cell">{c.description}</td>
               <td className="border p-2">{c.courseFees}</td>
-              <td className="border p-2">{c.examFees}</td>
+              <td className="border p-2 truncate hidden md:table-cell">{c.examFees}</td>
               <td className="border p-2">{c.duration}</td>
               <td className="border p-2 space-x-2">
                 <button onClick={() => handleEdit(c)} className="bg-yellow-500 text-white px-2 py-1 rounded" title="Edit">

@@ -164,11 +164,11 @@ const User = () => {
       </div>
 
       <div className="overflow-x-auto">
-      <table className="w-full border border-gray-300 rounded-md">
+      <table className="min-w-full border border-gray-300 rounded-md">
         <thead>
           <tr className="bg-gray-200 text-center">
             <th className="p-2 border">Name</th>
-            <th className="p-2 border">Mobile</th>
+            <th className="p-2 border hidden md:table-cell">Mobile</th>
             <th className="p-2 border">Type</th>
             <th className="p-2 border">Action</th>
           </tr>
@@ -176,9 +176,9 @@ const User = () => {
         <tbody>
           {users.map((item) => (
             <tr key={item._id} className="text-center">
-              <td className="p-2 border">{item.name}</td>
-              <td className="p-2 border">{item.mobile}</td>
-              <td className="p-2 border">{item.role}</td>
+              <td className="p-2 border truncate">{item.name}</td>
+              <td className="p-2 border truncate hidden md:table-cell">{item.mobile}</td>
+              <td className="p-2 border truncate">{item.role}</td>
               <td className="p-2 border space-x-2">
                 <button
                   onClick={() => handleEdit(item)}

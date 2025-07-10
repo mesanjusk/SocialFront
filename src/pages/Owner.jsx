@@ -133,13 +133,13 @@ center_head_name: '',
       </div>
 
       <div className="overflow-x-auto">
-      <table className="w-full border border-gray-300 rounded-md">
+      <table className="min-w-full border border-gray-300 rounded-md">
         <thead>
           <tr className="bg-gray-200 text-center">
             <th className="p-2 border">Name</th>
-            <th className="p-2 border">Mobile</th>
+            <th className="p-2 border hidden md:table-cell">Mobile</th>
             <th className="p-2 border">Head Name</th>
-            <th className="p-2 border">Plan</th>
+            <th className="p-2 border hidden md:table-cell">Plan</th>
             <th className="p-2 border">Start</th>
             <th className="p-2 border">Expiry</th>
             <th className="p-2 border">Action</th>
@@ -148,10 +148,10 @@ center_head_name: '',
         <tbody>
           {orgs.map((item, idx) => (
             <tr key={idx} className="text-center">
-              <td className="p-2 border">{item.institute_title}</td>
-              <td className="p-2 border">{item.institute_call_number}</td>
-              <td className="p-2 border">{item.center_head_name}</td>
-              <td className="p-2 border">{item.plan_type || 'trial'}</td>
+              <td className="p-2 border truncate">{item.institute_title}</td>
+              <td className="p-2 border truncate hidden md:table-cell">{item.institute_call_number}</td>
+              <td className="p-2 border truncate">{item.center_head_name}</td>
+              <td className="p-2 border truncate hidden md:table-cell">{item.plan_type || 'trial'}</td>
               <td className="p-2 border">{item.start_date ? new Date(item.start_date).toLocaleDateString() : '-'}</td>
               <td className="p-2 border">{item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : '-'}</td>
               <td className="p-2 border space-x-2">
