@@ -11,6 +11,8 @@ import { FaHeart } from "react-icons/fa";
 import { format } from 'date-fns';
 import axios from 'axios';
 import BASE_URL from '../config';
+import UserMenu from './navbar/UserMenu';
+import RightDrawer from './navbar/RightDrawer';
 
 export default function Navbar({ toggleSidebar }) {
   const { user, institute, loading } = useApp();
@@ -267,154 +269,33 @@ export default function Navbar({ toggleSidebar }) {
           </button>
 
           {showUserMenu && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setShowUserMenu(false)}
-              />
-              <div className="absolute top-12 right-0 w-80 bg-white rounded-lg  z-50 p-4">
-                <div className="mb-2">
-                  <div className="font-semibold text-gray-800">{username}</div>
-                  {role && <div className="text-xs text-gray-500 capitalize">{role}</div>}
-                </div>
-                {showButtons && attendanceState && (
-  <div className="w-full">
-    <button
-      onClick={async () => {
-        setShowButtons(false);
-        await saveAttendance(attendanceState);
-        setShowButtons(true);
-      }}
-      disabled={!showButtons}
-      className={`w-full text-white font-semibold py-1.5 px-3 text-sm rounded-md transition-all ${
-        showButtons
-          ? "bg-green-500 hover:bg-green-600 cursor-pointer"
-          : "bg-gray-400 cursor-not-allowed"
-      }`}
-    >
-      {showButtons
-        ? `${userName} ${attendanceState} - ${format(new Date(), 'dd MMM yyyy')}`
-        : "Saving..."}
-    </button>
-  </div>
-)}
-
-                <button
-                  onClick={logoutUser}
-                  className="w-full text-left px-4 py-2 rounded bg-red-50 hover:bg-red-100 text-red-600 font-medium mt-2"
-                >
-                  Logout
-                </button>
-              </div>
-            </>
+            <UserMenu
+              username={username}
+              role={role}
+              showButtons={showButtons}
+              attendanceState={attendanceState}
+              userName={userName}
+              saveAttendance={saveAttendance}
+              setShowButtons={setShowButtons}
+              logoutUser={logoutUser}
+              onClose={() => setShowUserMenu(false)}
+            />
           )}
         </div>
       </header>
 
       {/* Right Drawer */}
       {isOpen && (
-        <>
-          <div className="absolute top-12 right-0 w-56 bg-white rounded-lg  z-50 p-4">
-            {/* Master Section */}
-            <div>
-              <div
-                className="font-semibold text-gray-700 mb-2 cursor-pointer hover:underline"
-                onClick={() => setShowMasterItems(!showMasterItems)}
-              >
-                Master {showMasterItems}
-              </div>
-              {showMasterItems && (
-                <div className="space-y-2 pl-2">
-                  {[
-                    { path: '/dashboard/Courses', label: 'Courses', icon: <EventNoteIcon fontSize="small" /> },
-                    { path: '/dashboard/Batches', label: 'Batches', icon: <EventNoteIcon fontSize="small" /> },
-                    { path: '/dashboard/allbatches', label: 'Manage Batches', icon: <EventNoteIcon fontSize="small" /> },
-                    { path: '/dashboard/allexams', label: 'Manage Exams', icon: <EventNoteIcon fontSize="small" /> },
-                    { path: '/dashboard/education', label: 'Education', icon: <SchoolIcon fontSize="small" /> },
-                    { path: '/dashboard/exam', label: 'Exam', icon: <EventNoteIcon fontSize="small" /> },
-                  ].map((item) => (
-                    <div
-                      key={item.path}
-                      onClick={() => {
-                        navigate(item.path);
-                        setIsOpen(false);
-                      }}
-                      className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
-                    >
-                      {item.icon}
-                      {item.label}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Settings Section */}
-            <div>
-              <div
-                className="font-semibold text-gray-700 mb-2 cursor-pointer hover:underline"
-                onClick={() => setShowSettingsItems(!showSettingsItems)}
-              >
-                Settings {showSettingsItems}
-              </div>
-              {showSettingsItems && (
-                <div className="space-y-2 pl-2">
-                  <div
-                    onClick={() => {
-                      navigate('/dashboard/user');
-                      setIsOpen(false);
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
-                  >
-                    <GroupIcon fontSize="small" />
-                    User
-                  </div>
-
-                  {user?.role === 'admin' && (
-                    <div
-                      onClick={() => {
-                        navigate('/dashboard/instituteProfile');
-                        setIsOpen(false);
-                      }}
-                      className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
-                    >
-                      <EventNoteIcon fontSize="small" />
-                      Profile
-                    </div>
-                  )}
-
-                  {(user?.role === 'owner' || user?.role === 'super_admin') && (
-                    <>
-                      <div
-                        onClick={() => {
-                          navigate('/dashboard/owner');
-                          setIsOpen(false);
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
-                      >
-                        <EventNoteIcon fontSize="small" />
-                        Owner
-                      </div>
-                      <div
-                        onClick={() => {
-                          navigate('/dashboard/institutes');
-                          setIsOpen(false);
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
-                      >
-                        <EventNoteIcon fontSize="small" />
-                        Institutes
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Overlay */}
-          <div onClick={() => setIsOpen(false)} className="fixed inset-0 bg-black opacity-25 z-40" />
-        </>
+        <RightDrawer
+          isOpen={isOpen}
+          showMasterItems={showMasterItems}
+          setShowMasterItems={setShowMasterItems}
+          showSettingsItems={showSettingsItems}
+          setShowSettingsItems={setShowSettingsItems}
+          navigate={navigate}
+          user={user}
+          onClose={() => setIsOpen(false)}
+        />
       )}
     </>
   );
