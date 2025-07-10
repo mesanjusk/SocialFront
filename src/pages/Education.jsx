@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
-import { getThemeColor } from '../utils/storageUtils';
+// import { getThemeColor } from '../utils/storageUtils'; // if you want to use
 
 const Education = () => {
+  
   const [list, setList] = useState([]);
   const [form, setForm] = useState({ education: '', description: '' });
   const [editingId, setEditingId] = useState(null);
@@ -14,6 +15,7 @@ const Education = () => {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const inputRef = useRef();
+  const searchTimeout = useRef(); // <-- critical fix!
   const themeColor = localStorage.getItem('theme_color') || '#d0e0e3';
 
   const fetchData = async () => {
@@ -42,6 +44,14 @@ const Education = () => {
     searchTimeout.current = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(searchTimeout.current);
   }, [search]);
+
+  // Optional: Escape closes modal
+  useEffect(() => {
+    if (!showModal) return;
+    const handler = (e) => { if (e.key === "Escape") setShowModal(false); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [showModal]);
 
   const filtered = list.filter(item =>
     item.education.toLowerCase().includes(debouncedSearch.toLowerCase())
@@ -111,7 +121,7 @@ const Education = () => {
           }}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
         >
-          + 
+          +
         </button>
       </div>
 
@@ -120,7 +130,7 @@ const Education = () => {
       ) : filtered.length === 0 ? (
         <div className="text-center p-6 text-gray-500">No entries found.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3 overflow-x-auto">
           {filtered.map(item => (
             <div
               key={item._id}
@@ -186,7 +196,11 @@ const Education = () => {
                   disabled={loading}
                   className={`bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {editingId ? 'Update' : 'Save'}
+                  {loading ? (
+                    <span className="animate-spin inline-block mr-2 border-t-2 border-b-2 border-white rounded-full w-4 h-4"></span>
+                  ) : (
+                    editingId ? 'Update' : 'Save'
+                  )}
                 </button>
               </div>
             </form>
