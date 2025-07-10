@@ -149,7 +149,7 @@ const Login = () => {
             type="submit"
             disabled={loading}
             className={`w-full py-2 rounded text-white ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
-            style={{ backgroundColor: branding?.theme?.color || '6fa8dc' }}
+            style={{ backgroundColor: branding?.theme?.color || '#45818e' }}
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>

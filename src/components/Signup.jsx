@@ -102,14 +102,14 @@ const Signup = () => {
           institute_uuid: data.institute_uuid,
           institute_name: data.institute_title,
           institute_id: data.institute_id,
-          theme_color: data.theme_color || '6fa8dc',
+          theme_color: data.theme_color || '#45818e',
         });
 
         if (data.trialExpiresAt) {
           localStorage.setItem('trialExpiresAt', data.trialExpiresAt);
         }
 
-        document.documentElement.style.setProperty('--theme-color', data.theme_color || '6fa8dc');
+        document.documentElement.style.setProperty('--theme-color', data.theme_color || '#45818e');
 
          try {
     const groupRes = await axios.get(`${BASE_URL}/api/accountgroup/GetAccountgroupList`);
