@@ -113,41 +113,39 @@ export default function AllAttendance() {
     return `${hrs}h ${mins}m ${secs}s`;
   };
 
-  return (
-    
-      <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
-      <div className="overflow-x-auto w-full">
+ return (
+  <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
+    <div className="overflow-x-auto w-full">
       <table className="min-w-full text-sm text-center border">
-          <thead className="bg-gray-100">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2 border">Name</th>
+            <th className="px-4 py-2 border">In</th>
+            <th className="px-4 py-2 border">Break</th>
+            <th className="px-4 py-2 border">Start</th>
+            <th className="px-4 py-2 border">Out</th>
+          </tr>
+        </thead>
+        <tbody>
+          {attendance.length === 0 ? (
             <tr>
-              <th className="px-4 py-2 border">Name</th>
-              <th className="px-4 py-2 border">In</th>
-              <th className="px-4 py-2 border">Break</th>
-              <th className="px-4 py-2 border">Start</th>
-              <th className="px-4 py-2 border">Out</th>
-           
+              <td className="px-4 py-2 border" colSpan="6">No attendance records found.</td>
             </tr>
-          </thead>
-          <tbody>
-            {attendance.length === 0 ? (
-              <tr>
-                <td className="px-4 py-2 border" colSpan="6">No attendance records found.</td>
+          ) : (
+            attendance.map((record, idx) => (
+              <tr key={idx} className="hover:bg-gray-50 border-t">
+                <td className="px-4 py-2 border">{record.User_name}</td>
+                <td className="px-4 py-2 border">{record.In}</td>
+                <td className="px-4 py-2 border">{record.Break}</td>
+                <td className="px-4 py-2 border">{record.Start}</td>
+                <td className="px-4 py-2 border">{record.Out}</td>
               </tr>
-            ) : (
-              attendance.map((record, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 border-t">
-                  <td className="px-4 py-2 border">{record.User_name}</td>
-                  <td className="px-4 py-2 border">{record.In}</td>
-                  <td className="px-4 py-2 border">{record.Break}</td>
-                  <td className="px-4 py-2 border">{record.Start}</td>
-                  <td className="px-4 py-2 border">{record.Out}</td>
-             
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    
-  );
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  ); // <-- Add this closing parenthesis and div
+
 }
