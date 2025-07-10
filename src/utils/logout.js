@@ -1,6 +1,7 @@
 // src/utils/logoutUser.js
 
 import { clearUserAndInstituteData } from './storageUtils';
+import { purgeAllData } from '../db/dbService';
 import toast from 'react-hot-toast';
 
 /**
@@ -10,6 +11,7 @@ import toast from 'react-hot-toast';
 const logoutUser = () => {
   // ✅ Clear user and institute data
   clearUserAndInstituteData();
+  purgeAllData();
 
   // ✅ Clear additional related values
   localStorage.removeItem('remember_me');
