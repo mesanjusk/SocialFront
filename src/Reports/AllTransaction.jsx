@@ -7,6 +7,7 @@ import { FaWhatsapp, FaSortUp, FaSortDown } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import { jsPDF } from "jspdf";
 // import "jspdf-autotable"; // If using autotable plugin
+import { formatDisplayDate } from '../utils/dateUtils';
 
 const AllTransaction = () => {
     const [transactions, setTransactions] = useState([]);
@@ -91,7 +92,7 @@ const AllTransaction = () => {
     };
 
     const sendMessageToAPI = async (name, phone, balance) => {
-        const today = new Date().toLocaleDateString('en-IN');
+        const today = formatDisplayDate(new Date());
         const senderName = "YourBusinessName"; // Change to your org
         const message = `Dear ${name}, your balance is ₹${balance} as of ${today}. Please clear it soon. - ${senderName}`;
 

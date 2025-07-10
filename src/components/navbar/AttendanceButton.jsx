@@ -1,5 +1,5 @@
 import React from 'react';
-import { format } from 'date-fns';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 const AttendanceButton = ({
   showButtons,
@@ -23,7 +23,7 @@ const AttendanceButton = ({
         }`}
       >
         {showButtons
-          ? `${userName} ${attendanceState} - ${format(new Date(), 'dd MMM yyyy')}`
+          ? `${userName} ${attendanceState} - ${formatDisplayDate(new Date())}`
           : 'Saving...'}
       </button>
     </div>

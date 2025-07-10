@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { format } from 'date-fns';
+import { formatDisplayDate } from '../utils/dateUtils';
 import BASE_URL from '../config';
 
 export default function AddAttendance() {
@@ -243,7 +243,7 @@ export default function AddAttendance() {
                                 }`}
                             >
                                 {showButtons
-                                    ? `${userName}   ${attendanceState}   -   ${format(new Date(), 'dd MMMM yyyy')}`
+                                    ? `${userName}   ${attendanceState}   -   ${formatDisplayDate(new Date())}`
                                     : "Saving..."}
                             </button>
                         </div>

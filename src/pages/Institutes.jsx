@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../Context/AppContext';
 import BASE_URL from '../config';
 import { getThemeColor } from '../utils/storageUtils';
+import { formatDisplayDate } from '../utils/dateUtils';
 
 const Institutes = () => {
   const { user } = useApp();
@@ -71,8 +72,8 @@ const Institutes = () => {
                 <td className="p-2 border truncate">{inst.institute_title}</td>
                 <td className="p-2 border truncate hidden md:table-cell">{inst.center_code}</td>
                 <td className="p-2 border truncate hidden md:table-cell">{inst.plan_type || 'trial'}</td>
-                <td className="p-2 border">{inst.start_date ? new Date(inst.start_date).toLocaleDateString() : '-'}</td>
-                <td className="p-2 border">{inst.expiry_date ? new Date(inst.expiry_date).toLocaleDateString() : '-'}</td>
+                <td className="p-2 border">{inst.start_date ? formatDisplayDate(inst.start_date) : '-'}</td>
+                <td className="p-2 border">{inst.expiry_date ? formatDisplayDate(inst.expiry_date) : '-'}</td>
                 <td className="p-2 border space-x-2">
                   <button
                     onClick={() => handleDelete(inst.institute_uuid || inst._id)}

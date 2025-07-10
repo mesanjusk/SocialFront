@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../Context/AppContext';
 import BASE_URL from '../config'; // Adjust the path based on your folder structure
 import { getThemeColor } from '../utils/storageUtils';
+import { formatDisplayDate } from '../utils/dateUtils';
 
 
 const Owner = () => {
@@ -153,8 +154,8 @@ center_head_name: '',
               <td className="p-2 border truncate hidden md:table-cell">{item.institute_call_number}</td>
               <td className="p-2 border truncate">{item.center_head_name}</td>
               <td className="p-2 border truncate hidden md:table-cell">{item.plan_type || 'trial'}</td>
-              <td className="p-2 border">{item.start_date ? new Date(item.start_date).toLocaleDateString() : '-'}</td>
-              <td className="p-2 border">{item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : '-'}</td>
+              <td className="p-2 border">{item.start_date ? formatDisplayDate(item.start_date) : '-'}</td>
+              <td className="p-2 border">{item.expiry_date ? formatDisplayDate(item.expiry_date) : '-'}</td>
               <td className="p-2 border space-x-2">
                 <button
                   onClick={() => handleEdit(item)}

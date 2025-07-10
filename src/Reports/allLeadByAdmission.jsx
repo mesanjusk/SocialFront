@@ -8,6 +8,7 @@ import AdmissionFormModal from '../components/admissions/AdmissionFormModal';
 import ConfirmAdmissionModal from '../components/admissions/ConfirmAdmissionModal';
 import ManageBatchModal from '../components/common/ManageBatchModal';
 import ManageExamModal from '../components/common/ManageExamModal';
+import { formatDisplayDate } from '../utils/dateUtils';
 import CertificateModal from '../components/admissions/CertificateModel';
 import ReceiptModal from '../components/admissions/ReceiptModal';
 import SearchAddAdmissionBar from '../components/reports/SearchAddAdmissionBar';
@@ -244,7 +245,7 @@ const handleSelectLead = async (lead) => {
       learnerName: `${lead.studentData?.firstName || ''} ${lead.studentData?.lastName || ''}`,
       learnerCode: admission?.learnerCode || 'N/A',
       courseName: getCourseName(admission.course || lead.course),
-      receiptDate: new Date().toLocaleDateString(),
+      receiptDate: formatDisplayDate(new Date()),
       receiptNumber: admission?.receiptNumber || `R-${Math.floor(Math.random() * 100000)}`,
       examEvent: admission?.examEvent || 'August',
       amount: feeRecord?.feePaid?.toString() || '0',
