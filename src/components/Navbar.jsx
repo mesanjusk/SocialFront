@@ -4,11 +4,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useApp } from '../Context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import logoutUser from '../utils/logout';
-import EventNoteIcon from '@mui/icons-material/EventNote';
-import SchoolIcon from '@mui/icons-material/School';
-import GroupIcon from '@mui/icons-material/Group';
 import { FaHeart } from "react-icons/fa";
-import { format } from 'date-fns';
 import axios from 'axios';
 import BASE_URL from '../config';
 import UserMenu from './navbar/UserMenu';
@@ -23,8 +19,6 @@ export default function Navbar({ toggleSidebar }) {
   const [showButtons, setShowButtons] = useState(false);
   const [attendanceState, setAttendanceState] = useState(null);
   const [userName, setUserName] = useState('');
-   const [attendance, setAttendance] = useState([]);
-  const [loggedInUser, setLoggedInUser] = useState(null);
   const navigate = useNavigate();
   const institute_uuid = localStorage.getItem("institute_uuid");
 
@@ -34,15 +28,11 @@ export default function Navbar({ toggleSidebar }) {
   const username = user?.name || 'User';
   const role = user?.role || '';
 
-  useEffect(() => {
-          if (user) {
-              fetchAttendanceData(user);
-          }
-          if (user?.name) {
-            setLoggedInUser(user.name);
-            setUserName(user.name);
-        }
-      }, [user]);
+useEffect(() => {
+  if (user?.name) {
+    setUserName(user.name);
+  }
+}, [user]);
 
       useEffect(() => {
               if (userName) {
@@ -96,117 +86,12 @@ export default function Navbar({ toggleSidebar }) {
                 alert(`Attendance saved successfully for ${type}`);
                 
                 await initAttendanceState(userName);
-                await fetchAttendanceData(userName); 
             } else {
                 alert("Failed to save attendance.");
             }
         } catch (error) {
             console.error("Error saving attendance:", error);
         }
-    };
-
-     const fetchUserNames = async () => {
-        try {
-            const response = await axios.get(`${BASE_URL}/api/auth/GetUserList/${institute_uuid}`);
-            const data = response.data;
-            if (data.success) {
-                const userLookup = {};
-                data.result.forEach(user => {
-                    userLookup[user.user_uuid] = (user.name || '').trim();
-                });
-                return userLookup;
-            } else {
-                console.error('Failed to fetch user names:', data);
-                return {};
-            }
-        } catch (error) {
-            console.error('Error fetching user names:', error);
-            return {};
-        }
-    };
-
-    const fetchAttendanceData = async (loggedInUser) => {
-        try {
-            const userLookup = await fetchUserNames();
-            const attendanceResponse = await axios.get(`${BASE_URL}/api/attendance/GetAttendanceList`);
-            const attendanceRecords = attendanceResponse.data.result || [];
-
-            const formattedData = processAttendanceData(attendanceRecords, userLookup);
-
-            setAttendance(formattedData);
-        } catch (error) {
-            console.error("Error fetching attendance:", error);
-        }
-    };
-
-    const processAttendanceData = (data, userLookup) => {
-        const groupedData = new Map();
-        const todayDate = new Date().toISOString().split("T")[0];
-
-        data.forEach(({ Date: recordDate, User, Employee_uuid }) => {
-            if (!User || !Array.isArray(User)) return;
-            const employeeUuid = (Employee_uuid || "").trim();
-            const userName = userLookup[employeeUuid] || 'Unknown';
-            const dateKey = new Date().toISOString().split("T")[0];
-            const userDateKey = `${userName}-${dateKey}`;
-
-            if (!groupedData.has(userDateKey)) {
-                groupedData.set(userDateKey, {
-                    Date: dateKey,
-                    User_name: userName,
-                    In: "N/A",
-                    Break: "N/A",
-                    Start: "N/A",
-                    Out: "N/A",
-                    TotalHours: "N/A"
-                });
-            }
-
-            const record = groupedData.get(userDateKey);
-            User.forEach(userEntry => {
-                const time = (userEntry.Time || '').trim();
-                switch (userEntry.Type) {
-                    case "In": record.In = time; break;
-                    case "Break": record.Break = time; break;
-                    case "Start": record.Start = time; break;
-                    case "Out": record.Out = time; break;
-                }
-            });
-        });
-
-        return Array.from(groupedData.values()).map((record) => {
-            record.TotalHours = calculateWorkingHours(record.In, record.Out, record.Break, record.Start);
-            return record;
-        });
-    };
-
-    const calculateWorkingHours = (inTime, outTime, breakTime, startTime) => {
-        if (!inTime || !outTime) return "N/A";
-        const parseTime = (timeStr) => {
-            if (!timeStr || timeStr === "N/A") return null;
-            const [time, period] = timeStr.split(" ");
-            const [hours, minutes] = time.split(":").map(Number);
-            let hours24 = hours;
-            if (period === "PM" && hours !== 12) hours24 += 12;
-            if (period === "AM" && hours === 12) hours24 = 0;
-            const now = new Date();
-            now.setHours(hours24, minutes, 0, 0);
-            return now;
-        };
-        const inDate = parseTime(inTime);
-        const outDate = parseTime(outTime);
-        const breakDate = parseTime(breakTime) || 0;
-        const startDate = parseTime(startTime) || 0;
-        if (!inDate || !outDate) return "N/A";
-        let workDuration = (outDate - inDate) / 1000;
-        if (breakDate && startDate) {
-            const breakDuration = (startDate - breakDate) / 1000;
-            workDuration -= breakDuration;
-        }
-        const hours = Math.floor(workDuration / 3600);
-        const minutes = Math.floor((workDuration % 3600) / 60);
-        const seconds = workDuration % 60;
-        return `${hours}h ${minutes}m ${seconds}s`;
     };
 
   const toggleDrawer = () => setIsOpen(!isOpen);
