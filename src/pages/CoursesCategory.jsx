@@ -99,7 +99,7 @@ const CoursesCategory = () => {
         </div>
       </div>
 
-      <table className="w-full border">
+      <table className="w-full border overflow-x-auto">
         <thead className="bg-gray-100">
           <tr>
             <th className="p-2 border">Name</th>

@@ -144,7 +144,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
 
          <div className="bg-gray-100 rounded-md px-4 py-3 mb-2">
           <div className="text-base font-medium">Installment:</div>
-           <table className="w-full border mt-2 text-sm">
+           <table className="w-full border mt-2 text-sm overflow-x-auto">
         <thead>
           <tr className="bg-gray-100">
             <th className="border px-2 py-1">#</th>

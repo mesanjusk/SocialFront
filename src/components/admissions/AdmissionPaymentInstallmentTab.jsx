@@ -49,7 +49,7 @@ const AdmissionPaymentInstallmentTab = ({ form, handleChange, installmentPlan, p
       <input placeholder="EMI" value={form.emi} type="number" className="border p-2 flex-1" readOnly />
     </div>
     {installmentPlan.length > 0 && (
-      <table className="w-full border mt-2 text-sm">
+      <table className="w-full border mt-2 text-sm overflow-x-auto">
         <thead>
           <tr className="bg-gray-100">
             <th className="border px-2 py-1">#</th>

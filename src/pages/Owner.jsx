@@ -124,7 +124,7 @@ center_head_name: '',
         </button>
       </div>
 
-      <table className="w-full border border-gray-300 rounded-md">
+      <table className="w-full border border-gray-300 rounded-md overflow-x-auto">
         <thead>
           <tr className="bg-gray-200 text-center">
             <th className="p-2 border">Name</th>
