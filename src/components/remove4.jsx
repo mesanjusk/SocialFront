@@ -43,7 +43,7 @@ export default function Sidebar() {
           : []),
         ...(userType === 'owner' || userType === 'super_admin'
           ? [
-              { path: '/dashboard/Owner', label: 'Owner', icon: <EventNoteIcon fontSize="small" /> },
+              { path: '/dashboard/owner', label: 'Owner', icon: <EventNoteIcon fontSize="small" /> },
               { path: '/dashboard/institutes', label: 'Institutes', icon: <EventNoteIcon fontSize="small" /> }
             ]
           : [])

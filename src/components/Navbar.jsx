@@ -387,7 +387,7 @@ export default function Navbar({ toggleSidebar }) {
                     <>
                       <div
                         onClick={() => {
-                          navigate('/dashboard/Owner');
+                          navigate('/dashboard/owner');
                           setIsOpen(false);
                         }}
                         className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
