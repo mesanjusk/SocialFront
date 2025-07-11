@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import BASE_URL from '../../config';
-import { useMetadata } from '../../Context/MetadataContext';
+import { useMetadata } from '../../context/MetadataContext';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const EnquiryFormModal = ({ onClose }) => {

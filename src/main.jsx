@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
-import BrandingProvider from './Context/BrandingContext';
-import { AppProvider } from './Context/AppContext';
-import MetadataProvider from './Context/MetadataContext';
+import BrandingProvider from './context/BrandingContext';
+import { AppProvider } from './context/AppContext';
+import MetadataProvider from './context/MetadataContext';
 
 import './index.css'; // Tailwind CSS
 

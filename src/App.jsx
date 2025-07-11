@@ -19,21 +19,21 @@ import InstituteProfile from './pages/instituteProfile';
 import Owner from './pages/Owner';
 import PrivateRoute from './components/PrivateRoute';
 import CoursesCategory from './pages/CoursesCategory';
-import Leads from './Reports/Leads';
-import AllAdmission from './Reports/allAdmission';
+import Leads from './reports/Leads';
+import AllAdmission from './reports/allAdmission';
 import AddLead from './pages/AddLead';
 import AddNew from './components/admissions/AddAdmission';
 import Followup from './pages/remove';
 import WhatsAppAdminPage from './pages/WhatsAppAdminPage';
 import AddReciept from './pages/addReciept';
 import AddPayment from './pages/addPayment';
-import AllLeadByAdmission from './Reports/allLeadByAdmission';
+import AllLeadByAdmission from './reports/allLeadByAdmission';
 import AddAttendance from './pages/AddAttendance';
-import AllAttendance from './Reports/allAttendance';
-import AllBatches from './Reports/allBatches';
-import AllBalance from './Reports/allBalance'; // <-- ✅ NEW PAGE
+import AllAttendance from './reports/allAttendance';
+import AllBatches from './reports/allBatches';
+import AllBalance from './reports/allBalance'; // <-- ✅ NEW PAGE
 import AddAccount from './pages/AddAccount';
-import AllExams from './Reports/allExams';
+import AllExams from './reports/allExams';
 import Institutes from './pages/Institutes';
 
 export default function App() {

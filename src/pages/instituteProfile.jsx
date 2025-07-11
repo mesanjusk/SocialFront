@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import BASE_URL from '../config';
-import { useApp } from '../Context/AppContext';
+import { useApp } from '../context/AppContext';
 
 const InstituteProfile = () => {
   const { institute, setInstitute } = useApp();

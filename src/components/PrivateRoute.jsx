@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useApp } from '../Context/AppContext';
+import { useApp } from '../context/AppContext';
 
 const PrivateRoute = ({ children }) => {
   const { user, institute, loading } = useApp();

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useApp } from '../Context/AppContext';
+import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import logoutUser from '../utils/logout';
 import { FaHeart } from "react-icons/fa";

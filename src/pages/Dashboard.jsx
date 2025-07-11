@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AllAttendance from '../Reports/allAttendance';
+import AllAttendance from '../reports/allAttendance';
 
 const API_URL = 'https://socialbackend-iucy.onrender.com/api/dashboard-stats';
 

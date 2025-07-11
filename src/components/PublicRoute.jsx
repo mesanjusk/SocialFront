@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useApp } from '../Context/AppContext';
+import { useApp } from '../context/AppContext';
 
 const PublicRoute = ({ children }) => {
   const { user, institute, loading } = useApp();

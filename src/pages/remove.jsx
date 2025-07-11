@@ -11,7 +11,7 @@ import * as XLSX from 'xlsx';
 
 import BASE_URL from '../config';
 import { getThemeColor } from '../utils/storageUtils';
-import { useMetadata } from '../Context/MetadataContext';
+import { useMetadata } from '../context/MetadataContext';
 
 const Followup = () => {
   const initialForm = {

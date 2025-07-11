@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../Context/AppContext';
+import { useApp } from '../context/AppContext';
 import BASE_URL from '../config';
 import { getThemeColor } from '../utils/storageUtils';
 import { formatDisplayDate } from '../utils/dateUtils';
