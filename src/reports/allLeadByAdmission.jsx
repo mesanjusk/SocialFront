@@ -95,10 +95,12 @@ const fetchInstitute = async () => {
   }, []);
   
   const filteredLeads = leads.filter((a) => {
-    const name = `${a.student?.firstName || ''} ${a.student?.lastName || ''}`.toLowerCase();
-    const mobile = a.student?.mobileSelf || '';
-    return name.includes(search.toLowerCase()) || mobile.includes(search);
-  });
+  const student = a.studentData || a.student || {};
+  const name = `${student.firstName || ''} ${student.lastName || ''}`.toLowerCase();
+  const mobile = student.mobileSelf || '';
+  return name.includes(search.toLowerCase()) || mobile.includes(search);
+});
+
 
   const handleWhatsApp = (mobile, name) => {
     if (!mobile) return toast.error('Mobile number not available');
