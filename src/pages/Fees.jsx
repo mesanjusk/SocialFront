@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
-const BASE_URL = 'http://localhost:5000'; // Adjust to match your config
+const BASE_URL = 'https://socialbackend-iucy.onrender.com'; 
 
 const Fees = () => {
   const location = useLocation();
