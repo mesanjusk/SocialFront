@@ -17,6 +17,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   const todayStr = new Date().toISOString().substring(0, 10);
 
   const [leadData, setLeadData] = useState({
+    followupDate: '',
     referredBy: '',
     followups: [{
       date: todayStr,
@@ -42,6 +43,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   const handleFollowupDateChange = (dateVal) => {
     setLeadData((prev) => ({
       ...prev,
+      followupDate: dateVal,
       followups: [
         { ...prev.followups[0], date: dateVal },
         ...prev.followups.slice(1)
@@ -76,6 +78,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
         course: studentData.course,
         studentData,
         referredBy: leadData.referredBy,
+        followupDate: leadData.followupDate,
         followups: leadData.followups,
       });
       toast.success('Lead created successfully');
@@ -152,7 +155,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
           <input
             type="date"
             onChange={e => handleFollowupDateChange(e.target.value)}
-            value={leadData.followups[0].date}
+            value={leadData.followupDate}
             className="border p-2 rounded w-full"
             required
           />

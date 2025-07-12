@@ -114,25 +114,25 @@ const Dashboard = () => {
         {/* Dashboard Cards */}
         <main className="flex-1 p-4 bg-gray-50">
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-8">
-            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
+            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start" onClick={() => navigate('/dashboard/Students')}>
               <div className="text-sm text-gray-400 mb-2">Total Students</div>
               <div className="text-3xl font-bold text-green-600">
                 {display(stats.students)}
               </div>
             </div>
-            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
+            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start" onClick={() => navigate('/dashboard/allLeadByAdmission')}>
               <div className="text-sm text-gray-400 mb-2">Total Admissions</div>
               <div className="text-3xl font-bold text-blue-600">
                 {display(stats.admissions)}
               </div>
             </div>
-            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
+            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start" onClick={() => navigate('/dashboard/Courses')}>
               <div className="text-sm text-gray-400 mb-2">Active Courses</div>
               <div className="text-3xl font-bold text-purple-600">
                 {display(stats.courses)}
               </div>
             </div>
-            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start">
+            <div className="bg-white p-4 rounded-2xl shadow flex flex-col items-start" onClick={() => navigate('/dashboard/leads')}>
               <div className="text-sm text-gray-400 mb-2">No. of Enquiries</div>
               <div className="text-3xl font-bold text-orange-500">
                 {display(stats.enquiries)}
@@ -162,7 +162,7 @@ const Dashboard = () => {
                 {display(stats.feesToday, true)}
               </div>
               <button
-                onClick={() => navigate('/fees')}
+                onClick={() => navigate('/dashboard/fees')}
                 className="mt-auto px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
               >
                 View Details
@@ -174,7 +174,7 @@ const Dashboard = () => {
                 {display(stats.followupToday)}
               </div>
               <button
-                onClick={() => navigate('/followup')}
+                onClick={() => navigate('/dashboard/followup')}
                 className="mt-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
               >
                 View List

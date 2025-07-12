@@ -35,6 +35,8 @@ import AllBalance from './reports/allBalance'; // <-- ✅ NEW PAGE
 import AddAccount from './pages/AddAccount';
 import AllExams from './reports/allExams';
 import Institutes from './pages/Institutes';
+import Students from './pages/Students';
+import Fees from './pages/Fees';
 
 export default function App() {
   return (
@@ -54,6 +56,7 @@ export default function App() {
         <Route path="batches" element={<Batches />} />
         <Route path="enquiry" element={<Enquiry />} />
         <Route path="courses" element={<Courses />} />
+        <Route path="students" element={<Students />} />
         <Route path="orgcategories" element={<OrgCategories />} />
         <Route path="education" element={<Education />} />
         <Route path="exam" element={<Exam />} />
@@ -77,6 +80,7 @@ export default function App() {
         <Route path="allBatches" element={<AllBatches />} /> {/* ✅ Added Route */}
         <Route path="whatsapp" element={<WhatsAppAdminPage />} />
          <Route path="allExams" element={<AllExams />} />
+         <Route path="fees" element={<Fees />} />
       </Route>
 
       {/* 🧭 Fallback */}

@@ -40,6 +40,14 @@ const Followup = () => {
   const [actionModal, setActionModal] = useState(null);
   const institute_uuid = localStorage.getItem('institute_uuid');
   const themeColor = getThemeColor();
+  const today = new Date().toISOString().substring(0, 10); 
+  
+  const todaysFollowups = enquiries.filter(e => {
+  const followDate = e.followupDate?.substring(0, 10); 
+  return followDate === today;
+});
+
+
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -62,7 +70,7 @@ const Followup = () => {
 
   const fetchEnquiries = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/record/followup`, {
+      const res = await axios.get(`${BASE_URL}/api/leads`, {
         params: { institute_uuid }
       });
       const { data } = res.data;
@@ -85,25 +93,25 @@ const Followup = () => {
 
     try {
       if (editingId) {
-        await axios.put(`${BASE_URL}/api/record/${editingId}`, payload);
-        toast.success('Enquiry updated');
+        await axios.put(`${BASE_URL}/api/leads/${editingId}`, payload);
+        toast.success('Lead updated');
       } else {
-        await axios.post(`${BASE_URL}/api/record`, payload);
-        toast.success('Enquiry added');
+        await axios.post(`${BASE_URL}/api/leads`, payload);
+        toast.success('Lead added');
       }
       setForm(initialForm);
       setEditingId(null);
       setShowModal(false);
       fetchEnquiries();
     } catch {
-      toast.error('Error submitting enquiry');
+      toast.error('Error submitting lead');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this enquiry?')) return;
+    if (!window.confirm('Delete this lead?')) return;
     try {
-      await axios.delete(`${BASE_URL}/api/enquiry/${id}`);
+      await axios.delete(`${BASE_URL}/api/leads/${id}`);
       toast.success('Deleted');
       fetchEnquiries();
     } catch {
@@ -193,10 +201,11 @@ const Followup = () => {
     refreshMeta();
   }, []);
 
-  const filtered = enquiries.filter(e =>
-    e.firstName?.toLowerCase().includes(search.toLowerCase()) ||
-    e.mobileSelf?.includes(search)
-  );
+ const filtered = enquiries.filter(e =>
+  e.studentData?.firstName?.toLowerCase().includes(search.toLowerCase()) ||
+  e.studentData?.mobileSelf?.includes(search)
+);
+
   return (
     <div className="min-h-screen p-4" style={{ backgroundColor: themeColor }}>
       <Toaster />
@@ -221,26 +230,26 @@ const Followup = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-8 gap-3">
-        {filtered.map((e) => (
+        {todaysFollowups.map((e) => (
           <div
             key={e._id}
             className="bg-white p-4 rounded shadow cursor-pointer hover:ring hover:ring-blue-400"
             onClick={() => setActionModal(e)}
           >
             <div className="font-semibold text-lg">
-              {e.firstName} {e.lastName}
+              {e.studentData?.firstName || ''} {e.studentData?.lastName || ''}
             </div>
             <div className="flex items-center gap-2 text-gray-600 text-sm">
               <a
-                href={`tel:${e.mobileSelf}`}
+                 href={`tel:${e.studentData?.mobileSelf || ''}`}
                 onClick={ev => ev.stopPropagation()}
                 className="hover:text-blue-600 flex items-center"
               >
-                <FaPhoneAlt className="mr-1 text-xl" />
-                {e.mobileSelf}
+              
+                {e.studentData?.mobileSelf}
               </a>
               <a
-                href={`https://wa.me/${e.mobileSelf}`}
+                href={`https://wa.me/${e.studentData?.mobileSelf}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={ev => ev.stopPropagation()}
@@ -251,9 +260,7 @@ const Followup = () => {
 
 
             </div>
-            <div className="text-gray-500 text-xs">
-              {e.course || 'No course selected'}
-            </div>
+           
           </div>
         ))}
       </div>
