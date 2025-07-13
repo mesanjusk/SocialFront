@@ -228,7 +228,7 @@ const User = () => {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
           <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
             <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit User' : 'Add New User'}</h2>
             <form onSubmit={handleSubmit} className="space-y-3">

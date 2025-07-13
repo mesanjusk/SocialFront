@@ -483,9 +483,9 @@ import { getThemeColor } from '../utils/storageUtils';
     });
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto z-[60]">
         <Toaster />
-        <div className="bg-white rounded-lg shadow-lg w-full max-w-xl max-h-[90vh] overflow-y-auto">
+        <div className="bg-white rounded-lg shadow-lg w-full max-w-xl max-h-screen overflow-y-auto">
           <div className="flex justify-between items-center p-4 border-b">
             <h2 className="text-lg font-bold" style={{ color: themeColor }}>
               {editingId ? 'Edit Admission' : 'Add New Admission'}

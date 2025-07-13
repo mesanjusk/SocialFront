@@ -32,7 +32,7 @@ const LeadEditModal = ({ lead, courses, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-black bg-opacity-50 z-[60]">
       <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg">
         <h2 className="text-lg font-semibold mb-4">Edit Lead Details</h2>
         <form onSubmit={handleSubmit} className="space-y-4">

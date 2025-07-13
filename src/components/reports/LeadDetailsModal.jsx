@@ -15,8 +15,8 @@ const LeadDetailsModal = ({
   if (!lead) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-2 my-4 p-3 sm:p-6 overflow-y-auto max-h-[95vh]">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-2 my-4 p-3 sm:p-6 overflow-y-auto max-h-screen">
         {/* Header: Name */}
         <div className="flex flex-col items-start mb-2">
           <h2 className="text-xl font-bold text-gray-900">

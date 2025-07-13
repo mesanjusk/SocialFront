@@ -53,7 +53,7 @@ const ManageExamModal = ({ admission, onClose, onUpdated }) => {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
+      className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-black bg-opacity-40 z-[60]"
       onMouseDown={handleBackdrop}
       aria-modal="true"
       role="dialog"

@@ -177,8 +177,8 @@ center_head_name: '',
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
+          <div className="bg-white p-6 rounded shadow max-w-xl w-full max-h-screen overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit institute' : 'Add New institute'}</h2>
             <form onSubmit={handleSubmit} className="space-y-3">
               <input type="text" value={form.institute_title} onChange={handleInputChange('institute_title')} className="w-full p-2 border rounded" placeholder="institute_title" required />

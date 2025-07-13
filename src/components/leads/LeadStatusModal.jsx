@@ -60,7 +60,7 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-black bg-opacity-50 z-[60]">
       <div className="bg-white rounded shadow-lg p-6 w-full max-w-sm">
         <h2 className="text-lg font-semibold mb-4">Update Lead Status</h2>
         <div className="mb-4">

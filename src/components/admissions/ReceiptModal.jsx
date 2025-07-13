@@ -62,7 +62,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 print:bg-white">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto bg-black bg-opacity-50 print:bg-white">
       {/* Inject CSS for print */}
       <style>{style}</style>
       <div
