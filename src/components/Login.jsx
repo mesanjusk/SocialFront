@@ -30,6 +30,14 @@ const Login = () => {
     }
   }, [navigate, branding]);
 
+  // fetch branding on first load so login page shows correct logo/tagline
+  useEffect(() => {
+    if (!branding) {
+      const insti = getInstituteId(searchParams);
+      fetchBranding(insti, setBranding);
+    }
+  }, [searchParams, branding]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
