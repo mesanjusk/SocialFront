@@ -265,9 +265,9 @@ const Followup = () => {
         ))}
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60] overflow-y-auto">
-          <div className="bg-white p-6 rounded shadow w-full max-w-3xl mx-2">
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
+            <div className="bg-white p-6 rounded shadow w-full max-w-3xl mx-2">
             <h2 className="text-xl font-bold mb-4">{editingId ? 'Edit Enquiry' : 'Add Enquiry'}</h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input value={form.firstName} onChange={handleChange('firstName')} placeholder="First Name" className="border p-2" />
