@@ -128,8 +128,8 @@ const CoursesCategory = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded w-full max-w-md max-h-[90vh] overflow-y-auto shadow">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
+          <div className="bg-white p-6 rounded w-full max-w-md max-h-screen overflow-y-auto shadow">
             <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit Course' : 'Add New Course Category'}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
               <input type="text" value={form.name} onChange={handleChange('name')} className="border p-2 w-full" placeholder="Category Name" required />

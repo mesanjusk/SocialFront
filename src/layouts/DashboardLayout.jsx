@@ -33,7 +33,13 @@ export default function DashboardLayout() {
       <div className="flex-1 flex flex-col">
         <Navbar toggleSidebar={toggleSidebar} />
         <div className="flex flex-1 min-h-0">
-          <main className="flex-1 p-4 overflow-y-auto">
+          {/*
+            The navbar and footer use fixed positioning which can cause
+            page content to be hidden behind them. Add top and bottom
+            padding to the main section so the content is fully
+            visible and scrollable.
+          */}
+          <main className="flex-1 p-4 pt-20 pb-24 overflow-y-auto">
             <Outlet />
           </main>
 

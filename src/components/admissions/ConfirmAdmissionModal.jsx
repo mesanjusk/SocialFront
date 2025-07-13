@@ -56,7 +56,7 @@ const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
   return (
     <>
       <div
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
+        className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-black bg-opacity-40 z-[60]"
         onMouseDown={handleBackdrop}
       >
         <div
@@ -133,7 +133,7 @@ const ConfirmAdmissionModal = ({ admission, onClose, onUpdated }) => {
 export default ConfirmAdmissionModal;
 
 const ConfirmedAdmissionPopup = ({ onClose }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto z-[60]">
     <div className="bg-white p-6 rounded shadow max-w-sm w-full">
       <h2 className="text-xl font-bold mb-4">Confirmed Admission Details</h2>
       

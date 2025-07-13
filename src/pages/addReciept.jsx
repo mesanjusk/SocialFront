@@ -199,7 +199,7 @@ export default function AddReceipt() {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-black bg-opacity-50 z-[60]">
             <Toaster />
             <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg relative">
                 {/* X close button */}
@@ -300,7 +300,7 @@ export default function AddReceipt() {
             </div>
             {/* WhatsApp Confirmation Modal (unchanged) */}
             {showWhatsAppModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto bg-black bg-opacity-40">
                     <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm relative animate-fadeIn">
                         <button
                             className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl p-2 rounded-full focus:outline-none"

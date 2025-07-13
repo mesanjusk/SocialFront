@@ -97,7 +97,7 @@ const LeadFormModal = ({ onClose, onSuccess, institute_uuid }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-black bg-opacity-50 z-[60]">
       <Toaster />
       <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg relative">
         {/* X close button in top right */}

@@ -6,11 +6,11 @@ import React from 'react';
  */
 const Modal = ({ title, onClose, actions, children }) => (
   <div
-    className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+    className="fixed inset-0 z-[60] bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto"
     onClick={onClose}
   >
     <div
-      className="bg-white p-6 rounded shadow max-w-xl w-full max-h-[90vh] overflow-y-auto"
+      className="bg-white p-6 rounded shadow max-w-xl w-full max-h-screen overflow-y-auto"
       onClick={(e) => e.stopPropagation()}
     >
       {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}

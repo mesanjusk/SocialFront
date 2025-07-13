@@ -147,7 +147,7 @@ const PaymentMode = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
           <div className="bg-white p-6 rounded w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit Mode' : 'Add New Mode'}</h2>
             <form onSubmit={handleSubmit} className="space-y-3">

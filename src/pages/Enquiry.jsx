@@ -170,7 +170,7 @@ const Enquiry = () => {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
           <div className="bg-white p-6 rounded max-w-sm w-full">
             <h2 className="text-lg font-bold mb-4">{isEditMode ? 'Edit Enquiry' : 'Add Enquiry'}</h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -226,7 +226,7 @@ const Enquiry = () => {
 
       {/* Follow-Up Modal */}
       {showFollowUpModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
           <div className="bg-white p-6 rounded max-w-sm w-full">
             <h2 className="text-lg font-bold mb-4">Add Follow-Up</h2>
             <form onSubmit={handleFollowUpSubmit} className="flex flex-col gap-3">
@@ -266,7 +266,7 @@ const Enquiry = () => {
 
       {/* Action Modal */}
       {actionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 overflow-y-auto z-[60]">
           <div className="bg-white p-6 rounded max-w-sm w-full">
             <h2 className="text-lg font-bold mb-4">
               {actionModal.firstName} {actionModal.lastName}
