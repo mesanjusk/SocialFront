@@ -10,6 +10,8 @@ const WhatsAppAdminPage = () => {
     const [loading, setLoading] = useState(false);
     const [phone, setPhone] = useState('');
     const [message, setMessage] = useState('');
+    const [bulkNumbers, setBulkNumbers] = useState('');
+    const [scheduleTime, setScheduleTime] = useState('');
 
     const branding = JSON.parse(localStorage.getItem('branding'));
     const institute_uuid = branding?.uuid;
@@ -89,6 +91,27 @@ const WhatsAppAdminPage = () => {
         }
     };
 
+    const scheduleBulkMessage = async () => {
+        if (!bulkNumbers || !message || !scheduleTime) return toast.error('All fields required');
+        if (!institute_uuid) return toast.error('Institute UUID not found.');
+        try {
+            const numbers = bulkNumbers.split(',').map(n => n.trim()).filter(Boolean);
+            await axios.post(`${BASE_URL}/api/whatsapp/schedule`, {
+                numbers,
+                message,
+                schedule: scheduleTime,
+                institute_uuid
+            });
+            toast.success('Bulk message scheduled');
+            setBulkNumbers('');
+            setScheduleTime('');
+            setMessage('');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to schedule');
+        }
+    };
+
     return (
         <div className="max-w-md mx-auto p-4 space-y-4">
             <h1 className="text-2xl font-bold">📲 WhatsApp Admin Panel</h1>
@@ -131,6 +154,34 @@ const WhatsAppAdminPage = () => {
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
                 >
                     Send Message
+                </button>
+            </div>
+
+            <div className="space-y-2 border-t pt-4 mt-6">
+                <h2 className="text-lg font-semibold">Schedule/Bulk Send</h2>
+                <textarea
+                    placeholder="Comma separated numbers"
+                    value={bulkNumbers}
+                    onChange={e => setBulkNumbers(e.target.value)}
+                    className="border w-full p-2 rounded"
+                />
+                <input
+                    type="datetime-local"
+                    value={scheduleTime}
+                    onChange={e => setScheduleTime(e.target.value)}
+                    className="border w-full p-2 rounded"
+                />
+                <textarea
+                    placeholder="Message"
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
+                    className="border w-full p-2 rounded"
+                />
+                <button
+                    onClick={scheduleBulkMessage}
+                    className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 w-full"
+                >
+                    Schedule Bulk Message
                 </button>
             </div>
         </div>

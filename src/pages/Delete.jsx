@@ -607,9 +607,9 @@ import { getThemeColor } from '../utils/storageUtils';
                 />
                 <input placeholder="EMI" value={form.emi} type="number" className="border p-2" readOnly />
                   {installmentPlan.length > 0 && (
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto max-h-[60vh]">
                   <table className="min-w-full border mt-2 text-sm">
-                    <thead>
+                    <thead className="sticky top-0 bg-gray-100">
                       <tr className="bg-gray-100">
                         <th className="border px-2 py-1">#</th>
                         <th className="border px-2 py-1">Due Date</th>
@@ -620,7 +620,7 @@ import { getThemeColor } from '../utils/storageUtils';
                       {installmentPlan.map(p => (
                         <tr key={p.installmentNo}>
                           <td className="border px-2 py-1 text-center truncate">{p.installmentNo}</td>
-                          <td className="border px-2 py-1 truncate">{p.dueDate}</td>
+                          <td className="border px-2 py-1 truncate">{new Date(p.dueDate).toLocaleDateString()}</td>
                           <td className="border px-2 py-1 text-right truncate">{p.amount}</td>
                         </tr>
                       ))}

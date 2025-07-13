@@ -157,7 +157,7 @@ const ReceiptModal = ({ data, institute = {}, onPrint, onClose }) => {
           {fields.installmentPlan.map(p => (
             <tr key={p.installmentNo}>
               <td className="border px-2 py-1 text-center truncate">{p.installmentNo}</td>
-              <td className="border px-2 py-1 truncate">{p.dueDate}</td>
+              <td className="border px-2 py-1 truncate">{new Date(p.dueDate).toLocaleDateString()}</td>
               <td className="border px-2 py-1 text-right truncate">{p.amount}</td>
             </tr>
           ))}

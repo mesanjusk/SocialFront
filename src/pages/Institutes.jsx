@@ -54,9 +54,9 @@ const Institutes = () => {
     <div className="min-h-screen p-6" style={{ backgroundColor: themeColor }}>
       <Toaster position="top-right" />
       <h1 className="text-3xl font-bold text-gray-800 mb-4">Manage Institutes</h1>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[70vh]">
         <table className="min-w-full border border-gray-300 rounded-md">
-          <thead>
+          <thead className="sticky top-0 bg-gray-200">
             <tr className="bg-gray-200 text-center text-sm">
               <th className="p-2 border">Name</th>
               <th className="p-2 border hidden md:table-cell">Center Code</th>

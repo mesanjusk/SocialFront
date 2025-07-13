@@ -107,6 +107,18 @@ const RightDrawer = ({
                     <EventNoteIcon fontSize="small" />
                     Institutes
                   </div>
+                  {user?.role === 'super_admin' && (
+                    <div
+                      onClick={() => {
+                        navigate('/dashboard/tools');
+                        onClose();
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
+                    >
+                      <EventNoteIcon fontSize="small" />
+                      Tools
+                    </div>
+                  )}
                 </>
               )}
             </div>

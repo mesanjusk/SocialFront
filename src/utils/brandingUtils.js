@@ -24,7 +24,7 @@ export const fetchBranding = async (insti, setBranding) => {
       if (link) document.head.removeChild(link);
       link = document.createElement('link');
       link.rel = 'icon';
-      link.href = iconUrl || '/favicon.ico';
+      link.href = iconUrl || '/icon.svg';
       document.head.appendChild(link);
     };
     updateFavicon(data.favicon);

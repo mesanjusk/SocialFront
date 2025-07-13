@@ -33,6 +33,14 @@ const Dashboard = () => {
   const [expired, setExpired] = useState(false);
   const [daysLeft, setDaysLeft] = useState(null);
 
+  useEffect(() => {
+    if (expiryDateStr) {
+      const diff = Math.ceil((new Date(expiryDateStr) - new Date()) / (1000 * 60 * 60 * 24));
+      setDaysLeft(diff);
+      if (diff < 0) setExpired(true);
+    }
+  }, [expiryDateStr]);
+
  useEffect(() => {
   const institute_uuid = localStorage.getItem('institute_uuid');
   const fetchUrl = `${API_URL}?institute_uuid=${institute_uuid}`;
@@ -104,9 +112,9 @@ const Dashboard = () => {
         {/* Institute name on top */}
         
         {/* Days left on trial */}
-        {planType === 'trial' && daysLeft !== null && (
-          <div className="text-center text-orange-500 mb-2">
-            {daysLeft} day{daysLeft !== 1 && 's'} left in your free trial
+        {planType === 'trial' && daysLeft !== null && daysLeft >= 0 && (
+          <div className="bg-orange-100 text-orange-700 text-sm text-center py-2 mb-2">
+            Trial expires in {daysLeft} day{daysLeft !== 1 && 's'}!
           </div>
         )}
         {/* Attendance Board */}

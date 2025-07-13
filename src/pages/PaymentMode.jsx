@@ -103,9 +103,9 @@ const PaymentMode = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[70vh]">
       <table className="min-w-full border">
-        <thead className="bg-gray-100">
+        <thead className="bg-gray-100 sticky top-0">
           <tr>
             
             <th className="p-2 border">Mode</th>

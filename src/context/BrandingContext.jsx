@@ -5,10 +5,11 @@ import BASE_URL from '../config';
 export const BrandingContext = createContext();
 
 const defaultTheme = {
-  color: '#5b5b5b', // fallback green
-  logo: '/logo.png',
-  favicon: '/favicon.ico',
-  institute: 'Instify'
+  color: '#5b5b5b', // fallback theme color
+  logo: '/pwa-512x512.png',
+  favicon: '/icon.svg',
+  institute: 'Instify',
+  tagline: 'Manage your institute with ease'
 };
 
 function hexToRgb(hex) {
@@ -50,7 +51,8 @@ const BrandingProvider = ({ children }) => {
           institute: data.institute || defaultTheme.institute,
           color: data.theme?.color || defaultTheme.color,
           logo: data.logo || defaultTheme.logo,
-          favicon: data.favicon || defaultTheme.favicon
+          favicon: data.favicon || defaultTheme.favicon,
+          tagline: data.tagline || defaultTheme.tagline,
         };
 
         setBranding(final);
@@ -65,7 +67,7 @@ const BrandingProvider = ({ children }) => {
           link.rel = 'icon';
           document.head.appendChild(link);
         }
-        link.href = final.favicon || '/favicon.ico';
+        link.href = final.favicon || '/icon.svg';
 
         document.title = `${final.institute} | Instify`;
       } catch (err) {
@@ -88,3 +90,5 @@ const BrandingProvider = ({ children }) => {
 };
 
 export default BrandingProvider;
+
+export const useBranding = () => React.useContext(BrandingContext);

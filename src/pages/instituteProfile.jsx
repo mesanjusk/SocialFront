@@ -108,7 +108,7 @@ const InstituteProfile = () => {
         link.rel = 'icon';
         document.head.appendChild(link);
       }
-      link.href = updated.theme_favicon || '/favicon.ico';
+      link.href = updated.theme_favicon || '/icon.svg';
 
       localStorage.setItem('institute_title', updated.institute_title);
       localStorage.setItem('theme_color', updated.theme_color);

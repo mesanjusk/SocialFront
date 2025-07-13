@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useApp } from '../context/AppContext';
+import { useBranding } from '../context/BrandingContext';
 import { useNavigate } from 'react-router-dom';
 import logoutUser from '../utils/logout';
 import { FaHeart } from "react-icons/fa";
@@ -12,6 +13,7 @@ import RightDrawer from './navbar/RightDrawer';
 
 export default function Navbar({ toggleSidebar }) {
   const { user, institute, loading } = useApp();
+  const { branding } = useBranding();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [showMasterItems, setShowMasterItems] = useState(false);
@@ -112,12 +114,17 @@ useEffect(() => {
           <button className="md:hidden" onClick={toggleSidebar}>
             {/* sidebar icon here if needed */}
           </button>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="font-bold text-lg text-blue-600 hover:underline focus:outline-none"
-          >
-            {instituteTitle}
-          </button>
+          <div className="leading-tight">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="font-bold text-lg text-blue-600 hover:underline focus:outline-none"
+            >
+              {instituteTitle}
+            </button>
+            {branding?.tagline && (
+              <div className="text-xs text-gray-500">{branding.tagline}</div>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center pr-3 gap-4 relative">

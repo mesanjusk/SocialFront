@@ -37,6 +37,7 @@ import AllExams from './reports/allExams';
 import Institutes from './pages/Institutes';
 import Students from './pages/Students';
 import Fees from './pages/Fees';
+import ToolsPanel from './pages/ToolsPanel';
 
 export default function App() {
   return (
@@ -79,8 +80,9 @@ export default function App() {
         <Route path="allBalance" element={<AllBalance />} /> {/* ✅ Added Route */}
         <Route path="allBatches" element={<AllBatches />} /> {/* ✅ Added Route */}
         <Route path="whatsapp" element={<WhatsAppAdminPage />} />
-         <Route path="allExams" element={<AllExams />} />
-         <Route path="fees" element={<Fees />} />
+        <Route path="allExams" element={<AllExams />} />
+        <Route path="fees" element={<Fees />} />
+        <Route path="tools" element={<ToolsPanel />} />
       </Route>
 
       {/* 🧭 Fallback */}

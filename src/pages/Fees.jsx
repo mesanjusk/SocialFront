@@ -46,9 +46,9 @@ const Fees = () => {
       ) : fees.length === 0 ? (
         <p>No fee collections today.</p>
       ) : (
-        <div className="overflow-auto">
+        <div className="overflow-auto max-h-[70vh]">
           <table className="min-w-full table-auto border border-gray-300">
-            <thead>
+            <thead className="sticky top-0 bg-gray-100">
               <tr className="bg-gray-100">
                 <th className="border px-4 py-2">Student Name</th>
                 <th className="border px-4 py-2">Admission ID</th>
@@ -62,7 +62,7 @@ const Fees = () => {
                   <tr key={`${idx}-${i}`} className="hover:bg-gray-50">
                     <td className="border px-4 py-2">{fee.studentName}</td>
                     <td className="border px-4 py-2">{fee.admissionId}</td>
-                    <td className="border px-4 py-2">{plan.dueDate}</td>
+                    <td className="border px-4 py-2">{new Date(plan.dueDate).toLocaleDateString()}</td>
                     <td className="border px-4 py-2">₹{plan.amount}</td>
                   </tr>
                 ))

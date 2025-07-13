@@ -134,9 +134,9 @@ center_head_name: '',
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[70vh]">
       <table className="min-w-full border border-gray-300 rounded-md">
-        <thead>
+        <thead className="sticky top-0 bg-gray-200">
           <tr className="bg-gray-200 text-center">
             <th className="p-2 border">Name</th>
             <th className="p-2 border hidden md:table-cell">Mobile</th>

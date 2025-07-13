@@ -197,9 +197,9 @@ export default function AddAttendance() {
         <div className="bg-[#e5ddd5] pt-5 max-w-8xl mx-auto px-2">
             <div className="shadow-lg overflow-hidden">
                 <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 p-2">
-                    <div className="bg-white overflow-x-auto w-full md:w-3/4">
+                    <div className="bg-white overflow-x-auto max-h-[70vh] w-full md:w-3/4">
                         <table className="min-w-full text-sm text-center border">
-                            <thead className="bg-gray-100">
+                            <thead className="bg-gray-100 sticky top-0">
                                 <tr>
                                     <th className="px-4 py-2 border">In</th>
                                     <th className="px-4 py-2 border hidden md:table-cell">Lunch</th>

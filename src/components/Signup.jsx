@@ -1,5 +1,6 @@
 // src/pages/Signup.jsx
 import React, { useState, useEffect } from 'react';
+import { useBranding } from '../context/BrandingContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
@@ -8,6 +9,7 @@ import { storeUserData, storeInstituteData } from '../utils/storageUtils';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { branding } = useBranding();
   const [form, setForm] = useState({
     institute_title: '',
     institute_type: '',
@@ -195,10 +197,16 @@ const Signup = () => {
     <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ backgroundColor: themeColor }}>
       <Toaster position="top-center" />
       <div className="bg-white w-full max-w-md rounded-lg shadow p-6">
-        <div className="flex justify-center mb-6">
-          <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
+        <div className="flex justify-center mb-2">
+          <img
+            src="/pwa-512x512.png"
+            alt="Logo"
+            onError={(e) => (e.target.src = '/pwa-512x512.png')}
+            className="w-20 h-20 object-contain"
+          />
         </div>
-        <h2 className="text-2xl font-bold text-center text-theme mb-6">Register Institute</h2>
+        <h2 className="text-2xl font-bold text-center text-theme mb-1">Register Institute</h2>
+        <p className="text-center text-sm text-gray-600 mb-4">{branding?.tagline}</p>
         <form onSubmit={otpSent ? handleSignup : handleSendOtp} className="space-y-4">
           <input
             type="text"
