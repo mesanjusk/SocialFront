@@ -33,7 +33,7 @@ export default function DashboardLayout() {
       <div className="flex-1 flex flex-col">
         <Navbar toggleSidebar={toggleSidebar} />
         <div className="flex flex-1 min-h-0">
-          <main className="flex-1 p-4 overflow-y-auto">
+           <main className="flex-1 p-4 pt-20 pb-24 overflow-y-auto">
             <Outlet />
           </main>
 
