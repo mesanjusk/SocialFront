@@ -18,6 +18,12 @@ const ToolsPanel = () => {
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-bold">Superadmin Tools</h1>
       <p className="text-gray-600">Future tools will appear here.</p>
+      <button
+        onClick={() => navigate('../bulk-generator')}
+        className="text-blue-600 underline"
+      >
+        Open Bulk Generator
+      </button>
       <button onClick={() => navigate(-1)} className="text-blue-600 underline">
         Go Back
       </button>
