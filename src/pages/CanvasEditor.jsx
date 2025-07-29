@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 const CanvasEditor = () => {
   const canvasRef = useRef(null);
@@ -113,60 +111,55 @@ const CanvasEditor = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      <Navbar />
-      <div className="flex flex-1 pt-16">
-        {/* Left Sidebar */}
-        <aside className="w-[10%] border-r bg-gray-50 p-2">Left</aside>
+    <div className="flex h-full">
+      {/* Left Sidebar */}
+      <aside className="w-[10%] min-w-[120px] border-r bg-gray-50 p-2">Left</aside>
 
-        {/* Canvas Area */}
-        <div className="flex-1 relative flex justify-center items-center bg-gray-200">
-          {/* Top Toolbar */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 flex gap-2 bg-white p-2 rounded shadow">
-            <button onClick={addText} className="px-2 py-1 bg-blue-500 text-white rounded">Text</button>
-            <button onClick={addRect} className="px-2 py-1 bg-blue-500 text-white rounded">Rect</button>
-            <button onClick={addCircle} className="px-2 py-1 bg-blue-500 text-white rounded">Circle</button>
-            <label className="px-2 py-1 bg-blue-500 text-white rounded cursor-pointer">
-              Image
-              <input type="file" onChange={addImage} className="hidden" />
-            </label>
-            <button onClick={undo} className="px-2 py-1 bg-blue-500 text-white rounded">Undo</button>
-            <button onClick={redo} className="px-2 py-1 bg-blue-500 text-white rounded">Redo</button>
-          </div>
-
-          {/* Zoom control */}
-          <div className="absolute right-4 top-2 bg-white p-2 rounded shadow">
-            <input type="range" min="0.5" max="2" step="0.1" value={zoom} onChange={handleZoom} />
-          </div>
-
-          {/* Canvas with rulers */}
-          <div className="relative mt-12">
-            <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-gray-200 via-transparent to-transparent text-xs flex justify-between px-2 pointer-events-none">
-              {[...Array(9)].map((_,i)=>(<span key={i}>{i*100}</span>))}
-            </div>
-            <div className="absolute top-0 left-0 bottom-0 w-6 bg-gradient-to-r from-gray-200 via-transparent to-transparent text-xs flex flex-col justify-between py-1 pointer-events-none">
-              {[...Array(7)].map((_,i)=>(<span key={i}>{i*100}</span>))}
-            </div>
-            <canvas ref={canvasRef} className="border" />
-          </div>
-
-          {/* Bottom Tools */}
-          {showTools && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white p-2 rounded shadow flex gap-2">
-              <button onClick={() => canvas?.getActiveObject()?.bringForward()} className="px-2 py-1 bg-blue-500 text-white rounded">Forward</button>
-              <button onClick={() => canvas?.getActiveObject()?.sendBackwards()} className="px-2 py-1 bg-blue-500 text-white rounded">Backward</button>
-              <button onClick={() => { canvas?.remove(canvas?.getActiveObject()); setShowTools(false); }} className="px-2 py-1 bg-blue-500 text-white rounded">Delete</button>
-            </div>
-          )}
+      {/* Canvas Area */}
+      <div className="flex-1 relative flex justify-center items-center bg-gray-200">
+        {/* Top Toolbar */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 flex gap-2 bg-white p-2 rounded shadow">
+          <button onClick={addText} className="px-2 py-1 bg-blue-500 text-white rounded">Text</button>
+          <button onClick={addRect} className="px-2 py-1 bg-blue-500 text-white rounded">Rect</button>
+          <button onClick={addCircle} className="px-2 py-1 bg-blue-500 text-white rounded">Circle</button>
+          <label className="px-2 py-1 bg-blue-500 text-white rounded cursor-pointer">
+            Image
+            <input type="file" onChange={addImage} className="hidden" />
+          </label>
+          <button onClick={undo} className="px-2 py-1 bg-blue-500 text-white rounded">Undo</button>
+          <button onClick={redo} className="px-2 py-1 bg-blue-500 text-white rounded">Redo</button>
         </div>
 
-        {/* Right Sidebar */}
-        <aside className="w-1/4 border-l bg-gray-50 p-2">Right</aside>
+        {/* Zoom control */}
+        <div className="absolute right-4 top-2 bg-white p-2 rounded shadow">
+          <input type="range" min="0.5" max="2" step="0.1" value={zoom} onChange={handleZoom} />
+        </div>
+
+        {/* Canvas with rulers */}
+        <div className="relative mt-12">
+          <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-gray-200 via-transparent to-transparent text-xs flex justify-between px-2 pointer-events-none">
+            {[...Array(9)].map((_, i) => (<span key={i}>{i * 100}</span>))}
+          </div>
+          <div className="absolute top-0 left-0 bottom-0 w-6 bg-gradient-to-r from-gray-200 via-transparent to-transparent text-xs flex flex-col justify-between py-1 pointer-events-none">
+            {[...Array(7)].map((_, i) => (<span key={i}>{i * 100}</span>))}
+          </div>
+          <canvas ref={canvasRef} className="border" />
+        </div>
+
+        {/* Bottom Tools */}
+        {showTools && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white p-2 rounded shadow flex gap-2">
+            <button onClick={() => canvas?.getActiveObject()?.bringForward()} className="px-2 py-1 bg-blue-500 text-white rounded">Forward</button>
+            <button onClick={() => canvas?.getActiveObject()?.sendBackwards()} className="px-2 py-1 bg-blue-500 text-white rounded">Backward</button>
+            <button onClick={() => { canvas?.remove(canvas?.getActiveObject()); setShowTools(false); }} className="px-2 py-1 bg-blue-500 text-white rounded">Delete</button>
+          </div>
+        )}
       </div>
-      <Footer />
+
+      {/* Right Sidebar */}
+      <aside className="w-1/4 min-w-[200px] border-l bg-gray-50 p-2">Right</aside>
     </div>
   );
 };
 
 export default CanvasEditor;
-
