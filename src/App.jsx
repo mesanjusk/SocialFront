@@ -38,6 +38,7 @@ import Institutes from './pages/Institutes';
 import Students from './pages/Students';
 import Fees from './pages/Fees';
 import ToolsPanel from './pages/ToolsPanel';
+import CanvasEditor from "./pages/CanvasEditor";
 
 export default function App() {
   return (
@@ -83,6 +84,7 @@ export default function App() {
         <Route path="allExams" element={<AllExams />} />
         <Route path="fees" element={<Fees />} />
         <Route path="tools" element={<ToolsPanel />} />
+        <Route path="canvas" element={<CanvasEditor />} />
       </Route>
 
       {/* 🧭 Fallback */}
