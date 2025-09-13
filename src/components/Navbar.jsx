@@ -1,33 +1,42 @@
-import { useState, useEffect } from 'react';
-import MenuIcon from '@mui/icons-material/Menu';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useState, useEffect, useRef } from "react";
 import { useApp } from '../context/AppContext';
-import { useBranding } from '../context/BrandingContext';
-import { useNavigate } from 'react-router-dom';
-import logoutUser from '../utils/logout';
-import { FaHeart } from "react-icons/fa";
-import axios from 'axios';
-import BASE_URL from '../config';
+import { useNavigate, useLocation } from "react-router-dom";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import UserMenu from './navbar/UserMenu';
-import RightDrawer from './navbar/RightDrawer';
+import axios from 'axios';
 
-export default function Navbar({ toggleSidebar }) {
+import {
+  FiMenu,
+  FiUser,
+  FiChevronRight,
+  FiChevronDown,
+  FiLogOut,
+  FiUsers,
+  FiBox,
+  FiCheckSquare,
+  FiUserCheck,
+  FiShoppingCart,
+  FiHelpCircle,
+  FiDollarSign,
+  FiRepeat,
+  FiMoreHorizontal,
+} from "react-icons/fi";
+
+const Navbar = () => {
   const { user, institute, loading } = useApp();
-  const { branding } = useBranding();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [showMasterItems, setShowMasterItems] = useState(false);
-  const [showSettingsItems, setShowSettingsItems] = useState(false);
-  const [showButtons, setShowButtons] = useState(false);
-  const [attendanceState, setAttendanceState] = useState(null);
   const [userName, setUserName] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [openGroup, setOpenGroup] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [attendanceState, setAttendanceState] = useState(null);
+  const [showButtons, setShowButtons] = useState(false);
+
   const navigate = useNavigate();
-  const institute_uuid = localStorage.getItem("institute_uuid");
+  const location = useLocation();
+  const dropdownRef = useRef();
 
-  const instituteTitle =
-    institute?.institute_title || institute?.institute_name || 'Your Institute';
-
-  const username = user?.name || 'User';
+const username = user?.name || 'User';
   const role = user?.role || '';
 
 useEffect(() => {
@@ -36,7 +45,7 @@ useEffect(() => {
   }
 }, [user]);
 
-      useEffect(() => {
+    useEffect(() => {
               if (userName) {
                   initAttendanceState(userName);
               }
@@ -46,7 +55,7 @@ useEffect(() => {
         if (!userName) return;
 
         try {
-            const response = await axios.get(`${BASE_URL}/api/attendance/getTodayAttendance/${userName}`);
+            const response = await axios.get(`https://socialbackend-iucy.onrender.com/api/attendance/getTodayAttendance/${userName}`);
             const data = response.data;
 
             if (!data.success || !Array.isArray(data.flow)) {
@@ -71,93 +80,120 @@ useEffect(() => {
         }
     };
 
-    const saveAttendance = async (type) => {
-        if (!userName || !type) return;
 
-        try {
-            const formattedTime = new Date().toLocaleTimeString();
+  const handleLogout = () => {
+    const confirmed = window.confirm("Are you sure you want to log out?");
+    if (confirmed) {
+      localStorage.removeItem("user");
+      navigate("/");
+    }
+  };
 
-            const response = await axios.post(`${BASE_URL}/api/attendance/addAttendance/${institute_uuid}`, {
-                User_name: userName,
-                Type: type,
-                Status: "Present",
-                Time: formattedTime
-            });
-
-            if (response.data.success) {
-                alert(`Attendance saved successfully for ${type}`);
-                
-                await initAttendanceState(userName);
-            } else {
-                alert("Failed to save attendance.");
-            }
-        } catch (error) {
-            console.error("Error saving attendance:", error);
-        }
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+        setOpenGroup(null);
+      }
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const toggleDrawer = () => setIsOpen(!isOpen);
+  const menuGroups = [
+    {
+      group: "Student",
+      icon: FiUsers,
+      items: [
+        { label: "Add Student", path: "/student" },
+      ],
+    },
+    {
+      group: "Course",
+      icon: FiBox,
+      items: [
+        { label: "Course Report", path: "/dashboard/Courses" },
+      ],
+    },
+    {
+      group: "Batche",
+      icon: FiCheckSquare,
+      items: [
+        { label: "Batch Report", path: "/dashboard/Batches" },
+        { label: "Manage Batch", path: "/dashboard/allbatches" }
+      ],
+    },
+    {
+      group: "User",
+      icon: FiUserCheck,
+      items: [
+        { label: "User Report", path: "/dashboard/user" },
+      ],
+    },
+    {
+      group: "Exam",
+      icon: FiShoppingCart,
+      items: [
+        { label: "Exam Report", path: "/dashboard/exam" },
+        { label: "Manage Exam", path: "/dashboard/allexams" }
+      ],
+    },
+    {
+      group: "Education",
+      icon: FiHelpCircle,
+      items: [
+        { label: "Education Report", path: "/dashboard/education" },
+      ],
+    },
+    {
+      group: "Profile",
+      icon: FiDollarSign,
+      items: [
+        { label: "Institute Profile", path: "/dashboard/instituteProfile" },
+        
+      ],
+    },
+   
+  ];
 
-  if (loading) {
-    return (
-      <header className="bg-white shadow-md px-4 py-3 flex justify-between items-center z-30">
-        <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
-        <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-      </header>
-    );
-  }
+  const toggleGroup = (groupName) => {
+    setOpenGroup(prev => (prev === groupName ? null : groupName));
+  };
 
   return (
     <>
-      <header className="bg-white  px-4 py-3 flex justify-between items-center z-30 relative">
-        <div className="flex items-center gap-3">
-          <button className="md:hidden" onClick={toggleSidebar}>
-            {/* sidebar icon here if needed */}
-          </button>
-          <div className="leading-tight">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="font-bold text-lg text-blue-600 hover:underline focus:outline-none"
-            >
-              {instituteTitle}
-            </button>
-            {branding?.tagline && (
-              <div className="text-xs text-gray-500">{branding.tagline}</div>
-            )}
-          </div>
-        </div>
+     <div className="fixed top-0 w-full bg-blue-600 text-white px-4 py-2 flex justify-between items-center z-50 shadow-md">
+  <button
+    onClick={() => navigate("/Home")}
+  >
+    {/* Title text is white by default now */}
+    <h1 className="text-xl font-bold uppercase">SANJU SK</h1>
+  </button>
 
-        <div className="flex items-center pr-3 gap-4 relative">
+  <div className="flex items-center gap-4 relative" ref={dropdownRef}>
+    <button
+      className="flex items-center gap-2 focus:outline-none"
+      onClick={() => {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+          window.location.href = `https://canvas-gray-five.vercel.app/api/auth?token=${encodeURIComponent(token)}`;
+        } else {
+          window.location.href = "https://canvas-gray-five.vercel.app";
+        }
+      }}
+    >
+      {/* Circle stays light for contrast */}
+      <div className="w-8 h-8 bg-blue-200 flex items-center justify-center rounded text-lg font-bold text-blue-700">
+        F
+      </div>
+    </button>
 
-          {/* 1. Square 'F' */}
-          <button
-            className="flex items-center gap-2 focus:outline-none"
-            onClick={() => {/* your action here */ }}
-          >
-            <div className="w-8 h-8 bg-blue-200 flex items-center justify-center rounded text-lg font-bold text-blue-700">
-              F
-            </div>
-          </button>
-
-          {/* 2. Heart Icon */}
-          <button
-            className="flex items-center gap-2 focus:outline-none"
-            onClick={() => {/* your action here */ }}
-          >
-            <FaHeart className="text-2xl text-red-500" />
-          </button>
-
-          {/* 3. User Icon */}
+       {/* 3. User Icon */}
           <button
             className="flex items-center gap-2 focus:outline-none"
             onClick={() => setShowUserMenu((v) => !v)}
           >
-            <AccountCircleIcon className="text-3xl text-blue-500" />
-          </button>
-
-          {/* Drawer/menu icon */}
-          <button onClick={toggleDrawer} className="text-2xl focus:outline-none">
-            <MenuIcon />
+            <AccountCircleIcon className="text-3xl text-white-500" />
           </button>
 
           {showUserMenu && (
@@ -167,28 +203,52 @@ useEffect(() => {
               showButtons={showButtons}
               attendanceState={attendanceState}
               userName={userName}
-              saveAttendance={saveAttendance}
               setShowButtons={setShowButtons}
-              logoutUser={logoutUser}
               onClose={() => setShowUserMenu(false)}
             />
           )}
-        </div>
-      </header>
 
-      {/* Right Drawer */}
-      {isOpen && (
-        <RightDrawer
-          isOpen={isOpen}
-          showMasterItems={showMasterItems}
-          setShowMasterItems={setShowMasterItems}
-          showSettingsItems={showSettingsItems}
-          setShowSettingsItems={setShowSettingsItems}
-          navigate={navigate}
-          user={user}
-          onClose={() => setIsOpen(false)}
-        />
+    <button
+      onClick={() => {
+        setShowDropdown(prev => !prev);
+        setOpenGroup(null);
+      }}
+      className="text-lg"
+    >
+      <FiMenu />
+    </button>
+
+   {showDropdown && ( 
+    <div className="absolute top-10 right-0 w-72 bg-white text-black rounded shadow-lg z-50 max-h-[80vh] overflow-y-auto border border-gray-300"> 
+    {menuGroups.map((group) => group.items.length > 0 ? ( 
+      <div key={group.group} className="border-b border-gray-100"> 
+      <div className="px-4 py-2 text-sm font-semibold bg-gray-50 hover:bg-gray-100 cursor-pointer flex items-center justify-between" onClick={() => toggleGroup(group.group)} > 
+        <div className="flex items-center gap-2"> {group.icon && <group.icon />} <span>{group.group}</span> </div>
+         {openGroup === group.group ? <FiChevronDown /> : <FiChevronRight />} 
+         </div> 
+         {openGroup === group.group && ( 
+          <div className="pl-4"> {group.items.map((item) => ( 
+          <div key={item.label} onClick={() => { navigate(item.path); setShowDropdown(false); setOpenGroup(null); }} className="text-sm py-1 px-2 rounded hover:bg-gray-100 cursor-pointer flex items-center gap-2" > 
+          <FiChevronRight /> 
+          <span>{item.label}</span> 
+          </div> 
+        ))} 
+        </div> 
+      )} 
+      </div>
+     ) : null )}
+      <div onClick={handleLogout} className="px-4 py-3 text-red-500 hover:bg-gray-100 cursor-pointer text-sm font-semibold border-t flex items-center gap-2" > 
+        <FiLogOut /> 
+        <span>Logout</span> 
+        </div> 
+        </div> 
       )}
+
+  </div>
+</div>
+
     </>
   );
-}
+};
+
+export default Navbar;

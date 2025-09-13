@@ -109,7 +109,7 @@ const AllBalance = () => {
     };
 
     const viewTransactions = (customer) => {
-        navigate('/allTransaction3', { state: { customer } });
+        navigate('/dashboard/allTransaction3', { state: { customer } });
     };
 
     // Export to Excel

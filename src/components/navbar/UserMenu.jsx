@@ -26,12 +26,6 @@ const UserMenu = ({
         saveAttendance={saveAttendance}
         setShowButtons={setShowButtons}
       />
-      <button
-        onClick={logoutUser}
-        className="w-full text-left px-4 py-2 rounded bg-red-50 hover:bg-red-100 text-red-600 font-medium mt-2"
-      >
-        Logout
-      </button>
     </div>
   </>
 );

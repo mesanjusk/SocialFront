@@ -43,7 +43,6 @@ const Login = () => {
     setLoading(true);
     const insti = getInstituteId(searchParams);
     try {
-      // Make sure backend uses bcrypt.compare for hashed password check!
       const { data } = await axios.post(`${BASE_URL}/api/auth/user/login`, { username, password });
       if (data.message !== 'success') {
         toast.error(data.message || 'Invalid credentials');
@@ -57,6 +56,7 @@ const Login = () => {
         role: data.user_role,
         username: data.login_username,
       });
+      localStorage.setItem("authToken", data.token);
       storeInstituteData({
         institute_uuid: data.institute_uuid,
         institute_name: data.institute_name,
@@ -85,17 +85,24 @@ const Login = () => {
     }
   };
 
+  const handleLogoClick = () => {
+    // redirect in the same tab and keep login session (localStorage/sessionStorage stays intact)
+    window.location.href = 'https://canvas-gray-five.vercel.app';
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
       <Toaster position="top-center" />
       <div className="bg-white w-full max-w-md rounded-lg shadow p-6">
         <div className="flex justify-center mb-2">
-          <img
-            src={branding?.logo || '/pwa-512x512.png'}
-            alt="Logo"
-            onError={(e) => (e.target.src = '/pwa-512x512.png')}
-            className="w-20 h-20 object-contain"
-          />
+          <button onClick={handleLogoClick} className="focus:outline-none">
+            <img
+              src={branding?.logo || '/pwa-512x512.png'}
+              alt="Logo"
+              onError={(e) => (e.target.src = '/pwa-512x512.png')}
+              className="w-20 h-20 object-contain cursor-pointer"
+            />
+          </button>
         </div>
         <h2 className="text-2xl font-bold text-center mb-1" style={{ color: branding?.theme?.color || '#5b5b5b' }}>
           {branding?.institute || 'Login'}
@@ -115,7 +122,7 @@ const Login = () => {
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value);
-                setPassword(e.target.value); // Optional: auto-fill password for easy login
+                setPassword(e.target.value); // Optional auto-fill
               }}
               required
               className="w-full px-3 py-2 border rounded shadow-sm focus:outline-none"
