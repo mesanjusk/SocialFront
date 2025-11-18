@@ -1,3 +1,4 @@
+// AUTO-GENERATED. Run `npm run sync:tokens` to rebuild.
 export const utilityTokens = [
   '-translate-y-1/2',
   'absolute',
@@ -7,6 +8,7 @@ export const utilityTokens = [
   'animate-spin',
   'bg-[#e5ddd5]',
   'bg-black',
+  'bg-blue-100',
   'bg-blue-200',
   'bg-blue-500',
   'bg-blue-600',
@@ -25,6 +27,7 @@ export const utilityTokens = [
   'bg-orange-100',
   'bg-pink-600',
   'bg-purple-600',
+  'bg-red-100',
   'bg-red-500',
   'bg-red-600',
   'bg-secondary',
@@ -200,6 +203,7 @@ export const utilityTokens = [
   'p-4',
   'p-6',
   'p-8',
+  'payable',
   'pb-1',
   'pb-2',
   'pb-20',
@@ -224,6 +228,7 @@ export const utilityTokens = [
   'py-3',
   'py-4',
   'py-6',
+  'receivable',
   'relative',
   'right-0',
   'right-2',
@@ -279,6 +284,7 @@ export const utilityTokens = [
   'text-purple-600',
   'text-red-500',
   'text-red-600',
+  'text-red-700',
   'text-right',
   'text-sm',
   'text-theme',
@@ -319,4 +325,5 @@ export const utilityTokens = [
   'z-40',
   'z-50',
   'z-[60]',
+  'zero',
 ];
