@@ -1,27 +1,32 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider, CssBaseline, GlobalStyles } from '@mui/material';
 import App from './App';
 
 import BrandingProvider from './context/BrandingContext';
 import { AppProvider } from './context/AppContext';
 import MetadataProvider from './context/MetadataContext';
-
-import './index.css'; // Tailwind CSS
+import theme from './theme';
+import { utilityStyles } from './styles/utilityStyles';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <BrandingProvider>
-        <AppProvider>
-          <MetadataProvider>
-            <App />
-          </MetadataProvider>
-        </AppProvider>
-      </BrandingProvider>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <GlobalStyles styles={utilityStyles} />
+      <BrowserRouter>
+        <BrandingProvider>
+          <AppProvider>
+            <MetadataProvider>
+              <App />
+            </MetadataProvider>
+          </AppProvider>
+        </BrandingProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   </React.StrictMode>
 );
 

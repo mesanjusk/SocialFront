@@ -1,6 +1,6 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Box } from '@mui/material';
 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -23,18 +23,17 @@ export default function DashboardLayout() {
 
   return (
     <>
-      <div className="flex min-h-screen">
-        {/* Main layout */}
-        <div className="flex-1 flex flex-col">
+      <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Navbar toggleSidebar={toggleSidebar} />
-          <div className="flex flex-1 min-h-0">
-            <main className="flex-1 p-4 pt-20 pb-24 overflow-y-auto">
+          <Box sx={{ flex: 1, display: 'flex', minHeight: 0 }}>
+            <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, pt: 12, pb: 8, overflowY: 'auto' }}>
               <Outlet />
-            </main>
-          </div>
-        </div>
+            </Box>
+          </Box>
+        </Box>
         <FloatingButtons buttonType="bars" buttonsList={buttonsList} direction="up" />
-      </div>
+      </Box>
       <Footer />
     </>
   );
