@@ -34,6 +34,7 @@ const Navbar = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const currentUsername = location.pathname.split('/').filter(Boolean)[0] || 'admin';
   const dropdownRef = useRef();
 
 const username = user?.name || 'User';
@@ -149,8 +150,14 @@ useEffect(() => {
       group: "Profile",
       icon: FiDollarSign,
       items: [
-        { label: "Institute Profile", path: "/dashboard/instituteProfile" },
-        
+        { label: "Institute Profile", path: `/${currentUsername}/instituteProfile` },
+      ],
+    },
+    {
+      group: "Integrations",
+      icon: FiRepeat,
+      items: [
+        { label: "WhatsApp Integration", path: `/${currentUsername}/dashboard/centers/${localStorage.getItem('institute_uuid') || ''}/whatsapp` },
       ],
     },
    

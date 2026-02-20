@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import BASE_URL from '../../config';
 import { useNavigate } from 'react-router-dom';
 import LeadEditModal from './LeadEditModal';
+import SendWhatsAppMessageModal from '../../modules/whatsapp/components/SendWhatsAppMessageModal';
 
 const LeadStatusModal = ({ lead, onClose, refresh }) => {
   const [status, setStatus] = useState(lead.leadStatus || '');
@@ -11,6 +12,7 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
   const [followUpDate, setFollowUpDate] = useState(new Date().toISOString().substring(0, 10));
   const [loading, setLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
 
@@ -113,12 +115,18 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
             </button>
           </div>
         )}
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 flex-wrap">
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
           >
             Cancel
+          </button>
+          <button
+            onClick={() => setShowWhatsAppModal(true)}
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Send WhatsApp Message
           </button>
           <button
             onClick={() => setShowEditModal(true)}
@@ -135,6 +143,14 @@ const LeadStatusModal = ({ lead, onClose, refresh }) => {
           </button>
         </div>
       </div>
+      {showWhatsAppModal && (
+        <SendWhatsAppMessageModal
+          isOpen={showWhatsAppModal}
+          centerId={localStorage.getItem('institute_uuid')}
+          contact={lead?.studentData?.mobileSelf || lead?.student?.mobileSelf || ''}
+          onClose={() => setShowWhatsAppModal(false)}
+        />
+      )}
       {showEditModal && (
         <LeadEditModal
           lead={lead}
