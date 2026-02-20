@@ -3,6 +3,12 @@ import toast from 'react-hot-toast';
 import { connectEmbedded, connectManual } from '../services/whatsapp.api';
 
 const FB_SDK_ID = 'facebook-jssdk';
+const FB_VERSION = 'v21.0';
+const META_SCOPES = [
+  'business_management',
+  'whatsapp_business_management',
+  'whatsapp_business_messaging',
+].join(',');
 
 const loadFacebookSdk = () => {
   if (window.FB) return Promise.resolve(window.FB);
@@ -23,6 +29,48 @@ const loadFacebookSdk = () => {
     script.onload = () => resolve(window.FB);
     script.onerror = () => reject(new Error('Failed to load Facebook SDK'));
     document.body.appendChild(script);
+  });
+};
+
+const normalizeApiErrors = (err) => {
+  const responseData = err?.response?.data;
+  if (Array.isArray(responseData?.errors)) return responseData.errors.join('\n');
+  if (responseData?.errors && typeof responseData.errors === 'object') {
+    return Object.values(responseData.errors).flat().join('\n');
+  }
+  return responseData?.message || err?.message || 'Request failed.';
+};
+
+const requestEmbeddedSignupCode = async () => {
+  const FB = await loadFacebookSdk();
+  if (!FB) {
+    throw new Error('Facebook SDK not available.');
+  }
+
+  const appId = import.meta.env.VITE_META_APP_ID;
+  const configId = import.meta.env.VITE_META_WHATSAPP_CONFIG_ID;
+  if (!appId) {
+    throw new Error('VITE_META_APP_ID is missing.');
+  }
+
+  FB.init({ appId, cookie: true, xfbml: false, version: FB_VERSION });
+
+  return new Promise((resolve, reject) => {
+    FB.login(
+      (response) => {
+        if (response?.authResponse?.code) {
+          resolve(response.authResponse.code);
+          return;
+        }
+        reject(new Error('Meta authorization was cancelled or no auth code was returned.'));
+      },
+      {
+        scope: META_SCOPES,
+        response_type: 'code',
+        override_default_response_type: true,
+        ...(configId ? { config_id: configId } : {}),
+      },
+    );
   });
 };
 
@@ -47,18 +95,13 @@ const ConnectWhatsAppModal = ({ isOpen, centerId, onClose, onConnected }) => {
     setSubmitting(true);
     setErrors('');
     try {
-      await loadFacebookSdk();
-      const code = window.prompt('Paste Meta Embedded Signup authorization code');
-      if (!code) {
-        setSubmitting(false);
-        return;
-      }
+      const code = await requestEmbeddedSignupCode();
       await connectEmbedded({ code, centerId });
       toast.success('WhatsApp connected with Meta Embedded Signup.');
       onConnected();
       onClose();
     } catch (err) {
-      setErrors(err?.response?.data?.message || 'Embedded signup failed.');
+      setErrors(normalizeApiErrors(err));
     } finally {
       setSubmitting(false);
     }
@@ -71,15 +114,11 @@ const ConnectWhatsAppModal = ({ isOpen, centerId, onClose, onConnected }) => {
     try {
       await connectManual({ centerId, ...manual });
       toast.success('Manual WhatsApp connection successful.');
+      setManual({ accessToken: '', phoneNumberId: '', wabaId: '', displayName: '' });
       onConnected();
       onClose();
     } catch (err) {
-      const backendErrors = err?.response?.data?.errors;
-      if (Array.isArray(backendErrors) && backendErrors.length) {
-        setErrors(backendErrors.join('\n'));
-      } else {
-        setErrors(err?.response?.data?.message || 'Manual connect failed.');
-      }
+      setErrors(normalizeApiErrors(err));
     } finally {
       setSubmitting(false);
     }

@@ -35,7 +35,7 @@ const SendWhatsAppMessageModal = ({ isOpen, centerId, contact, onClose }) => {
       }
     };
     load();
-  }, [isOpen, centerId]);
+  }, [isOpen, centerId, form.integrationId]);
 
   const selectedIntegration = useMemo(() => numbers.find((n) => (n.id || n.integrationId) === form.integrationId), [numbers, form.integrationId]);
 

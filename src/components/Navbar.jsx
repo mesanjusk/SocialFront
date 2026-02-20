@@ -150,7 +150,7 @@ useEffect(() => {
       group: "Profile",
       icon: FiDollarSign,
       items: [
-        { label: "Institute Profile", path: `/${currentUsername}/instituteProfile` },
+        { label: "Institute Profile", path: "/dashboard/instituteProfile" },
       ],
     },
     {
