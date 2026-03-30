@@ -7,6 +7,7 @@ import App from './App';
 import BrandingProvider from './context/BrandingContext';
 import { AppProvider } from './context/AppContext';
 import MetadataProvider from './context/MetadataContext';
+import { WhatsAppCloudProvider } from './context/WhatsAppCloudContext';
 import theme from './theme';
 import { utilityStyles } from './styles/utilityStyles';
 
@@ -21,7 +22,9 @@ root.render(
         <BrandingProvider>
           <AppProvider>
             <MetadataProvider>
-              <App />
+              <WhatsAppCloudProvider>
+                <App />
+              </WhatsAppCloudProvider>
             </MetadataProvider>
           </AppProvider>
         </BrandingProvider>
