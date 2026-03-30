@@ -82,8 +82,9 @@ export default function App() {
         <Route path="allAttendance" element={<AllAttendance />} />
         <Route path="allBalance" element={<AllBalance />} /> {/* ✅ Added Route */}
         <Route path="allBatches" element={<AllBatches />} /> {/* ✅ Added Route */}
+        <Route path="whatsapp" element={<WhatsAppAdminPage />} />
         <Route path="whatsapp-admin" element={<WhatsAppAdminPage />} />
-        <Route path="whatsapp" element={<WhatsAppInbox />} />
+        <Route path="whatsapp/inbox" element={<WhatsAppInbox />} />
         <Route path="dashboard/centers/:centerId/whatsapp" element={<WhatsAppIntegrationSettingsPage />} />
         <Route path="allExams" element={<AllExams />} />
         <Route path="fees" element={<Fees />} />
