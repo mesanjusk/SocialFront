@@ -1,19 +1,24 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { getConnectedNumbers, getTemplates, sendTextMessage } from '../services/whatsapp.api';
+import { getConnectedNumbers, getTemplates, sendWhatsAppMessage } from '../services/whatsapp.api';
+
+const emptyForm = (contact = '') => ({
+  integrationId: '',
+  mode: 'text',
+  message: '',
+  templateName: '',
+  paramsText: '',
+  mediaType: 'image',
+  mediaUrl: '',
+  caption: '',
+  to: contact || '',
+});
 
 const SendWhatsAppMessageModal = ({ isOpen, centerId, contact, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [numbers, setNumbers] = useState([]);
   const [templates, setTemplates] = useState([]);
-  const [form, setForm] = useState({
-    integrationId: '',
-    mode: 'text',
-    message: '',
-    templateName: '',
-    to: contact || '',
-  });
-  const [result, setResult] = useState(null);
+  const [form, setForm] = useState(emptyForm(contact));
 
   useEffect(() => {
     setForm((prev) => ({ ...prev, to: contact || '' }));
@@ -21,48 +26,48 @@ const SendWhatsAppMessageModal = ({ isOpen, centerId, contact, onClose }) => {
 
   useEffect(() => {
     if (!isOpen || !centerId) return;
-    const load = async () => {
+    (async () => {
       try {
-        const numberRes = await getConnectedNumbers(centerId);
-        const rows = numberRes?.data || numberRes?.numbers || numberRes || [];
-        const list = Array.isArray(rows) ? rows : [];
-        setNumbers(list);
-        if (list[0] && !form.integrationId) {
-          setForm((prev) => ({ ...prev, integrationId: list[0].id || list[0].integrationId || '' }));
+        const response = await getConnectedNumbers(centerId);
+        const rows = Array.isArray(response?.data) ? response.data : [];
+        setNumbers(rows);
+        if (rows[0]) {
+          setForm((prev) => ({ ...prev, integrationId: prev.integrationId || rows[0].id || rows[0].integrationId || '' }));
         }
       } catch (err) {
         toast.error(err?.response?.data?.message || 'Unable to load connected numbers.');
       }
-    };
-    load();
-  }, [isOpen, centerId, form.integrationId]);
-
-  const selectedIntegration = useMemo(() => numbers.find((n) => (n.id || n.integrationId) === form.integrationId), [numbers, form.integrationId]);
+    })();
+  }, [isOpen, centerId]);
 
   useEffect(() => {
     if (!isOpen || !form.integrationId || form.mode !== 'template') return;
-    const loadTemplates = async () => {
+    (async () => {
       try {
         const response = await getTemplates(centerId, form.integrationId);
-        const rows = response?.data || response?.templates || response || [];
-        setTemplates(Array.isArray(rows) ? rows : []);
+        setTemplates(Array.isArray(response?.data) ? response.data : []);
       } catch (err) {
         toast.error(err?.response?.data?.message || 'Unable to load templates.');
       }
-    };
-    loadTemplates();
+    })();
   }, [isOpen, centerId, form.integrationId, form.mode]);
+
+  const selectedIntegration = useMemo(
+    () => numbers.find((n) => (n.id || n.integrationId) === form.integrationId),
+    [numbers, form.integrationId],
+  );
 
   if (!isOpen) return null;
 
+  const updateField = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
   const handleSend = async () => {
-    if (!form.integrationId || !form.to) {
-      toast.error('Connected number and recipient are required.');
-      return;
-    }
+    if (!form.integrationId || !form.to) return toast.error('Connected number and recipient are required.');
+    if (form.mode === 'text' && !form.message.trim()) return toast.error('Message is required.');
+    if (form.mode === 'template' && !form.templateName) return toast.error('Template is required.');
+    if (form.mode === 'media' && !form.mediaUrl.trim()) return toast.error('Media URL is required.');
 
     setLoading(true);
-    setResult(null);
     try {
       const payload = {
         centerId,
@@ -72,10 +77,18 @@ const SendWhatsAppMessageModal = ({ isOpen, centerId, contact, onClose }) => {
         type: form.mode,
         message: form.mode === 'text' ? form.message : undefined,
         templateName: form.mode === 'template' ? form.templateName : undefined,
+        params: form.mode === 'template'
+          ? form.paramsText.split('\n').map((item) => item.trim()).filter(Boolean)
+          : undefined,
+        mediaType: form.mode === 'media' ? form.mediaType : undefined,
+        mediaUrl: form.mode === 'media' ? form.mediaUrl : undefined,
+        caption: form.mode === 'media' ? form.caption : undefined,
       };
-      const response = await sendTextMessage(payload);
-      setResult(response?.data || response);
+
+      await sendWhatsAppMessage(payload);
       toast.success('WhatsApp message sent.');
+      setForm(emptyForm(contact));
+      onClose();
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to send WhatsApp message.');
     } finally {
@@ -85,38 +98,65 @@ const SendWhatsAppMessageModal = ({ isOpen, centerId, contact, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-lg shadow-lg">
+      <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg max-h-[90vh] overflow-y-auto">
         <div className="px-4 py-3 border-b flex justify-between items-center">
           <h3 className="font-semibold">Send WhatsApp Message</h3>
           <button onClick={onClose}>✕</button>
         </div>
 
-        <div className="p-4 space-y-3">
-          <select className="w-full border rounded p-2" value={form.integrationId} onChange={(e) => setForm((p) => ({ ...p, integrationId: e.target.value }))}>
+        <div className="p-4 space-y-4">
+          <select className="w-full border rounded p-2" value={form.integrationId} onChange={(e) => updateField('integrationId', e.target.value)}>
             <option value="">Select Connected Number</option>
             {numbers.map((n) => (
               <option key={n.id || n.integrationId} value={n.id || n.integrationId}>
-                {(n.displayName || n.phoneNumber || n.phone_number) + ` (${n.wabaId || n.waba_id || 'WABA'})`}
+                {n.displayName || n.phoneNumber || n.phone_number || n.phoneNumberId}
               </option>
             ))}
           </select>
 
-          <input className="w-full border rounded p-2" value={form.to} onChange={(e) => setForm((p) => ({ ...p, to: e.target.value }))} placeholder="Recipient phone" />
+          <input className="w-full border rounded p-2" value={form.to} onChange={(e) => updateField('to', e.target.value)} placeholder="Recipient phone with country code" />
 
-          <div className="flex gap-3 text-sm">
-            <label><input type="radio" checked={form.mode === 'text'} onChange={() => setForm((p) => ({ ...p, mode: 'text' }))} /> Text</label>
-            <label><input type="radio" checked={form.mode === 'template'} onChange={() => setForm((p) => ({ ...p, mode: 'template' }))} /> Template</label>
+          <div className="flex gap-4 text-sm flex-wrap">
+            {['text', 'template', 'media'].map((mode) => (
+              <label key={mode} className="flex items-center gap-2">
+                <input type="radio" checked={form.mode === mode} onChange={() => updateField('mode', mode)} />
+                <span className="capitalize">{mode}</span>
+              </label>
+            ))}
           </div>
 
-          {form.mode === 'text' ? (
-            <textarea className="w-full border rounded p-2" rows={4} placeholder="Type message" value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} />
-          ) : (
-            <select className="w-full border rounded p-2" value={form.templateName} onChange={(e) => setForm((p) => ({ ...p, templateName: e.target.value }))}>
-              <option value="">Select Template</option>
-              {templates.map((t) => (
-                <option key={t.id || t.name} value={t.name}>{t.name}</option>
-              ))}
-            </select>
+          {form.mode === 'text' && (
+            <textarea className="w-full border rounded p-2" rows={5} placeholder="Type message" value={form.message} onChange={(e) => updateField('message', e.target.value)} />
+          )}
+
+          {form.mode === 'template' && (
+            <>
+              <select className="w-full border rounded p-2" value={form.templateName} onChange={(e) => updateField('templateName', e.target.value)}>
+                <option value="">Select Template</option>
+                {templates.map((t) => (
+                  <option key={t.id || t.name} value={t.name}>{`${t.name} (${t.language || 'en_US'})`}</option>
+                ))}
+              </select>
+              <textarea
+                className="w-full border rounded p-2"
+                rows={4}
+                placeholder="Optional template body params, one per line"
+                value={form.paramsText}
+                onChange={(e) => updateField('paramsText', e.target.value)}
+              />
+            </>
+          )}
+
+          {form.mode === 'media' && (
+            <>
+              <select className="w-full border rounded p-2" value={form.mediaType} onChange={(e) => updateField('mediaType', e.target.value)}>
+                <option value="image">Image</option>
+                <option value="document">Document</option>
+                <option value="video">Video</option>
+              </select>
+              <input className="w-full border rounded p-2" value={form.mediaUrl} onChange={(e) => updateField('mediaUrl', e.target.value)} placeholder="Public media URL" />
+              <textarea className="w-full border rounded p-2" rows={3} placeholder="Caption (optional)" value={form.caption} onChange={(e) => updateField('caption', e.target.value)} />
+            </>
           )}
 
           <button onClick={handleSend} disabled={loading} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
@@ -124,12 +164,8 @@ const SendWhatsAppMessageModal = ({ isOpen, centerId, contact, onClose }) => {
           </button>
 
           {selectedIntegration && (
-            <div className="text-xs text-gray-500">Using: {selectedIntegration.phoneNumber || selectedIntegration.phone_number || selectedIntegration.displayName}</div>
-          )}
-
-          {result && (
-            <div className="bg-green-50 text-green-700 text-sm p-2 rounded">
-              Status: {result.status || result.messageStatus || 'sent'}
+            <div className="text-xs text-gray-500">
+              Using: {selectedIntegration.displayName || selectedIntegration.phoneNumberId || selectedIntegration.phone_number}
             </div>
           )}
         </div>

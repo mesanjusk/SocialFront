@@ -158,7 +158,6 @@ useEffect(() => {
       icon: FiRepeat,
       items: [
         { label: "WhatsApp Integration", path: `/${currentUsername}/dashboard/centers/${localStorage.getItem('institute_uuid') || ''}/whatsapp` },
-        { label: "WhatsApp Inbox", path: `/${currentUsername}/whatsapp/inbox` },
       ],
     },
    

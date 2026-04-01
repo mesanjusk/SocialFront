@@ -25,7 +25,6 @@ import AddLead from './pages/AddLead';
 import AddNew from './components/admissions/AddAdmission';
 import Followup from './pages/Followup';
 import WhatsAppAdminPage from './pages/WhatsAppAdminPage';
-import WhatsAppInbox from './pages/WhatsAppInbox';
 import AddReciept from './pages/addReciept';
 import AddPayment from './pages/addPayment';
 import AllLeadByAdmission from './reports/allLeadByAdmission';
@@ -83,8 +82,6 @@ export default function App() {
         <Route path="allBalance" element={<AllBalance />} /> {/* ✅ Added Route */}
         <Route path="allBatches" element={<AllBatches />} /> {/* ✅ Added Route */}
         <Route path="whatsapp" element={<WhatsAppAdminPage />} />
-        <Route path="whatsapp-admin" element={<WhatsAppAdminPage />} />
-        <Route path="whatsapp/inbox" element={<WhatsAppInbox />} />
         <Route path="dashboard/centers/:centerId/whatsapp" element={<WhatsAppIntegrationSettingsPage />} />
         <Route path="allExams" element={<AllExams />} />
         <Route path="fees" element={<Fees />} />
