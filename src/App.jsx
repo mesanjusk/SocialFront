@@ -37,6 +37,7 @@ import AllExams from './reports/allExams';
 import Institutes from './pages/Institutes';
 import Students from './pages/Students';
 import Fees from './pages/Fees';
+import BulkGenerator from './pages/BulkGenerator';
 import ToolsPanel from './pages/ToolsPanel';
 import AllTransaction3 from './reports/allTransaction3';
 import WhatsAppIntegrationSettingsPage from './modules/whatsapp/pages/WhatsAppIntegrationSettingsPage';
@@ -85,6 +86,7 @@ export default function App() {
         <Route path="dashboard/centers/:centerId/whatsapp" element={<WhatsAppIntegrationSettingsPage />} />
         <Route path="allExams" element={<AllExams />} />
         <Route path="fees" element={<Fees />} />
+        <Route path="bulk-generator" element={<BulkGenerator />} />
         <Route path="tools" element={<ToolsPanel />} />
         <Route path="allTransaction3" element={< AllTransaction3 />} />
       </Route>
